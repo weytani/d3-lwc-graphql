@@ -1,13 +1,20 @@
 // ABOUTME: Integration tests for d3GanttChart verifying real service pipelines (chartUtils date utils, themeService).
-// ABOUTME: Only D3, NavigationMixin, and ShowToastEvent are mocked; all utility services use real implementations.
+// ABOUTME: Only D3, Apex, NavigationMixin, and ShowToastEvent are mocked; all utility services use real implementations.
 
 import { createElement } from "lwc";
 import D3GanttChart from "c/d3GanttChart";
 import { loadD3 } from "c/d3Lib";
+import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
 
 jest.mock("c/d3Lib", () => ({
   loadD3: jest.fn()
 }));
+
+jest.mock(
+  "@salesforce/apex/D3ChartController.executeQuery",
+  () => ({ default: jest.fn() }),
+  { virtual: true }
+);
 
 jest.mock(
   "lightning/platformShowToastEvent",
@@ -119,6 +126,7 @@ describe("c-d3-gantt-chart integration", () => {
 
     mockD3 = createMockD3();
     loadD3.mockResolvedValue(mockD3);
+    executeQuery.mockResolvedValue(SAMPLE_DATA);
 
     consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
     consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
@@ -228,6 +236,41 @@ describe("c-d3-gantt-chart integration", () => {
       const passedData = chartDataCall[0];
       expect(passedData).toHaveLength(1);
       expect(passedData[0].label).toBe("Good");
+    });
+
+    it("passes SOQL query results through the same date pipeline", async () => {
+      const soqlRows = [
+        {
+          Name: "Phase 1",
+          Project_Start__c: "2024-05-01",
+          Project_End__c: "2024-06-01"
+        }
+      ];
+      executeQuery.mockResolvedValue(soqlRows);
+
+      await createChart({
+        recordCollection: [],
+        objectApiName: "",
+        soqlQuery:
+          "SELECT Name, Project_Start__c, Project_End__c FROM Opportunity"
+      });
+
+      expect(executeQuery).toHaveBeenCalledWith({
+        queryString:
+          "SELECT Name, Project_Start__c, Project_End__c FROM Opportunity"
+      });
+
+      const dataCalls = mockD3.data.mock.calls;
+      const chartDataCall = dataCalls.find(
+        (call) =>
+          Array.isArray(call[0]) && call[0].length > 0 && call[0][0].label
+      );
+      expect(chartDataCall).toBeTruthy();
+      const passedData = chartDataCall[0];
+      expect(passedData[0].label).toBe("Phase 1");
+      expect(passedData[0].start.getTime()).toBe(
+        new Date("2024-05-01").getTime()
+      );
     });
   });
 

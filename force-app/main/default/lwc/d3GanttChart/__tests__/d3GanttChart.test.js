@@ -1,14 +1,27 @@
 // ABOUTME: Unit tests for the d3GanttChart Lightning Web Component.
-// ABOUTME: Tests init, date-range data handling, scaleTime domain, task rects, config, themes, tooltip, resize, error recovery, and GraphQL path.
+// ABOUTME: Tests init, date-range data handling, scaleTime domain, task rects, config, themes, tooltip, resize, error recovery.
 
 import { createElement } from "lwc";
 import D3GanttChart from "c/d3GanttChart";
 import { loadD3 } from "c/d3Lib";
-import { graphql } from "lightning/graphql";
+import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
+import getDateRangeData from "@salesforce/apex/D3ChartController.getDateRangeData";
 
 jest.mock("c/d3Lib", () => ({
   loadD3: jest.fn()
 }));
+
+jest.mock(
+  "@salesforce/apex/D3ChartController.executeQuery",
+  () => ({ default: jest.fn() }),
+  { virtual: true }
+);
+
+jest.mock(
+  "@salesforce/apex/D3ChartController.getDateRangeData",
+  () => ({ default: jest.fn() }),
+  { virtual: true }
+);
 
 // ═══════════════════════════════════════════════════════════════
 // MOCK D3 FACTORY — Gantt adds a callable scaleTime
@@ -63,15 +76,6 @@ const createMockD3 = () => {
   return mockD3;
 };
 
-// Minimal chainable D3 stub: every call returns the same chainable object.
-function makeD3Stub() {
-  const chain = new Proxy(function () {}, {
-    get: () => () => chain,
-    apply: () => chain
-  });
-  return chain;
-}
-
 // ═══════════════════════════════════════════════════════════════
 // TEST DATA — date-range rows
 // ═══════════════════════════════════════════════════════════════
@@ -91,24 +95,6 @@ const SPECIAL_CHAR_DATA = [
   { label: "Phase 'B'", start: "2024-02-01", end: "2024-03-01" }
 ];
 
-const GANTT_RESPONSE = {
-  uiapi: {
-    query: {
-      Project__c: {
-        edges: [
-          {
-            node: {
-              Name: { value: "Apollo" },
-              Project_Start__c: { value: "2026-01-01" },
-              Project_End__c: { value: "2026-03-01" }
-            }
-          }
-        ]
-      }
-    }
-  }
-};
-
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -122,6 +108,8 @@ describe("c-d3-gantt-chart", () => {
     jest.clearAllMocks();
     mockD3 = createMockD3();
     loadD3.mockResolvedValue(mockD3);
+    executeQuery.mockResolvedValue(SAMPLE_DATA);
+    getDateRangeData.mockResolvedValue(SAMPLE_DATA);
 
     consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
     consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
@@ -203,29 +191,43 @@ describe("c-d3-gantt-chart", () => {
   describe("data handling", () => {
     it("uses recordCollection when provided", async () => {
       await createChart({ recordCollection: SAMPLE_DATA });
-      // GraphQL @wire is not triggered when recordCollection is present
-      expect(
-        element.shadowRoot.querySelector(".slds-text-color_error")
-      ).toBeNull();
+      expect(executeQuery).not.toHaveBeenCalled();
+      expect(getDateRangeData).not.toHaveBeenCalled();
     });
 
-    it("shows no-data state when neither recordCollection nor GraphQL fields are provided", async () => {
+    it("executes SOQL when recordCollection is empty and no object set", async () => {
       await createChart({
         recordCollection: [],
         objectApiName: "",
-        labelField: "",
-        startDateField: "",
-        endDateField: ""
+        soqlQuery:
+          "SELECT Name, Project_Start__c, Project_End__c FROM Opportunity"
+      });
+      expect(executeQuery).toHaveBeenCalledWith({
+        queryString:
+          "SELECT Name, Project_Start__c, Project_End__c FROM Opportunity"
+      });
+    });
+
+    it("shows error when no data source provided", async () => {
+      await createChart({ recordCollection: [], soqlQuery: "" });
+      await flushPromises();
+      const errorElement = element.shadowRoot.querySelector(
+        ".slds-text-color_error"
+      );
+      expect(errorElement).toBeTruthy();
+    });
+
+    it("shows error when SOQL query fails", async () => {
+      executeQuery.mockRejectedValue({ body: { message: "Query error" } });
+      await createChart({
+        recordCollection: [],
+        soqlQuery: "SELECT Bad FROM Opportunity"
       });
       await flushPromises();
-      // With no recordCollection and no fields to build a GraphQL query,
-      // the chart settles into the no-data (not error) state.
-      const spinner = element.shadowRoot.querySelector("lightning-spinner");
-      expect(spinner).toBeFalsy();
-      const noDataEl = element.shadowRoot.querySelector(
-        ".slds-text-color_weak"
+      const errorElement = element.shadowRoot.querySelector(
+        ".slds-text-color_error"
       );
-      expect(noDataEl).toBeTruthy();
+      expect(errorElement).toBeTruthy();
     });
   });
 
@@ -550,6 +552,114 @@ describe("c-d3-gantt-chart", () => {
     });
   });
 
+  describe("server date-range data", () => {
+    it("calls getDateRangeData when objectApiName and date fields are set", async () => {
+      await createChart({
+        recordCollection: [],
+        soqlQuery: "",
+        objectApiName: "Opportunity",
+        labelField: "Name",
+        startDateField: "Project_Start__c",
+        endDateField: "Project_End__c"
+      });
+      await flushPromises();
+      expect(getDateRangeData).toHaveBeenCalledWith({
+        objectName: "Opportunity",
+        labelField: "Name",
+        startField: "Project_Start__c",
+        endField: "Project_End__c",
+        filterClause: null
+      });
+      expect(executeQuery).not.toHaveBeenCalled();
+    });
+
+    it("passes filterClause to getDateRangeData when set", async () => {
+      await createChart({
+        recordCollection: [],
+        soqlQuery: "",
+        objectApiName: "Opportunity",
+        labelField: "Name",
+        startDateField: "Project_Start__c",
+        endDateField: "Project_End__c",
+        filterClause: "Amount > 1000"
+      });
+      await flushPromises();
+      expect(getDateRangeData).toHaveBeenCalledWith({
+        objectName: "Opportunity",
+        labelField: "Name",
+        startField: "Project_Start__c",
+        endField: "Project_End__c",
+        filterClause: "Amount > 1000"
+      });
+    });
+
+    it("renders chart from server date-range data", async () => {
+      await createChart({
+        recordCollection: [],
+        soqlQuery: "",
+        objectApiName: "Opportunity",
+        labelField: "Name",
+        startDateField: "Project_Start__c",
+        endDateField: "Project_End__c"
+      });
+      await flushPromises();
+      await flushPromises();
+      const errorElement = element.shadowRoot.querySelector(
+        ".slds-text-color_error"
+      );
+      expect(errorElement).toBeFalsy();
+    });
+
+    it("shows error when getDateRangeData fails", async () => {
+      getDateRangeData.mockRejectedValue({
+        body: { message: "Date range query failed" }
+      });
+      await createChart({
+        recordCollection: [],
+        soqlQuery: "",
+        objectApiName: "Opportunity",
+        labelField: "Name",
+        startDateField: "Project_Start__c",
+        endDateField: "Project_End__c"
+      });
+      await flushPromises();
+      const errorElement = element.shadowRoot.querySelector(
+        ".slds-text-color_error"
+      );
+      expect(errorElement).toBeTruthy();
+    });
+
+    it("shows error when getDateRangeData returns empty array", async () => {
+      getDateRangeData.mockResolvedValue([]);
+      await createChart({
+        recordCollection: [],
+        soqlQuery: "",
+        objectApiName: "Opportunity",
+        labelField: "Name",
+        startDateField: "Project_Start__c",
+        endDateField: "Project_End__c"
+      });
+      await flushPromises();
+      const errorElement = element.shadowRoot.querySelector(
+        ".slds-text-color_error"
+      );
+      expect(errorElement).toBeTruthy();
+    });
+
+    it("prefers recordCollection over server date-range data", async () => {
+      await createChart({
+        recordCollection: SAMPLE_DATA,
+        objectApiName: "Opportunity",
+        labelField: "Name",
+        startDateField: "Project_Start__c",
+        endDateField: "Project_End__c"
+      });
+      await flushPromises();
+      expect(getDateRangeData).not.toHaveBeenCalled();
+      expect(executeQuery).not.toHaveBeenCalled();
+    });
+  });
+
   describe("getters", () => {
     it("containerStyle returns correct height string", async () => {
       await createChart({ height: 450 });
@@ -589,73 +699,5 @@ describe("c-d3-gantt-chart", () => {
       document.body.removeChild(element);
       expect(true).toBe(true);
     });
-  });
-});
-
-// ═══════════════════════════════════════════════════════════════
-// GRAPHQL PATH (Approach B) — only server path on the gantt chart
-// ═══════════════════════════════════════════════════════════════
-
-describe("d3GanttChart GraphQL path (Approach B)", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    loadD3.mockResolvedValue(makeD3Stub());
-
-    Element.prototype.getBoundingClientRect = jest.fn(() => ({
-      width: 400,
-      height: 300,
-      top: 0,
-      left: 0,
-      bottom: 300,
-      right: 400
-    }));
-
-    global.ResizeObserver = jest.fn().mockImplementation(() => ({
-      observe: jest.fn(),
-      unobserve: jest.fn(),
-      disconnect: jest.fn()
-    }));
-  });
-
-  afterEach(() => {
-    while (document.body.firstChild)
-      document.body.removeChild(document.body.firstChild);
-    jest.clearAllMocks();
-  });
-
-  it("renders when GraphQL record data arrives", async () => {
-    const element = createElement("c-d3-gantt-chart", { is: D3GanttChart });
-    element.objectApiName = "Project__c";
-    element.labelField = "Name";
-    element.startDateField = "Project_Start__c";
-    element.endDateField = "Project_End__c";
-    document.body.appendChild(element);
-
-    await flushPromises();
-    graphql.emit(GANTT_RESPONSE);
-    await flushPromises();
-    await flushPromises();
-
-    expect(element.shadowRoot.querySelector(".chart-container")).not.toBeNull();
-    expect(
-      element.shadowRoot.querySelector(".slds-text-color_error")
-    ).toBeNull();
-  });
-
-  it("shows error when GraphQL wire emits errors", async () => {
-    const element = createElement("c-d3-gantt-chart", { is: D3GanttChart });
-    element.objectApiName = "Project__c";
-    element.labelField = "Name";
-    element.startDateField = "Project_Start__c";
-    element.endDateField = "Project_End__c";
-    document.body.appendChild(element);
-
-    await flushPromises();
-    graphql.emitErrors([{ message: "GraphQL boom" }]);
-    await flushPromises();
-
-    expect(
-      element.shadowRoot.querySelector(".slds-text-color_error")
-    ).not.toBeNull();
   });
 });

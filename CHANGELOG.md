@@ -5,6 +5,32 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0] - 2026-06-29
+
+### Added
+
+- **GraphQL self-fetch for the bar chart** (`d3BarChart`). A new `fetchMode`
+  property (`auto` | `apex` | `graphql`, default `auto`) lets the chart fetch its
+  own data declaratively through Salesforce's v2 `lightning/graphql` wire adapter,
+  with no `D3ChartController` Apex class required. Field- and record-level security
+  are enforced by the platform. `auto` preserves existing behavior exactly — fully
+  backward-compatible. Verified end-to-end against a live org (Opportunity Amount
+  summed by Stage rendering through the wire adapter).
+- **`graphqlService`** shared LWC module: dynamic GraphQL query builders (record
+  and grouped-aggregate) plus result normalizers, unit-tested in isolation.
+
+### Notes
+
+- The `lightning/graphql` aggregate response envelope was verified against a live
+  org and corrected from the documented best-guess: aggregates live under
+  `uiapi.aggregate` (a sibling of `query`) with a `node.aggregate { }` wrapper
+  holding the grouping key and measures.
+- An alternative "replace the Apex path entirely" approach was prototyped on the
+  gantt chart and is preserved on the `gantt-graphql-replace` branch. It is **not**
+  shipped in this release: removing the `soqlQuery`/`filterClause` properties is a
+  breaking change that fails to deploy where the chart is already in use. See
+  `docs/graphql-prototype-comparison.md` for the full A-vs-B comparison.
+
 ## [1.0.0] - 2026-06-23
 
 First stable release of the D3-LWC chart library: 30 production D3.js v7 chart

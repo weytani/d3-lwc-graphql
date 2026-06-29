@@ -14,6 +14,15 @@
         <targetConfig
       targets="lightning__AppPage,lightning__RecordPage,lightning__HomePage"
     >
+            <!-- Data Source -->
+            <property
+        name="soqlQuery"
+        type="String"
+        label="SOQL Query"
+        description="SOQL query to fetch tasks (used when no Drill-Down Object is set)"
+        placeholder="SELECT Name, Project_Start__c, Project_End__c FROM Opportunity"
+      />
+
             <!-- Field Mapping -->
             <property
         name="labelField"
@@ -73,6 +82,13 @@
         label="Filter Field"
         description="Field to filter by on drill-down (defaults to Label Field)"
       />
+            <property
+        name="filterClause"
+        type="String"
+        label="Filter Clause"
+        description="Optional WHERE clause fragment for the server-side fetch"
+      />
+
             <property
         name="recordLimit"
         type="Integer"

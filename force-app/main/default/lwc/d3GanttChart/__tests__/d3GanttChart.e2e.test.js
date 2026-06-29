@@ -4,10 +4,24 @@
 import { createElement } from "lwc";
 import D3GanttChart from "c/d3GanttChart";
 import { loadD3 } from "c/d3Lib";
+import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
+import getDateRangeData from "@salesforce/apex/D3ChartController.getDateRangeData";
 
 jest.mock("c/d3Lib", () => ({
   loadD3: jest.fn()
 }));
+
+jest.mock(
+  "@salesforce/apex/D3ChartController.executeQuery",
+  () => ({ default: jest.fn() }),
+  { virtual: true }
+);
+
+jest.mock(
+  "@salesforce/apex/D3ChartController.getDateRangeData",
+  () => ({ default: jest.fn() }),
+  { virtual: true }
+);
 
 jest.mock("lightning/navigation", () => {
   const Navigate = Symbol.for("Navigate");
@@ -147,6 +161,8 @@ describe("c-d3-gantt-chart e2e", () => {
     jest.clearAllMocks();
     mockD3 = createMockD3();
     loadD3.mockResolvedValue(mockD3);
+    executeQuery.mockResolvedValue([]);
+    getDateRangeData.mockResolvedValue([]);
 
     consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
 
@@ -182,6 +198,8 @@ describe("c-d3-gantt-chart e2e", () => {
       });
 
       expect(loadD3).toHaveBeenCalled();
+      expect(executeQuery).not.toHaveBeenCalled();
+      expect(getDateRangeData).not.toHaveBeenCalled();
 
       expect(mockD3.select).toHaveBeenCalled();
 
@@ -254,6 +272,46 @@ describe("c-d3-gantt-chart e2e", () => {
 
       const container = element.shadowRoot.querySelector(".chart-container");
       expect(container).toBeFalsy();
+    });
+
+    it("server fetch path: no recordCollection -> getDateRangeData returns data -> full pipeline", async () => {
+      const serverData = [
+        { label: "Discovery", start: "2024-01-01", end: "2024-01-31" },
+        { label: "Proposal", start: "2024-02-01", end: "2024-02-28" }
+      ];
+      getDateRangeData.mockResolvedValue(serverData);
+
+      const element = await createChart({
+        recordCollection: [],
+        soqlQuery: "",
+        objectApiName: "Opportunity",
+        labelField: "Name",
+        startDateField: "Project_Start__c",
+        endDateField: "Project_End__c"
+      });
+
+      expect(getDateRangeData).toHaveBeenCalledWith({
+        objectName: "Opportunity",
+        labelField: "Name",
+        startField: "Project_Start__c",
+        endField: "Project_End__c",
+        filterClause: null
+      });
+
+      expect(loadD3).toHaveBeenCalled();
+      expect(mockD3.select).toHaveBeenCalled();
+      const appendCalls = mockD3.append.mock.calls;
+      const svgAppended = appendCalls.some((call) => call[0] === "svg");
+      expect(svgAppended).toBe(true);
+      expect(mockD3.data).toHaveBeenCalled();
+
+      const container = element.shadowRoot.querySelector(".chart-container");
+      expect(container).toBeTruthy();
+
+      const errorEl = element.shadowRoot.querySelector(
+        ".slds-text-color_error"
+      );
+      expect(errorEl).toBeFalsy();
     });
   });
 

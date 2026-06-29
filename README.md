@@ -30,12 +30,13 @@ _Gauge, Bar, Donut, Line, Scatter, Histogram, Treemap, Sankey, Force Graph, and 
 - **Drag-and-Drop Ready**: Fully configurable in Lightning App Builder
 - **Server-Side Aggregation**: GROUP BY queries run in Apex, processing 50K+ records and sending pre-bucketed results to the browser
 - **Dual Data Path**: Server-preferred when `objectApiName` is configured; client-side fallback for `recordCollection` and `soqlQuery`-only usage
+- **GraphQL Self-Fetch** (bar chart): Opt-in `fetchMode="graphql"` fetches data declaratively via Salesforce's `lightning/graphql` wire adapter — no Apex controller required, FLS/sharing enforced by the platform
 - **Server-Side Analytics**: Statistics (mean, median, stdDev) and correlation (Pearson r, linear regression) computed in Apex
 - **Configurable Limits**: Per-chart `recordLimit` property in App Builder — set your own data ceiling or use smart defaults
 - **Responsive**: Uses ResizeObserver for adaptive reflow
 - **SLDS Styled**: Consistent with Salesforce Lightning Design System
 - **Theme Support**: 4 built-in palettes + custom colors via JSON config
-- **2,561 Tests**: Comprehensive Jest test coverage across 61 suites
+- **2,581 Tests**: Comprehensive Jest test coverage across 64 suites
 
 ## 📦 Components
 
@@ -165,6 +166,34 @@ sf lightning dev app -o <your-org-alias>
 >
 </c-d3-bar-chart>
 ```
+
+### D3 Bar Chart (GraphQL Self-Fetch — New in 1.9)
+
+Set `fetch-mode="graphql"` to fetch data declaratively through Salesforce's
+`lightning/graphql` wire adapter — no `D3ChartController` Apex class required.
+Field- and record-level security are enforced by the platform. The chart below
+is rendering live Opportunity Amount summed by Stage, fetched entirely via
+GraphQL (verified against a live org):
+
+![D3 Bar Chart rendering live data via GraphQL self-fetch](docs/screenshots/d3-bar-chart-graphql-self-fetch.png)
+
+```html
+<!-- GraphQL self-fetch: aggregates via the UI API GraphQL wire adapter, no Apex -->
+<c-d3-bar-chart
+  fetch-mode="graphql"
+  object-api-name="Opportunity"
+  group-by-field="StageName"
+  value-field="Amount"
+  operation="Sum"
+  height="400"
+>
+</c-d3-bar-chart>
+```
+
+`fetch-mode` accepts `auto` (default — preserves the existing `recordCollection` →
+Apex priority), `apex` (force the Apex path), or `graphql` (self-fetch). The GraphQL
+path covers UI API-queryable objects with structured filters; for non-UI-API objects
+or arbitrary SOQL, use `auto`/`apex` — the Apex escape hatch remains.
 
 ### D3 Line Chart
 
