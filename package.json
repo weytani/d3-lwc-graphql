@@ -1,7 +1,7 @@
 {
-  "name": "d3-lwc",
+  "name": "d3-lwc-graphql",
   "private": true,
-  "version": "3.9.0",
+  "version": "1.0.0-dev",
   "description": "D3.js v7 chart component library for Salesforce Lightning Web Components — 40 charts for App Builder, Flows, and Experience Builder.",
   "scripts": {
     "lint": "eslint **/{aura,lwc}/**/*.js",

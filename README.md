@@ -1,3 +1,9 @@
+> **Repo split (2026-08-02):** this is **d3-lwc-graphql** — the standalone GraphQL-only line
+> of the former `weytani/d3-lwc` (archived). Each converted chart is a self-contained LWC
+> bundle whose only dependency is the `d3` static resource. For the shared-module Apex/SOQL
+> line, see [`weytani/d3-lwc-soql`](https://github.com/weytani/d3-lwc-soql). Conversion
+> status: 16/40 standalone; inherited release tags preserved as `legacy/*`.
+
 # Salesforce D3.js Chart Component Library
 
 A complete suite of Lightning Web Components (LWC) that wrap D3.js charts for use in Salesforce App Builder, Experience Builder, and Screen Flows. Components are drag-and-drop ready and support three data sources — a record collection from a Flow, a structured self-fetch straight from the object, or a free-text GraphQL override (see `docs/ADMIN-GUIDE.md` for the full admin-facing model).

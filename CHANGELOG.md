@@ -5,6 +5,19 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+Repo split from `weytani/d3-lwc` at the `v3-standalone` tip. This repo's own semver line
+starts at 1.0.0 (consolidation gate). Inherited tags are preserved as `legacy/v*`:
+
+| Legacy tag                      | Meaning                                                         |
+| ------------------------------- | --------------------------------------------------------------- |
+| `legacy/v1.0.0`                 | d3-lwc 30-chart hybrid release                                  |
+| `legacy/v1.1.0`                 | GraphQL self-fetch added to bar (fetchMode)                     |
+| `legacy/v2.0.0`                 | gantt GraphQL-only (first breaking release)                     |
+| `legacy/v2.1.0`                 | 40 charts, hybrid fetchMode — d3-lwc-soql fork point            |
+| `legacy/v3.0.0`–`legacy/v3.9.0` | per-chart standalone conversions — the line this repo continues |
+
 ## [3.9.0] - 2026-07-13
 
 ### Changed

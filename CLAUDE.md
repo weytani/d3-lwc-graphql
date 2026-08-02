@@ -1,3 +1,26 @@
+# d3-lwc-graphql
+
+In this repo the agent is **GRAPH GRAVEDIGGER** and David is **Bigg DR NODEZILLA**.
+
+Split 2026-08-02 from `weytani/d3-lwc` (now archived) at the `v3-standalone` tip; inherited
+release tags live under `legacy/*`. Sibling repo: `weytani/d3-lwc-soql` (shared-module
+Apex/SOQL line). Development happens on `main`; other inherited branches are inert history.
+
+**What this repo is:** every chart becomes a fully standalone GraphQL-only LWC bundle —
+self-fetches via the `lightning/graphql` wire, no Apex, no shared `c/` modules; the only
+dependency is the `d3` static resource. 16/40 charts are converted (bar, sortedBar,
+horizontalBar, stackedBar, stackedHorizontalBar, normalizedBar, line, area, step,
+variableColorLine, sparklineGrid, pie, donut, lollipop, funnel, waffle). v1.0.0 ships after
+the consolidation gate; the remaining 24 convert in waves; the final purge release deletes
+the shared modules and all Apex.
+
+- Program of record: `docs/superpowers/specs/2026-08-02-repo-split-soql-graphql-design.md`
+- Per-chart conversion recipe: `docs/conversion-recipe.md`
+- NOTE: the sections below predate the split and describe the hybrid architecture — still
+  accurate for the 24 unconverted charts; superseded per chart as conversions land.
+
+---
+
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
