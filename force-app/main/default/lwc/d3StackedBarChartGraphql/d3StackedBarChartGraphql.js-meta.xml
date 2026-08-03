@@ -2,7 +2,7 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>D3 Stacked Bar Chart</masterLabel>
+    <masterLabel>D3 Stacked Bar Chart (GraphQL)</masterLabel>
     <description
   >Multi-dimensional stacked/grouped bar chart powered by D3.js with series toggle and drill-down support.</description>
     <targets>

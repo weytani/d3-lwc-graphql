@@ -1,15 +1,15 @@
-// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3StackedBarChart bundle.
+// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3StackedBarChartGraphql bundle.
 // ABOUTME: Structured multi-series (buildMultiGroupQuery/normalizeMultiGroup), single-series
 // ABOUTME: (buildAggregateQuery/normalizeAggregate), the Count raw-record fallback, and the
 // ABOUTME: free-text graphqlQuery admin override with client-side pivot+sum of duplicate keys.
 import { createElement } from "lwc";
-import D3StackedBarChart from "c/d3StackedBarChart";
+import D3StackedBarChartGraphql from "c/d3StackedBarChartGraphql";
 import { graphql, gql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
 jest.mock("../d3Loader", () => ({ loadD3: jest.fn() }));
 
-// Hand-rolled mock D3 (mirrors d3StackedBarChart.test.js): max is a real
+// Hand-rolled mock D3 (mirrors d3StackedBarChartGraphql.test.js): max is a real
 // jest.fn() implementation returning a fixed number, not a naive Proxy, so
 // there is no thenable trap and no risk of primitive-conversion crashes.
 const createMockD3 = () => {
@@ -304,7 +304,7 @@ async function flushPromises() {
   return Promise.resolve();
 }
 
-describe("d3StackedBarChart GraphQL path", () => {
+describe("d3StackedBarChartGraphql GraphQL path", () => {
   let mockD3;
 
   beforeEach(() => {
@@ -335,8 +335,8 @@ describe("d3StackedBarChart GraphQL path", () => {
 
   describe("structured multi-series (CT-MG)", () => {
     it("renders the chart container and actually draws bars when GraphQL multi-group data arrives", async () => {
-      const element = createElement("c-d3-stacked-bar-chart", {
-        is: D3StackedBarChart
+      const element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
       });
       element.objectApiName = "Opportunity";
       element.groupByField = "StageName";
@@ -367,8 +367,8 @@ describe("d3StackedBarChart GraphQL path", () => {
     });
 
     it("keeps the loading spinner up while the wire is provisioned and awaiting its first emission", async () => {
-      const element = createElement("c-d3-stacked-bar-chart", {
-        is: D3StackedBarChart
+      const element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
       });
       element.objectApiName = "Opportunity";
       element.groupByField = "StageName";
@@ -399,8 +399,8 @@ describe("d3StackedBarChart GraphQL path", () => {
     });
 
     it("shows an error when the GraphQL wire emits errors", async () => {
-      const element = createElement("c-d3-stacked-bar-chart", {
-        is: D3StackedBarChart
+      const element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
       });
       element.objectApiName = "Opportunity";
       element.groupByField = "StageName";
@@ -418,8 +418,8 @@ describe("d3StackedBarChart GraphQL path", () => {
     });
 
     it("bounds the query with the same first: value as other CT-MG charts", async () => {
-      const element = createElement("c-d3-stacked-bar-chart", {
-        is: D3StackedBarChart
+      const element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
       });
       element.objectApiName = "Opportunity";
       element.groupByField = "StageName";
@@ -434,8 +434,8 @@ describe("d3StackedBarChart GraphQL path", () => {
     });
 
     it("builds a groupBy on both groupByField and seriesField", async () => {
-      const element = createElement("c-d3-stacked-bar-chart", {
-        is: D3StackedBarChart
+      const element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
       });
       element.objectApiName = "Opportunity";
       element.groupByField = "StageName";
@@ -451,8 +451,8 @@ describe("d3StackedBarChart GraphQL path", () => {
     });
 
     it("falls back to a bounded raw-record fetch for Count (no server aggregate)", async () => {
-      const element = createElement("c-d3-stacked-bar-chart", {
-        is: D3StackedBarChart
+      const element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
       });
       element.objectApiName = "Opportunity";
       element.groupByField = "StageName";
@@ -488,8 +488,8 @@ describe("d3StackedBarChart GraphQL path", () => {
 
   describe("structured single-series (plain aggregate, CT-AGG)", () => {
     it("renders the chart container and actually draws bars when GraphQL aggregate data arrives", async () => {
-      const element = createElement("c-d3-stacked-bar-chart", {
-        is: D3StackedBarChart
+      const element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
       });
       element.objectApiName = "Opportunity";
       element.groupByField = "StageName";
@@ -517,8 +517,8 @@ describe("d3StackedBarChart GraphQL path", () => {
     });
 
     it("builds a single-field groupBy when seriesField is empty", async () => {
-      const element = createElement("c-d3-stacked-bar-chart", {
-        is: D3StackedBarChart
+      const element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
       });
       element.objectApiName = "Opportunity";
       element.groupByField = "StageName";
@@ -535,8 +535,8 @@ describe("d3StackedBarChart GraphQL path", () => {
     });
 
     it("falls back to a bounded raw-record fetch for Count with a single field", async () => {
-      const element = createElement("c-d3-stacked-bar-chart", {
-        is: D3StackedBarChart
+      const element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
       });
       element.objectApiName = "Opportunity";
       element.groupByField = "StageName";
@@ -569,8 +569,8 @@ describe("d3StackedBarChart GraphQL path", () => {
     });
 
     it("does not provision the wire when valueField is missing for Sum", async () => {
-      const element = createElement("c-d3-stacked-bar-chart", {
-        is: D3StackedBarChart
+      const element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
       });
       element.objectApiName = "Opportunity";
       element.groupByField = "StageName";
@@ -587,8 +587,8 @@ describe("d3StackedBarChart GraphQL path", () => {
 
   describe("free-text graphqlQuery override", () => {
     it("uses a free-text graphqlQuery verbatim and aggregates the rows client-side", async () => {
-      const element = createElement("c-d3-stacked-bar-chart", {
-        is: D3StackedBarChart
+      const element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
       });
       element.graphqlQuery = FREE_TEXT_QUERY;
       element.objectApiName = "Opportunity";
@@ -626,8 +626,8 @@ describe("d3StackedBarChart GraphQL path", () => {
       const { mockD3: sumMock, domainCalls } = createSummationMockD3();
       loadD3.mockResolvedValue(sumMock);
 
-      const element = createElement("c-d3-stacked-bar-chart", {
-        is: D3StackedBarChart
+      const element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
       });
       element.graphqlQuery = FREE_TEXT_QUERY;
       element.objectApiName = "Opportunity";
@@ -652,8 +652,8 @@ describe("d3StackedBarChart GraphQL path", () => {
     });
 
     it("surfaces wire errors from a free-text graphqlQuery in the error state", async () => {
-      const element = createElement("c-d3-stacked-bar-chart", {
-        is: D3StackedBarChart
+      const element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
       });
       element.graphqlQuery = FREE_TEXT_QUERY;
       element.objectApiName = "Opportunity";
@@ -675,8 +675,8 @@ describe("d3StackedBarChart GraphQL path", () => {
     it("hints record-query-only when a free-text graphqlQuery yields no records", async () => {
       // An aggregate-shaped payload has no uiapi.query, so the record normalizer
       // finds nothing — the error should point the admin at the record-query contract.
-      const element = createElement("c-d3-stacked-bar-chart", {
-        is: D3StackedBarChart
+      const element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
       });
       element.graphqlQuery = FREE_TEXT_QUERY;
       element.objectApiName = "Opportunity";
@@ -696,8 +696,8 @@ describe("d3StackedBarChart GraphQL path", () => {
     });
 
     it("ignores a blank graphqlQuery and falls through to the structured builder", async () => {
-      const element = createElement("c-d3-stacked-bar-chart", {
-        is: D3StackedBarChart
+      const element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
       });
       element.graphqlQuery = "   ";
       element.objectApiName = "Opportunity";
@@ -733,8 +733,8 @@ describe("d3StackedBarChart GraphQL path", () => {
         .mockResolvedValueOnce(mockFreeText);
 
       // Structured path: server pre-summed New=100, Existing=200.
-      const structured = createElement("c-d3-stacked-bar-chart", {
-        is: D3StackedBarChart
+      const structured = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
       });
       structured.objectApiName = "Opportunity";
       structured.groupByField = "StageName";
@@ -753,8 +753,8 @@ describe("d3StackedBarChart GraphQL path", () => {
       document.body.removeChild(structured);
 
       // Free-text path: raw un-summed rows (New 60+40=100, Existing 200).
-      const freeText = createElement("c-d3-stacked-bar-chart", {
-        is: D3StackedBarChart
+      const freeText = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
       });
       freeText.graphqlQuery = FREE_TEXT_QUERY;
       freeText.objectApiName = "Opportunity";

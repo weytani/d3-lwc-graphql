@@ -1,8 +1,8 @@
-// ABOUTME: Unit tests for the d3StackedBarChart Lightning Web Component.
+// ABOUTME: Unit tests for the d3StackedBarChartGraphql Lightning Web Component.
 // ABOUTME: Tests initialization, data handling, stacked/grouped/normalized modes, legend, series toggle, and error recovery.
 
 import { createElement } from "lwc";
-import D3StackedBarChart from "c/d3StackedBarChart";
+import D3StackedBarChartGraphql from "c/d3StackedBarChartGraphql";
 import { loadD3 } from "../d3Loader";
 import { aggregateSeriesData } from "../data";
 
@@ -111,7 +111,7 @@ const SPECIAL_CHAR_SERIES_DATA = [
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-stacked-bar-chart", () => {
+describe("c-d3-stacked-bar-chart-graphql", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -155,8 +155,8 @@ describe("c-d3-stacked-bar-chart", () => {
 
   // Helper to create element with properties
   async function createChart(props = {}) {
-    element = createElement("c-d3-stacked-bar-chart", {
-      is: D3StackedBarChart
+    element = createElement("c-d3-stacked-bar-chart-graphql", {
+      is: D3StackedBarChartGraphql
     });
 
     Object.assign(element, {
@@ -183,8 +183,8 @@ describe("c-d3-stacked-bar-chart", () => {
 
   describe("initialization", () => {
     it("shows loading state initially", async () => {
-      element = createElement("c-d3-stacked-bar-chart", {
-        is: D3StackedBarChart
+      element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
       });
       element.groupByField = "StageName";
       element.seriesField = "Type";
@@ -374,8 +374,8 @@ describe("c-d3-stacked-bar-chart", () => {
       }));
 
       const toastHandler = jest.fn();
-      element = createElement("c-d3-stacked-bar-chart", {
-        is: D3StackedBarChart
+      element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
       });
       element.addEventListener("lightning__showtoast", toastHandler);
       Object.assign(element, {
@@ -1305,8 +1305,8 @@ describe("c-d3-stacked-bar-chart", () => {
     });
 
     it("showChart is false when loading", () => {
-      element = createElement("c-d3-stacked-bar-chart", {
-        is: D3StackedBarChart
+      element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
       });
       element.groupByField = "StageName";
       element.seriesField = "Type";

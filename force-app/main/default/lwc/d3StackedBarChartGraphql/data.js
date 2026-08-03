@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local data processing for the d3StackedBarChart standalone bundle.
+// ABOUTME: Bundle-local data processing for the d3StackedBarChartGraphql standalone bundle.
 // ABOUTME: Client-side validation, truncation, and single/two-field aggregation of records.
 
 /**
