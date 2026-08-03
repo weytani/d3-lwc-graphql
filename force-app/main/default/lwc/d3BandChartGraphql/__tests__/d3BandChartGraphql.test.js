@@ -1,24 +1,17 @@
-// ABOUTME: Unit tests for the d3BandChart Lightning Web Component.
-// ABOUTME: Tests initialization, data handling, date parsing, the lower/upper band area, optional center line, curves, and error recovery.
+// ABOUTME: Unit tests for the d3BandChartGraphql Lightning Web Component.
+// ABOUTME: Tests initialization, data handling, date parsing, the lower/upper band area, optional center line, curves, render orchestration, and error recovery.
 
 import { createElement } from "lwc";
-import D3BandChart from "c/d3BandChart";
-import { loadD3 } from "c/d3Lib";
-import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
+import D3BandChartGraphql from "c/d3BandChartGraphql";
+import { graphql, gql } from "lightning/graphql";
+import { loadD3 } from "../d3Loader";
 
-// Mock d3Lib
-jest.mock("c/d3Lib", () => ({
+// Mock the bundle-local D3 loader. jest keys the module registry by resolved
+// absolute filename, so the test's "../d3Loader" and the component's
+// "./d3Loader" are the same module and this mock applies to both.
+jest.mock("../d3Loader", () => ({
   loadD3: jest.fn()
 }));
-
-// Mock Apex
-jest.mock(
-  "@salesforce/apex/D3ChartController.executeQuery",
-  () => ({
-    default: jest.fn()
-  }),
-  { virtual: true }
-);
 
 // ═══════════════════════════════════════════════════════════════
 // MOCK D3 FACTORY
@@ -147,11 +140,37 @@ const NEGATIVE_DATA = [
   { CloseDate: "2024-02-01", Amount: 0, ExpectedRevenue: 100 }
 ];
 
+// UI API record-query envelope, as the lightning/graphql wire delivers it.
+const WIRE_RESPONSE = {
+  uiapi: {
+    query: {
+      Opportunity: {
+        edges: [
+          {
+            node: {
+              CloseDate: { value: "2024-01-15" },
+              Amount: { value: 100 },
+              ExpectedRevenue: { value: 150 }
+            }
+          },
+          {
+            node: {
+              CloseDate: { value: "2024-02-20" },
+              Amount: { value: 200 },
+              ExpectedRevenue: { value: 260 }
+            }
+          }
+        ]
+      }
+    }
+  }
+};
+
 // Flush promises helper
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-band-chart", () => {
+describe("c-d3-band-chart-graphql", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -161,7 +180,6 @@ describe("c-d3-band-chart", () => {
     jest.clearAllMocks();
     mockD3 = createMockD3();
     loadD3.mockResolvedValue(mockD3);
-    executeQuery.mockResolvedValue(SAMPLE_DATA);
 
     consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
     consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
@@ -192,8 +210,8 @@ describe("c-d3-band-chart", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-band-chart", {
-      is: D3BandChart
+    element = createElement("c-d3-band-chart-graphql", {
+      is: D3BandChartGraphql
     });
 
     Object.assign(element, {
@@ -218,7 +236,9 @@ describe("c-d3-band-chart", () => {
 
   describe("initialization", () => {
     it("shows loading state initially", async () => {
-      element = createElement("c-d3-band-chart", { is: D3BandChart });
+      element = createElement("c-d3-band-chart-graphql", {
+        is: D3BandChartGraphql
+      });
       element.dateField = "CloseDate";
       element.recordCollection = SAMPLE_DATA;
 
@@ -250,7 +270,9 @@ describe("c-d3-band-chart", () => {
     });
 
     it("has correct default property values", () => {
-      element = createElement("c-d3-band-chart", { is: D3BandChart });
+      element = createElement("c-d3-band-chart-graphql", {
+        is: D3BandChartGraphql
+      });
       expect(element.dateField).toBe("CloseDate");
       expect(element.lowerField).toBe("Amount");
       expect(element.upperField).toBe("ExpectedRevenue");
@@ -265,47 +287,24 @@ describe("c-d3-band-chart", () => {
   // ═══════════════════════════════════════════════════════════════
 
   describe("data handling", () => {
-    it("uses recordCollection when provided", async () => {
+    it("charts recordCollection without provisioning the GraphQL wire", async () => {
       await createChart({ recordCollection: SAMPLE_DATA });
-      expect(executeQuery).not.toHaveBeenCalled();
+
+      expect(gql).not.toHaveBeenCalled();
+      expect(element.shadowRoot.querySelector(".chart-container")).toBeTruthy();
     });
 
-    it("executes SOQL when recordCollection is empty", async () => {
-      await createChart({
-        recordCollection: [],
-        soqlQuery:
-          "SELECT CloseDate, Amount, ExpectedRevenue FROM Opportunity ORDER BY CloseDate"
-      });
-
-      expect(executeQuery).toHaveBeenCalledWith({
-        queryString:
-          "SELECT CloseDate, Amount, ExpectedRevenue FROM Opportunity ORDER BY CloseDate"
-      });
-    });
-
-    it("shows error when no data source provided", async () => {
-      await createChart({ recordCollection: [], soqlQuery: "" });
+    it("shows the no-data state when nothing is configured to fetch", async () => {
+      await createChart({ recordCollection: [], objectApiName: "" });
       await flushPromises();
 
-      const errorElement = element.shadowRoot.querySelector(
-        ".slds-text-color_error"
-      );
-      expect(errorElement).toBeTruthy();
-    });
-
-    it("shows error when SOQL query fails", async () => {
-      executeQuery.mockRejectedValue({ body: { message: "Query error" } });
-
-      await createChart({
-        recordCollection: [],
-        soqlQuery: "SELECT Invalid FROM Opportunity"
-      });
-      await flushPromises();
-
-      const errorElement = element.shadowRoot.querySelector(
-        ".slds-text-color_error"
-      );
-      expect(errorElement).toBeTruthy();
+      // An un-provisioned wire is not an error — neither the error state nor a
+      // chart, just the empty state.
+      expect(
+        element.shadowRoot.querySelector(".slds-text-color_error")
+      ).toBeFalsy();
+      expect(element.shadowRoot.querySelector(".chart-container")).toBeFalsy();
+      expect(element.shadowRoot.textContent).toContain("No data available");
     });
 
     it("shows error when no valid data after processing", async () => {
@@ -331,20 +330,6 @@ describe("c-d3-band-chart", () => {
 
       const container = element.shadowRoot.querySelector(".chart-container");
       expect(container).toBeTruthy();
-    });
-
-    it("wires filterClause into the SOQL query sent to Apex, before ORDER BY", async () => {
-      await createChart({
-        recordCollection: [],
-        soqlQuery:
-          "SELECT CloseDate, Amount, ExpectedRevenue FROM Opportunity ORDER BY CloseDate",
-        filterClause: "Amount > 1000"
-      });
-
-      expect(executeQuery).toHaveBeenCalledWith({
-        queryString:
-          "SELECT CloseDate, Amount, ExpectedRevenue FROM Opportunity WHERE (Amount > 1000) ORDER BY CloseDate"
-      });
     });
   });
 
@@ -781,67 +766,169 @@ describe("c-d3-band-chart", () => {
 
       expect(global.ResizeObserver).toHaveBeenCalled();
     });
+  });
 
-    it("retries chart init when container starts at zero width", async () => {
-      let containerWidth = 0;
-      Element.prototype.getBoundingClientRect = jest.fn(() => ({
-        width: containerWidth,
-        height: 300,
-        top: 0,
-        left: 0,
-        bottom: 300,
-        right: containerWidth
-      }));
+  // ═══════════════════════════════════════════════════════════════
+  // RENDER ORCHESTRATION
+  // ═══════════════════════════════════════════════════════════════
 
-      const rafCallbacks = [];
-      global.requestAnimationFrame = jest.fn((cb) => {
-        rafCallbacks.push(cb);
-        return rafCallbacks.length;
-      });
-      global.cancelAnimationFrame = jest.fn();
+  // renderChart subtracts this chart's own horizontal margins
+  // (left 60 + right 30 = 90) from the container width and bails when the
+  // remainder is <= 0. SUB_MARGIN_WIDTH is below that sum on purpose: it is
+  // measurable (so it clears a naive `width === 0` gate) yet still produces no
+  // svg — the exact "tooltip but no chart" state seen live on a wedged boot.
+  const SUB_MARGIN_WIDTH = 50;
+
+  function stubContainerWidth(width) {
+    Element.prototype.getBoundingClientRect = jest.fn(() => ({
+      width,
+      height: 300,
+      top: 0,
+      left: 0,
+      bottom: 300,
+      right: width
+    }));
+  }
+
+  function fireResizeObserver(width) {
+    const [resizeCallback] = global.ResizeObserver.mock.calls[0];
+    stubContainerWidth(width);
+    jest.useFakeTimers();
+    resizeCallback([{ contentRect: { width, height: 300 } }]);
+    jest.advanceTimersByTime(300); // clear createResizeHandler's 250ms debounce
+    jest.useRealTimers();
+  }
+
+  const svgAppended = () =>
+    mockD3.append.mock.calls.some((c) => c[0] === "svg");
+
+  describe("render orchestration", () => {
+    it("renders once the observer reports a measurable width, even when the container boots at zero width", async () => {
+      stubContainerWidth(0);
 
       await createChart();
       await flushPromises();
 
-      expect(global.requestAnimationFrame).toHaveBeenCalled();
+      expect(svgAppended()).toBe(false);
 
-      containerWidth = 400;
-      Element.prototype.getBoundingClientRect = jest.fn(() => ({
-        width: 400,
-        height: 300,
-        top: 0,
-        left: 0,
-        bottom: 300,
-        right: 400
-      }));
+      fireResizeObserver(400);
 
-      while (rafCallbacks.length > 0) {
-        const cb = rafCallbacks.shift();
-        cb();
-      }
-
-      expect(mockD3.select).toHaveBeenCalled();
+      expect(svgAppended()).toBe(true);
     });
 
-    it("cancels layout retry on disconnect", async () => {
-      Element.prototype.getBoundingClientRect = jest.fn(() => ({
-        width: 0,
-        height: 0,
-        top: 0,
-        left: 0,
-        bottom: 0,
-        right: 0
-      }));
+    it("renders once the container grows past the chart margins after booting below them", async () => {
+      stubContainerWidth(SUB_MARGIN_WIDTH);
 
-      global.requestAnimationFrame = jest.fn(() => 42);
-      global.cancelAnimationFrame = jest.fn();
+      const el = await createChart();
+      await flushPromises();
+
+      // Measurable but sub-margin: the tooltip exists and no svg was appended.
+      const container = el.shadowRoot.querySelector(".chart-container");
+      expect(container.querySelector(".slds-popover")).toBeTruthy();
+      expect(svgAppended()).toBe(false);
+
+      fireResizeObserver(400);
+
+      expect(svgAppended()).toBe(true);
+    });
+
+    it("surfaces a mid-render exception as the component error state", async () => {
+      mockD3.select = jest.fn(() => {
+        throw new Error("d3 blew up mid-render");
+      });
 
       await createChart();
       await flushPromises();
 
-      document.body.removeChild(element);
+      const errorElement = element.shadowRoot.querySelector(
+        ".slds-text-color_error"
+      );
+      expect(errorElement).toBeTruthy();
+      expect(errorElement.textContent).toContain("d3 blew up mid-render");
+    });
 
-      expect(global.cancelAnimationFrame).toHaveBeenCalled();
+    it("installs exactly one resize observer across repeated re-renders", async () => {
+      element = createElement("c-d3-band-chart-graphql", {
+        is: D3BandChartGraphql
+      });
+      Object.assign(element, {
+        objectApiName: "Opportunity",
+        dateField: "CloseDate",
+        lowerField: "Amount",
+        upperField: "ExpectedRevenue"
+      });
+      document.body.appendChild(element);
+
+      await flushPromises();
+      graphql.emit(WIRE_RESPONSE);
+      await flushPromises();
+      graphql.emit(WIRE_RESPONSE);
+      await flushPromises();
+
+      expect(global.ResizeObserver).toHaveBeenCalledTimes(1);
+    });
+
+    it("rebinds the tooltip and observer when an error destroys and recreates the container", async () => {
+      // data → error → data walks the template's if/elseif chain through the
+      // error branch, which destroys .chart-container and builds a fresh one on
+      // recovery. Existence-only guards would strand the tooltip in the detached
+      // old node and leave the observer watching a dead element.
+      const roCallbacks = [];
+      global.ResizeObserver = jest.fn().mockImplementation((cb) => {
+        roCallbacks.push(cb);
+        return {
+          observe: jest.fn(),
+          unobserve: jest.fn(),
+          disconnect: jest.fn()
+        };
+      });
+
+      element = createElement("c-d3-band-chart-graphql", {
+        is: D3BandChartGraphql
+      });
+      Object.assign(element, {
+        objectApiName: "Opportunity",
+        dateField: "CloseDate",
+        lowerField: "Amount",
+        upperField: "ExpectedRevenue"
+      });
+      document.body.appendChild(element);
+      await flushPromises();
+
+      graphql.emit(WIRE_RESPONSE);
+      await flushPromises();
+      const firstContainer =
+        element.shadowRoot.querySelector(".chart-container");
+      expect(firstContainer).toBeTruthy();
+
+      graphql.emitErrors([{ message: "wire boom" }]);
+      await flushPromises();
+      expect(element.shadowRoot.querySelector(".chart-container")).toBeFalsy();
+
+      graphql.emit(WIRE_RESPONSE);
+      await flushPromises();
+
+      const secondContainer =
+        element.shadowRoot.querySelector(".chart-container");
+      expect(secondContainer).toBeTruthy();
+      expect(secondContainer).not.toBe(firstContainer);
+
+      // The tooltip must live in the container that is actually on screen.
+      expect(secondContainer.querySelector(".slds-popover")).toBeTruthy();
+      // One observer per container generation, rebound to the live container.
+      expect(global.ResizeObserver).toHaveBeenCalledTimes(2);
+
+      // The newly captured callback must drive a render, not watch a dead node.
+      mockD3.scaleTime.mockClear();
+      jest.useFakeTimers();
+      roCallbacks[roCallbacks.length - 1]([
+        { contentRect: { width: 400, height: 300 } }
+      ]);
+      jest.advanceTimersByTime(300);
+      jest.useRealTimers();
+      await flushPromises();
+
+      expect(mockD3.scaleTime).toHaveBeenCalled();
     });
   });
 
@@ -850,23 +937,6 @@ describe("c-d3-band-chart", () => {
   // ═══════════════════════════════════════════════════════════════
 
   describe("error recovery", () => {
-    it("shows error from SOQL body.message", async () => {
-      executeQuery.mockRejectedValue({
-        body: { message: "Specific SOQL error" }
-      });
-
-      await createChart({
-        recordCollection: [],
-        soqlQuery: "SELECT Bad FROM Object"
-      });
-      await flushPromises();
-
-      const errorElement = element.shadowRoot.querySelector(
-        ".slds-text-color_error"
-      );
-      expect(errorElement).toBeTruthy();
-    });
-
     it("shows error when D3 fails to load", async () => {
       loadD3.mockRejectedValue(new Error("D3 load failed"));
 
