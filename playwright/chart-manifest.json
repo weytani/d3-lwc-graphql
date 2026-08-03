@@ -112,6 +112,11 @@
           "element": "c-d3-band-chart-graphql",
           "name": "d3BandChartGraphql",
           "minSvgDescendants": 10
+        },
+        {
+          "element": "c-d3-difference-chart-graphql",
+          "name": "d3DifferenceChartGraphql",
+          "minSvgDescendants": 10
         }
       ]
     }

@@ -157,6 +157,46 @@
                 <identifier>c_d3BandChartGraphql</identifier>
             </componentInstance>
         </itemInstances>
+        <itemInstances>
+            <!-- Difference Chart: Amount (actual) vs ExpectedRevenue (expected) over CloseDate (Wave 4). Free-text GraphQL record query scopes the page to [D3DEMO] seeded Opportunities. Difference plots one point per RECORD with no client-side grouping or date bucketing, so the query's own `first` is the only bound on point count — recordLimit is not applied on the free-text path — and `orderBy` pins selection so the committed baseline stays stable. The 48 seeded rows carry 48 distinct CloseDates, giving one point per date. Only the positive (green) fill renders here: ExpectedRevenue is derived as Amount x Probability, so the primary series is above the secondary on 43 rows and equal on 5, never below. -->
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>graphqlQuery</name>
+                    <value
+          >query D3DemoActualVsExpected { uiapi { query { Opportunity(first: 48, orderBy: { CloseDate: { order: ASC } }, where: { and: [{ Name: { like: "[D3DEMO]%" } }, { CloseDate: { ne: null } }, { Amount: { ne: null } }, { ExpectedRevenue: { ne: null } }] }) { edges { node { CloseDate { value } Amount { value } ExpectedRevenue { value } } } } } } }</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>objectApiName</name>
+                    <value>Opportunity</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>dateField</name>
+                    <value>CloseDate</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>primaryField</name>
+                    <value>Amount</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>secondaryField</name>
+                    <value>ExpectedRevenue</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>height</name>
+                    <value>400</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>theme</name>
+                    <value>Vibrant</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>advancedConfig</name>
+                    <value>{}</value>
+                </componentInstanceProperties>
+                <componentName>d3DifferenceChartGraphql</componentName>
+                <identifier>c_d3DifferenceChartGraphql</identifier>
+            </componentInstance>
+        </itemInstances>
         <name>main</name>
         <type>Region</type>
     </flexiPageRegions>
