@@ -1,8 +1,8 @@
-// ABOUTME: End-to-end lifecycle tests for the d3StepChart Lightning Web Component.
+// ABOUTME: End-to-end lifecycle tests for the d3StepChartGraphql Lightning Web Component.
 // ABOUTME: Verifies full pipeline: D3 load, time series processing, step-line rendering, cleanup, and multi-instance isolation.
 
 import { createElement } from "lwc";
-import D3StepChart from "c/d3StepChart";
+import D3StepChartGraphql from "c/d3StepChartGraphql";
 import { graphql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
@@ -113,8 +113,8 @@ function flushPromises() {
 let consoleErrorSpy;
 
 async function createChart(props = {}) {
-  const element = createElement("c-d3-step-chart", {
-    is: D3StepChart
+  const element = createElement("c-d3-step-chart-graphql", {
+    is: D3StepChartGraphql
   });
 
   Object.assign(element, {
@@ -130,7 +130,7 @@ async function createChart(props = {}) {
   return element;
 }
 
-describe("c-d3-step-chart e2e", () => {
+describe("c-d3-step-chart-graphql e2e", () => {
   let mockD3;
 
   beforeEach(() => {

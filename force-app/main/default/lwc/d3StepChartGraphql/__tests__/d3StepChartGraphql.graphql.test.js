@@ -1,9 +1,9 @@
-// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3StepChart bundle.
+// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3StepChartGraphql bundle.
 // ABOUTME: Step has no server-side aggregate — the structured path fetches raw
 // ABOUTME: dateField/valueField/seriesField records and feeds processTimeSeriesData;
 // ABOUTME: the free-text graphqlQuery admin override shapes the same way.
 import { createElement } from "lwc";
-import D3StepChart from "c/d3StepChart";
+import D3StepChartGraphql from "c/d3StepChartGraphql";
 import { graphql, gql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
@@ -76,7 +76,7 @@ async function flushPromises() {
   return Promise.resolve();
 }
 
-describe("d3StepChart GraphQL path", () => {
+describe("d3StepChartGraphql GraphQL path", () => {
   let d3Calls;
 
   beforeEach(() => {
@@ -107,7 +107,9 @@ describe("d3StepChart GraphQL path", () => {
   });
 
   it("renders the chart container and actually draws the step line when structured GraphQL record data arrives", async () => {
-    const element = createElement("c-d3-step-chart", { is: D3StepChart });
+    const element = createElement("c-d3-step-chart-graphql", {
+      is: D3StepChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
     element.valueField = "Amount";
@@ -133,7 +135,9 @@ describe("d3StepChart GraphQL path", () => {
   });
 
   it("keeps the loading spinner up while the wire is provisioned and awaiting its first emission", async () => {
-    const element = createElement("c-d3-step-chart", { is: D3StepChart });
+    const element = createElement("c-d3-step-chart-graphql", {
+      is: D3StepChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
     element.valueField = "Amount";
@@ -160,7 +164,9 @@ describe("d3StepChart GraphQL path", () => {
   });
 
   it("shows an error when the GraphQL wire emits errors", async () => {
-    const element = createElement("c-d3-step-chart", { is: D3StepChart });
+    const element = createElement("c-d3-step-chart-graphql", {
+      is: D3StepChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
     element.valueField = "Amount";
@@ -176,7 +182,9 @@ describe("d3StepChart GraphQL path", () => {
   });
 
   it("bounds the structured query with a first: 2000 record cap", async () => {
-    const element = createElement("c-d3-step-chart", { is: D3StepChart });
+    const element = createElement("c-d3-step-chart-graphql", {
+      is: D3StepChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
     element.valueField = "Amount";
@@ -189,7 +197,9 @@ describe("d3StepChart GraphQL path", () => {
   });
 
   it("requests dateField, valueField, and seriesField, deduped", async () => {
-    const element = createElement("c-d3-step-chart", { is: D3StepChart });
+    const element = createElement("c-d3-step-chart-graphql", {
+      is: D3StepChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
     element.valueField = "Amount";
@@ -207,7 +217,9 @@ describe("d3StepChart GraphQL path", () => {
   });
 
   it("uses a free-text graphqlQuery verbatim and shapes the rows client-side", async () => {
-    const element = createElement("c-d3-step-chart", { is: D3StepChart });
+    const element = createElement("c-d3-step-chart-graphql", {
+      is: D3StepChartGraphql
+    });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
@@ -257,7 +269,9 @@ describe("d3StepChart GraphQL path", () => {
       }
     };
 
-    const element = createElement("c-d3-step-chart", { is: D3StepChart });
+    const element = createElement("c-d3-step-chart-graphql", {
+      is: D3StepChartGraphql
+    });
     element.graphqlQuery =
       "query { uiapi { query { MyCustomObject__c { edges { node { CloseDate { value } Amount { value } } } } } } }";
     // objectApiName intentionally left blank — the normalizer must auto-detect.
@@ -310,7 +324,9 @@ describe("d3StepChart GraphQL path", () => {
       }
     };
 
-    const element = createElement("c-d3-step-chart", { is: D3StepChart });
+    const element = createElement("c-d3-step-chart-graphql", {
+      is: D3StepChartGraphql
+    });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
@@ -332,7 +348,9 @@ describe("d3StepChart GraphQL path", () => {
   });
 
   it("surfaces wire errors from a free-text graphqlQuery in the error state", async () => {
-    const element = createElement("c-d3-step-chart", { is: D3StepChart });
+    const element = createElement("c-d3-step-chart-graphql", {
+      is: D3StepChartGraphql
+    });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
@@ -351,7 +369,9 @@ describe("d3StepChart GraphQL path", () => {
   it("hints record-query-only when a free-text graphqlQuery yields no records", async () => {
     // An aggregate-shaped payload has no uiapi.query, so the record normalizer
     // finds nothing — the error should point the admin at the record-query contract.
-    const element = createElement("c-d3-step-chart", { is: D3StepChart });
+    const element = createElement("c-d3-step-chart-graphql", {
+      is: D3StepChartGraphql
+    });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
@@ -368,7 +388,9 @@ describe("d3StepChart GraphQL path", () => {
   });
 
   it("ignores a blank graphqlQuery and falls through to the structured builder", async () => {
-    const element = createElement("c-d3-step-chart", { is: D3StepChart });
+    const element = createElement("c-d3-step-chart-graphql", {
+      is: D3StepChartGraphql
+    });
     element.graphqlQuery = "   ";
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
@@ -386,7 +408,9 @@ describe("d3StepChart GraphQL path", () => {
   });
 
   it("recordCollection beats a set graphqlQuery", async () => {
-    const element = createElement("c-d3-step-chart", { is: D3StepChart });
+    const element = createElement("c-d3-step-chart-graphql", {
+      is: D3StepChartGraphql
+    });
     element.recordCollection = [
       { CloseDate: "2024-01-01", Amount: 100 },
       { CloseDate: "2024-02-01", Amount: 200 }

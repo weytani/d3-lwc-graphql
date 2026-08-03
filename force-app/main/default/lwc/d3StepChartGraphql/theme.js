@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local color palettes and helpers for the d3StepChart standalone bundle.
+// ABOUTME: Bundle-local color palettes and helpers for the d3StepChartGraphql standalone bundle.
 // ABOUTME: Provides the SLDS-aligned palettes and getColors used to color the step lines.
 
 /**

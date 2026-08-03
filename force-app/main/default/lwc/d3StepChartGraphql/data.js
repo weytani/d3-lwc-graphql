@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local data processing for the d3StepChart standalone bundle.
+// ABOUTME: Bundle-local data processing for the d3StepChartGraphql standalone bundle.
 // ABOUTME: Client-side validation and truncation of records before time-series shaping.
 
 /**

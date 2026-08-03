@@ -1,8 +1,8 @@
-// ABOUTME: Unit tests for the d3StepChart Lightning Web Component.
+// ABOUTME: Unit tests for the d3StepChartGraphql Lightning Web Component.
 // ABOUTME: Tests initialization, data sources, date parsing, multi-series, config, theme, a11y, and responsive behavior.
 
 import { createElement } from "lwc";
-import D3StepChart from "c/d3StepChart";
+import D3StepChartGraphql from "c/d3StepChartGraphql";
 import { loadD3 } from "../d3Loader";
 
 jest.mock("../d3Loader", () => ({
@@ -104,7 +104,7 @@ const EU_DATE_DATA = [
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-step-chart", () => {
+describe("c-d3-step-chart-graphql", () => {
   let element;
   let consoleErrorSpy;
 
@@ -139,8 +139,8 @@ describe("c-d3-step-chart", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-step-chart", {
-      is: D3StepChart
+    element = createElement("c-d3-step-chart-graphql", {
+      is: D3StepChartGraphql
     });
 
     Object.assign(element, {
@@ -161,8 +161,8 @@ describe("c-d3-step-chart", () => {
 
   describe("initialization", () => {
     it("shows loading spinner initially", () => {
-      element = createElement("c-d3-step-chart", {
-        is: D3StepChart
+      element = createElement("c-d3-step-chart-graphql", {
+        is: D3StepChartGraphql
       });
       element.dateField = "CloseDate";
       element.valueField = "Amount";

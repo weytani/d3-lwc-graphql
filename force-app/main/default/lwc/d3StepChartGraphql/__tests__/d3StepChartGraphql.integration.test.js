@@ -1,8 +1,8 @@
-// ABOUTME: Integration tests for d3StepChart verifying real bundle-local pipelines (data, theme, utils).
+// ABOUTME: Integration tests for d3StepChartGraphql verifying real bundle-local pipelines (data, theme, utils).
 // ABOUTME: Only D3 and NavigationMixin are mocked; time series processing and color logic run for real.
 
 import { createElement } from "lwc";
-import D3StepChart from "c/d3StepChart";
+import D3StepChartGraphql from "c/d3StepChartGraphql";
 import { loadD3 } from "../d3Loader";
 
 jest.mock("../d3Loader", () => ({
@@ -94,7 +94,7 @@ const SINGLE_SERIES_DATA = [
 
 const flushPromises = () => new Promise(process.nextTick);
 
-describe("c-d3-step-chart integration", () => {
+describe("c-d3-step-chart-graphql integration", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -132,7 +132,9 @@ describe("c-d3-step-chart integration", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-step-chart", { is: D3StepChart });
+    element = createElement("c-d3-step-chart-graphql", {
+      is: D3StepChartGraphql
+    });
 
     Object.assign(element, {
       dateField: "CloseDate",
