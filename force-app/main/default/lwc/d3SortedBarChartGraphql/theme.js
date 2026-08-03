@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local color palettes and helpers for the d3SortedBarChart standalone bundle.
+// ABOUTME: Bundle-local color palettes and helpers for the d3SortedBarChartGraphql standalone bundle.
 // ABOUTME: Provides the SLDS-aligned palettes and getColors used to color the bars.
 
 /**

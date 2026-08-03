@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local D3.js loader for the d3SortedBarChart standalone bundle.
+// ABOUTME: Bundle-local D3.js loader for the d3SortedBarChartGraphql standalone bundle.
 // ABOUTME: Singleton load from the `d3` static resource with a fetch+eval CSP fallback.
 import { loadScript } from "lightning/platformResourceLoader";
 import D3_RESOURCE from "@salesforce/resourceUrl/d3";

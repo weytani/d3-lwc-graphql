@@ -1,8 +1,8 @@
-// ABOUTME: Unit tests for the d3SortedBarChart Lightning Web Component.
+// ABOUTME: Unit tests for the d3SortedBarChartGraphql Lightning Web Component.
 // ABOUTME: Tests initialization, data handling, aggregation, sorting, legend, events, tooltip, resize, and error recovery.
 
 import { createElement } from "lwc";
-import D3SortedBarChart from "c/d3SortedBarChart";
+import D3SortedBarChartGraphql from "c/d3SortedBarChartGraphql";
 import { loadD3 } from "../d3Loader";
 
 jest.mock("../d3Loader", () => ({
@@ -79,7 +79,7 @@ const SINGLE_RECORD = [{ StageName: "Prospecting", Amount: 100 }];
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-sorted-bar-chart", () => {
+describe("c-d3-sorted-bar-chart-graphql", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -119,8 +119,8 @@ describe("c-d3-sorted-bar-chart", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-sorted-bar-chart", {
-      is: D3SortedBarChart
+    element = createElement("c-d3-sorted-bar-chart-graphql", {
+      is: D3SortedBarChartGraphql
     });
 
     Object.assign(element, {
@@ -145,8 +145,8 @@ describe("c-d3-sorted-bar-chart", () => {
 
   describe("initialization", () => {
     it("shows loading state initially", async () => {
-      element = createElement("c-d3-sorted-bar-chart", {
-        is: D3SortedBarChart
+      element = createElement("c-d3-sorted-bar-chart-graphql", {
+        is: D3SortedBarChartGraphql
       });
       element.groupByField = "StageName";
       element.recordCollection = SAMPLE_DATA;
@@ -270,8 +270,8 @@ describe("c-d3-sorted-bar-chart", () => {
       }));
 
       const toastHandler = jest.fn();
-      element = createElement("c-d3-sorted-bar-chart", {
-        is: D3SortedBarChart
+      element = createElement("c-d3-sorted-bar-chart-graphql", {
+        is: D3SortedBarChartGraphql
       });
       element.addEventListener("lightning__showtoast", toastHandler);
       Object.assign(element, {
@@ -386,8 +386,8 @@ describe("c-d3-sorted-bar-chart", () => {
     });
 
     it("does not attempt to re-sort before the chart has rendered", async () => {
-      element = createElement("c-d3-sorted-bar-chart", {
-        is: D3SortedBarChart
+      element = createElement("c-d3-sorted-bar-chart-graphql", {
+        is: D3SortedBarChartGraphql
       });
       // Setting sortBy before the element is even attached must not throw.
       element.sortBy = "label";

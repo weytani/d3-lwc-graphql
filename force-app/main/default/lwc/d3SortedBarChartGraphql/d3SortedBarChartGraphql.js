@@ -26,7 +26,7 @@ import {
 const SORT_BY_VALUES = ["label", "value"];
 const SORT_DIRECTION_VALUES = ["asc", "desc"];
 
-export default class D3SortedBarChart extends NavigationMixin(
+export default class D3SortedBarChartGraphql extends NavigationMixin(
   LightningElement
 ) {
   // ═══════════════════════════════════════════════════════════════
@@ -410,7 +410,7 @@ export default class D3SortedBarChart extends NavigationMixin(
       // Render will happen in renderedCallback after DOM is ready
     } catch (e) {
       this.error = e.message || "Failed to initialize chart";
-      console.error("D3SortedBarChart initialization error:", e);
+      console.error("D3SortedBarChartGraphql initialization error:", e);
     } finally {
       // Keep the spinner up while a GraphQL query is provisioned but has not yet
       // emitted data or an error — the wire handler clears isLoading on arrival.

@@ -2,7 +2,7 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>D3 Sorted Bar Chart</masterLabel>
+    <masterLabel>D3 Sorted Bar Chart (GraphQL)</masterLabel>
     <description
   >Interactive bar chart powered by D3.js that can be re-sorted by label or value without refetching data, with aggregation and drill-down support.</description>
     <targets>

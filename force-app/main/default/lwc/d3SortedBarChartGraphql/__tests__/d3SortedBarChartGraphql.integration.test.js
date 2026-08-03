@@ -1,8 +1,8 @@
-// ABOUTME: Integration tests for d3SortedBarChart verifying real bundle-local pipelines (data, theme, utils, graphql) and sort behavior.
+// ABOUTME: Integration tests for d3SortedBarChartGraphql verifying real bundle-local pipelines (data, theme, utils, graphql) and sort behavior.
 // ABOUTME: Only D3, GraphQL, and NavigationMixin are mocked; aggregation, color, and sort logic run for real.
 
 import { createElement } from "lwc";
-import D3SortedBarChart from "c/d3SortedBarChart";
+import D3SortedBarChartGraphql from "c/d3SortedBarChartGraphql";
 import { loadD3 } from "../d3Loader";
 
 jest.mock("../d3Loader", () => ({
@@ -82,7 +82,7 @@ const SAMPLE_DATA = [
 
 const flushPromises = () => new Promise(process.nextTick);
 
-describe("c-d3-sorted-bar-chart integration", () => {
+describe("c-d3-sorted-bar-chart-graphql integration", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -120,8 +120,8 @@ describe("c-d3-sorted-bar-chart integration", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-sorted-bar-chart", {
-      is: D3SortedBarChart
+    element = createElement("c-d3-sorted-bar-chart-graphql", {
+      is: D3SortedBarChartGraphql
     });
 
     Object.assign(element, {
@@ -218,8 +218,8 @@ describe("c-d3-sorted-bar-chart integration", () => {
     it("aggregates a GraphQL Count record set through the real pipeline and sorts it", async () => {
       const { graphql } = require("lightning/graphql");
 
-      element = createElement("c-d3-sorted-bar-chart", {
-        is: D3SortedBarChart
+      element = createElement("c-d3-sorted-bar-chart-graphql", {
+        is: D3SortedBarChartGraphql
       });
       Object.assign(element, {
         objectApiName: "Opportunity",
@@ -256,8 +256,8 @@ describe("c-d3-sorted-bar-chart integration", () => {
     it("free-text graphqlQuery Sum aggregates the wire rows to the correct values", async () => {
       const { graphql } = require("lightning/graphql");
 
-      element = createElement("c-d3-sorted-bar-chart", {
-        is: D3SortedBarChart
+      element = createElement("c-d3-sorted-bar-chart-graphql", {
+        is: D3SortedBarChartGraphql
       });
       Object.assign(element, {
         graphqlQuery:
