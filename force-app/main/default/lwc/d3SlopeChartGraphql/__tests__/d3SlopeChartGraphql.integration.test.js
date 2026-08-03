@@ -1,8 +1,8 @@
-// ABOUTME: Integration tests for d3SlopeChart verifying real service pipelines (dataService, themeService, chartUtils).
+// ABOUTME: Integration tests for d3SlopeChartGraphql verifying real service pipelines (dataService, themeService, chartUtils).
 // ABOUTME: Only D3, Apex, and NavigationMixin are mocked; data processing and semantic-color logic run for real.
 
 import { createElement } from "lwc";
-import D3SlopeChart from "c/d3SlopeChart";
+import D3SlopeChartGraphql from "c/d3SlopeChartGraphql";
 import { loadD3 } from "c/d3Lib";
 import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
 
@@ -67,7 +67,7 @@ const SAMPLE_DATA = [
 
 const flushPromises = () => new Promise(process.nextTick);
 
-describe("c-d3-slope-chart integration", () => {
+describe("c-d3-slope-chart-graphql integration", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -106,7 +106,9 @@ describe("c-d3-slope-chart integration", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-slope-chart", { is: D3SlopeChart });
+    element = createElement("c-d3-slope-chart-graphql", {
+      is: D3SlopeChartGraphql
+    });
 
     Object.assign(element, {
       groupByField: "Name",

@@ -1,8 +1,8 @@
-// ABOUTME: Unit tests for the d3SlopeChart Lightning Web Component.
+// ABOUTME: Unit tests for the d3SlopeChartGraphql Lightning Web Component.
 // ABOUTME: Tests initialization, data processing, rendering, config, theme-driven delta coloring, events, and cleanup.
 
 import { createElement } from "lwc";
-import D3SlopeChart from "c/d3SlopeChart";
+import D3SlopeChartGraphql from "c/d3SlopeChartGraphql";
 import { loadD3 } from "c/d3Lib";
 import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
 
@@ -65,7 +65,7 @@ const SINGLE_RECORD = [{ Name: "Acme", Amount: 100, ExpectedRevenue: 150 }];
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-slope-chart", () => {
+describe("c-d3-slope-chart-graphql", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -103,8 +103,8 @@ describe("c-d3-slope-chart", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-slope-chart", {
-      is: D3SlopeChart
+    element = createElement("c-d3-slope-chart-graphql", {
+      is: D3SlopeChartGraphql
     });
 
     Object.assign(element, {
@@ -129,7 +129,9 @@ describe("c-d3-slope-chart", () => {
 
   describe("initialization", () => {
     it("shows loading state initially", async () => {
-      element = createElement("c-d3-slope-chart", { is: D3SlopeChart });
+      element = createElement("c-d3-slope-chart-graphql", {
+        is: D3SlopeChartGraphql
+      });
       element.recordCollection = SAMPLE_DATA;
 
       document.body.appendChild(element);

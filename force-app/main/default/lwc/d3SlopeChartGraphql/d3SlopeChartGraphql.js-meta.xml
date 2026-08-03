@@ -2,7 +2,7 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>D3 Slope Chart</masterLabel>
+    <masterLabel>D3 Slope Chart (GraphQL)</masterLabel>
     <description
   >Interactive slope chart powered by D3.js, comparing a before/after value per entity with drill-down support.</description>
     <targets>

@@ -1,8 +1,8 @@
-// ABOUTME: End-to-end lifecycle tests for the d3SlopeChart Lightning Web Component.
+// ABOUTME: End-to-end lifecycle tests for the d3SlopeChartGraphql Lightning Web Component.
 // ABOUTME: Verifies full pipeline: D3 load, delta computation, connecting-line rendering, cleanup, and multi-instance isolation.
 
 import { createElement } from "lwc";
-import D3SlopeChart from "c/d3SlopeChart";
+import D3SlopeChartGraphql from "c/d3SlopeChartGraphql";
 import { loadD3 } from "c/d3Lib";
 import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
 
@@ -87,8 +87,8 @@ function flushPromises() {
 let consoleErrorSpy;
 
 async function createChart(props = {}) {
-  const element = createElement("c-d3-slope-chart", {
-    is: D3SlopeChart
+  const element = createElement("c-d3-slope-chart-graphql", {
+    is: D3SlopeChartGraphql
   });
 
   Object.assign(element, {
@@ -105,7 +105,7 @@ async function createChart(props = {}) {
   return element;
 }
 
-describe("c-d3-slope-chart e2e", () => {
+describe("c-d3-slope-chart-graphql e2e", () => {
   let mockD3;
 
   beforeEach(() => {

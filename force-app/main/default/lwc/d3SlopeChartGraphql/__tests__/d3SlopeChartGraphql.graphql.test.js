@@ -1,9 +1,9 @@
-// ABOUTME: Tests the additive GraphQL self-fetch path on d3SlopeChart (Approach A, CT-REC).
+// ABOUTME: Tests the additive GraphQL self-fetch path on d3SlopeChartGraphql (Approach A, CT-REC).
 // ABOUTME: Slope has no server-side aggregate — the graphql path always fetches raw
 // ABOUTME: groupByField/startValueField/endValueField records and feeds the existing
 // ABOUTME: processSlopeData path, same as recordCollection/soqlQuery.
 import { createElement } from "lwc";
-import D3SlopeChart from "c/d3SlopeChart";
+import D3SlopeChartGraphql from "c/d3SlopeChartGraphql";
 import { graphql, gql } from "lightning/graphql";
 import { loadD3 } from "c/d3Lib";
 
@@ -56,7 +56,7 @@ async function flushPromises() {
   return Promise.resolve();
 }
 
-describe("d3SlopeChart GraphQL path (Approach A, CT-REC)", () => {
+describe("d3SlopeChartGraphql GraphQL path (Approach A, CT-REC)", () => {
   let d3Calls;
 
   beforeEach(() => {
@@ -87,7 +87,9 @@ describe("d3SlopeChart GraphQL path (Approach A, CT-REC)", () => {
   });
 
   it("renders the chart container and actually draws a connecting line when GraphQL record data arrives", async () => {
-    const element = createElement("c-d3-slope-chart", { is: D3SlopeChart });
+    const element = createElement("c-d3-slope-chart-graphql", {
+      is: D3SlopeChartGraphql
+    });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
     element.groupByField = "Name";
@@ -115,7 +117,9 @@ describe("d3SlopeChart GraphQL path (Approach A, CT-REC)", () => {
   });
 
   it("shows an error when the GraphQL wire emits errors", async () => {
-    const element = createElement("c-d3-slope-chart", { is: D3SlopeChart });
+    const element = createElement("c-d3-slope-chart-graphql", {
+      is: D3SlopeChartGraphql
+    });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
     element.groupByField = "Name";
@@ -133,7 +137,9 @@ describe("d3SlopeChart GraphQL path (Approach A, CT-REC)", () => {
   });
 
   it("bounds the query with the same first: value as other CT-REC charts", async () => {
-    const element = createElement("c-d3-slope-chart", { is: D3SlopeChart });
+    const element = createElement("c-d3-slope-chart-graphql", {
+      is: D3SlopeChartGraphql
+    });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
     element.groupByField = "Name";
@@ -148,7 +154,9 @@ describe("d3SlopeChart GraphQL path (Approach A, CT-REC)", () => {
   });
 
   it("requests groupByField, startValueField, and endValueField, deduped", async () => {
-    const element = createElement("c-d3-slope-chart", { is: D3SlopeChart });
+    const element = createElement("c-d3-slope-chart-graphql", {
+      is: D3SlopeChartGraphql
+    });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
     element.groupByField = "Name";
@@ -167,7 +175,9 @@ describe("d3SlopeChart GraphQL path (Approach A, CT-REC)", () => {
   });
 
   it("does not provision the wire when endValueField is missing", async () => {
-    const element = createElement("c-d3-slope-chart", { is: D3SlopeChart });
+    const element = createElement("c-d3-slope-chart-graphql", {
+      is: D3SlopeChartGraphql
+    });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
     element.groupByField = "Name";
