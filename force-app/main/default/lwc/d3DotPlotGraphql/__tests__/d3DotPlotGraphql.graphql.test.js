@@ -327,15 +327,8 @@ describe("d3DotPlotGraphql GraphQL path", () => {
     // blank Group By Field can still reach the wire here. Without the §9.6
     // field-projection dedup, the bare [this.groupByField] literal becomes
     // [""], which normalizeRecordsGeneric treats as a REAL field name — every
-    // row gets a {"": null} shape. `_aggregateRawData`'s own field-presence
-    // check is fooled (`"" in {"": null}` is true), so the ONLY thing that
-    // still catches the blank mapping is aggregateData's independent
-    // `!groupByField` bail, which throws the generic "No data after
-    // aggregation" rather than the precise "Missing required fields" message.
-    // The dedup drops the blank field from the projection entirely (fields
-    // becomes []), so the field-presence check now correctly fails first —
-    // asserting on the message (not just error-vs-no-error) is what actually
-    // distinguishes the fixed behavior from the unfixed one.
+    // row gets a {"": null} shape that fools `_aggregateRawData`'s own
+    // field-presence check (`"" in {"": null}` is true).
     const element = createElement("c-d3-dot-plot-graphql", {
       is: D3DotPlotGraphql
     });
