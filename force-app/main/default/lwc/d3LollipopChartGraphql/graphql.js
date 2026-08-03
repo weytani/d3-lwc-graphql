@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local Salesforce GraphQL (v2) query builders and normalizers for the d3LollipopChart bundle.
+// ABOUTME: Bundle-local Salesforce GraphQL (v2) query builders and normalizers for the d3LollipopChartGraphql bundle.
 // ABOUTME: Pure functions only — no @wire, no DOM — so they unit-test in isolation.
 
 const OPERATORS = ["eq", "ne", "gt", "gte", "lt", "lte", "like", "in"];

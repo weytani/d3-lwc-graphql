@@ -1,8 +1,8 @@
-// ABOUTME: Integration tests for d3LollipopChart verifying real bundle-local pipelines (data, theme, utils, graphql).
+// ABOUTME: Integration tests for d3LollipopChartGraphql verifying real bundle-local pipelines (data, theme, utils, graphql).
 // ABOUTME: Only D3, GraphQL, and NavigationMixin are mocked; aggregation, color, and normalization logic run for real.
 
 import { createElement } from "lwc";
-import D3LollipopChart from "c/d3LollipopChart";
+import D3LollipopChartGraphql from "c/d3LollipopChartGraphql";
 import { loadD3 } from "../d3Loader";
 
 // ═══════════════════════════════════════════════════════════════
@@ -102,7 +102,7 @@ const flushPromises = () => new Promise(process.nextTick);
 // TEST SUITE
 // ═══════════════════════════════════════════════════════════════
 
-describe("c-d3-lollipop-chart integration", () => {
+describe("c-d3-lollipop-chart-graphql integration", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -149,13 +149,13 @@ describe("c-d3-lollipop-chart integration", () => {
   });
 
   /**
-   * Helper to create a d3LollipopChart element with default and overridden properties.
+   * Helper to create a d3LollipopChartGraphql element with default and overridden properties.
    * @param {Object} props - Property overrides
    * @returns {HTMLElement} - The created element
    */
   async function createChart(props = {}) {
-    element = createElement("c-d3-lollipop-chart", {
-      is: D3LollipopChart
+    element = createElement("c-d3-lollipop-chart-graphql", {
+      is: D3LollipopChartGraphql
     });
 
     Object.assign(element, {
@@ -294,8 +294,8 @@ describe("c-d3-lollipop-chart integration", () => {
     it("aggregates a GraphQL Count record set through the real pipeline", async () => {
       const { graphql } = require("lightning/graphql");
 
-      element = createElement("c-d3-lollipop-chart", {
-        is: D3LollipopChart
+      element = createElement("c-d3-lollipop-chart-graphql", {
+        is: D3LollipopChartGraphql
       });
       Object.assign(element, {
         objectApiName: "Opportunity",
@@ -341,8 +341,8 @@ describe("c-d3-lollipop-chart integration", () => {
     it("free-text graphqlQuery Sum aggregates the wire rows through the real pipeline", async () => {
       const { graphql } = require("lightning/graphql");
 
-      element = createElement("c-d3-lollipop-chart", {
-        is: D3LollipopChart
+      element = createElement("c-d3-lollipop-chart-graphql", {
+        is: D3LollipopChartGraphql
       });
       Object.assign(element, {
         graphqlQuery:
@@ -487,8 +487,8 @@ describe("c-d3-lollipop-chart integration", () => {
         Amount: (i + 1) * 10
       }));
 
-      element = createElement("c-d3-lollipop-chart", {
-        is: D3LollipopChart
+      element = createElement("c-d3-lollipop-chart-graphql", {
+        is: D3LollipopChartGraphql
       });
 
       // Capture dispatched events via listener before appending to DOM
@@ -525,8 +525,8 @@ describe("c-d3-lollipop-chart integration", () => {
         Amount: (i + 1) * 5
       }));
 
-      element = createElement("c-d3-lollipop-chart", {
-        is: D3LollipopChart
+      element = createElement("c-d3-lollipop-chart-graphql", {
+        is: D3LollipopChartGraphql
       });
 
       const toastHandler = jest.fn();

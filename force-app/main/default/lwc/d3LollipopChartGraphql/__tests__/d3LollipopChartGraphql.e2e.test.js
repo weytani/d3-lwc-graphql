@@ -1,8 +1,8 @@
-// ABOUTME: End-to-end lifecycle tests for the d3LollipopChart Lightning Web Component.
+// ABOUTME: End-to-end lifecycle tests for the d3LollipopChartGraphql Lightning Web Component.
 // ABOUTME: Verifies full pipeline: D3 load, data aggregation, stem+head rendering, GraphQL self-fetch, cleanup, and multi-instance isolation.
 
 import { createElement } from "lwc";
-import D3LollipopChart from "c/d3LollipopChart";
+import D3LollipopChartGraphql from "c/d3LollipopChartGraphql";
 import { loadD3 } from "../d3Loader";
 import { graphql } from "lightning/graphql";
 
@@ -120,8 +120,8 @@ function flushPromises() {
 let consoleErrorSpy;
 
 async function createChart(props = {}) {
-  const element = createElement("c-d3-lollipop-chart", {
-    is: D3LollipopChart
+  const element = createElement("c-d3-lollipop-chart-graphql", {
+    is: D3LollipopChartGraphql
   });
 
   Object.assign(element, {
@@ -142,7 +142,7 @@ async function createChart(props = {}) {
 // TEST SUITE
 // ═══════════════════════════════════════════════════════════════
 
-describe("c-d3-lollipop-chart e2e", () => {
+describe("c-d3-lollipop-chart-graphql e2e", () => {
   let mockD3;
 
   beforeEach(() => {
@@ -223,8 +223,8 @@ describe("c-d3-lollipop-chart e2e", () => {
     });
 
     it("GraphQL fetch path: no recordCollection -> wire emits -> full pipeline", async () => {
-      const element = createElement("c-d3-lollipop-chart", {
-        is: D3LollipopChart
+      const element = createElement("c-d3-lollipop-chart-graphql", {
+        is: D3LollipopChartGraphql
       });
       Object.assign(element, {
         groupByField: "StageName",

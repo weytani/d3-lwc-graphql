@@ -1,8 +1,8 @@
-// ABOUTME: Unit tests for the d3LollipopChart Lightning Web Component.
+// ABOUTME: Unit tests for the d3LollipopChartGraphql Lightning Web Component.
 // ABOUTME: Tests initialization, data handling, aggregation, config, events, tooltip, resize, error recovery, and stem+head rendering.
 
 import { createElement } from "lwc";
-import D3LollipopChart from "c/d3LollipopChart";
+import D3LollipopChartGraphql from "c/d3LollipopChartGraphql";
 import { loadD3 } from "../d3Loader";
 
 jest.mock("../d3Loader", () => ({
@@ -95,7 +95,7 @@ const SPECIAL_CHAR_DATA = [
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-lollipop-chart", () => {
+describe("c-d3-lollipop-chart-graphql", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -139,8 +139,8 @@ describe("c-d3-lollipop-chart", () => {
 
   // Helper to create element with properties
   async function createChart(props = {}) {
-    element = createElement("c-d3-lollipop-chart", {
-      is: D3LollipopChart
+    element = createElement("c-d3-lollipop-chart-graphql", {
+      is: D3LollipopChartGraphql
     });
 
     Object.assign(element, {
@@ -166,8 +166,8 @@ describe("c-d3-lollipop-chart", () => {
 
   describe("initialization", () => {
     it("shows loading state initially", async () => {
-      element = createElement("c-d3-lollipop-chart", {
-        is: D3LollipopChart
+      element = createElement("c-d3-lollipop-chart-graphql", {
+        is: D3LollipopChartGraphql
       });
       element.groupByField = "StageName";
       element.recordCollection = SAMPLE_DATA;
@@ -336,7 +336,9 @@ describe("c-d3-lollipop-chart", () => {
       }));
 
       const toastHandler = jest.fn();
-      element = createElement("c-d3-lollipop-chart", { is: D3LollipopChart });
+      element = createElement("c-d3-lollipop-chart-graphql", {
+        is: D3LollipopChartGraphql
+      });
       element.addEventListener("lightning__showtoast", toastHandler);
       Object.assign(element, {
         groupByField: "StageName",
@@ -950,7 +952,9 @@ describe("c-d3-lollipop-chart", () => {
     });
 
     it("showChart is false when loading", () => {
-      element = createElement("c-d3-lollipop-chart", { is: D3LollipopChart });
+      element = createElement("c-d3-lollipop-chart-graphql", {
+        is: D3LollipopChartGraphql
+      });
       element.groupByField = "StageName";
       element.recordCollection = SAMPLE_DATA;
       document.body.appendChild(element);

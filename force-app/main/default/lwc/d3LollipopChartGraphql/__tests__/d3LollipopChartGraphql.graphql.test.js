@@ -1,7 +1,7 @@
-// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3LollipopChart bundle.
+// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3LollipopChartGraphql bundle.
 // ABOUTME: Covers the structured builders and the free-text graphqlQuery admin override.
 import { createElement } from "lwc";
-import D3LollipopChart from "c/d3LollipopChart";
+import D3LollipopChartGraphql from "c/d3LollipopChartGraphql";
 import { graphql, gql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
@@ -103,7 +103,7 @@ async function flushPromises() {
   return Promise.resolve();
 }
 
-describe("d3LollipopChart GraphQL path", () => {
+describe("d3LollipopChartGraphql GraphQL path", () => {
   let d3Calls;
 
   beforeEach(() => {
@@ -136,8 +136,8 @@ describe("d3LollipopChart GraphQL path", () => {
   });
 
   it("renders the chart container and draws a real head when GraphQL aggregate data arrives", async () => {
-    const element = createElement("c-d3-lollipop-chart", {
-      is: D3LollipopChart
+    const element = createElement("c-d3-lollipop-chart-graphql", {
+      is: D3LollipopChartGraphql
     });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -165,8 +165,8 @@ describe("d3LollipopChart GraphQL path", () => {
   });
 
   it("keeps the loading spinner up while the wire is provisioned and awaiting its first emission", async () => {
-    const element = createElement("c-d3-lollipop-chart", {
-      is: D3LollipopChart
+    const element = createElement("c-d3-lollipop-chart-graphql", {
+      is: D3LollipopChartGraphql
     });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -195,8 +195,8 @@ describe("d3LollipopChart GraphQL path", () => {
   });
 
   it("shows an error when the GraphQL wire emits errors", async () => {
-    const element = createElement("c-d3-lollipop-chart", {
-      is: D3LollipopChart
+    const element = createElement("c-d3-lollipop-chart-graphql", {
+      is: D3LollipopChartGraphql
     });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -214,8 +214,8 @@ describe("d3LollipopChart GraphQL path", () => {
   });
 
   it("falls back to a raw record query for Count and draws a real head mark", async () => {
-    const element = createElement("c-d3-lollipop-chart", {
-      is: D3LollipopChart
+    const element = createElement("c-d3-lollipop-chart-graphql", {
+      is: D3LollipopChartGraphql
     });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -242,8 +242,8 @@ describe("d3LollipopChart GraphQL path", () => {
   });
 
   it("bounds the Count-path query with the same first: value as the aggregate path", async () => {
-    const element = createElement("c-d3-lollipop-chart", {
-      is: D3LollipopChart
+    const element = createElement("c-d3-lollipop-chart-graphql", {
+      is: D3LollipopChartGraphql
     });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -257,8 +257,8 @@ describe("d3LollipopChart GraphQL path", () => {
   });
 
   it("uses a free-text graphqlQuery verbatim and aggregates the rows client-side", async () => {
-    const element = createElement("c-d3-lollipop-chart", {
-      is: D3LollipopChart
+    const element = createElement("c-d3-lollipop-chart-graphql", {
+      is: D3LollipopChartGraphql
     });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
@@ -285,8 +285,8 @@ describe("d3LollipopChart GraphQL path", () => {
   });
 
   it("surfaces wire errors from a free-text graphqlQuery in the error state", async () => {
-    const element = createElement("c-d3-lollipop-chart", {
-      is: D3LollipopChart
+    const element = createElement("c-d3-lollipop-chart-graphql", {
+      is: D3LollipopChartGraphql
     });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
@@ -307,8 +307,8 @@ describe("d3LollipopChart GraphQL path", () => {
   it("hints record-query-only when a free-text graphqlQuery yields no records", async () => {
     // An aggregate-shaped payload has no uiapi.query, so the record normalizer
     // finds nothing — the error should point the admin at the record-query contract.
-    const element = createElement("c-d3-lollipop-chart", {
-      is: D3LollipopChart
+    const element = createElement("c-d3-lollipop-chart-graphql", {
+      is: D3LollipopChartGraphql
     });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
@@ -340,8 +340,8 @@ describe("d3LollipopChart GraphQL path", () => {
     // becomes []), so the field-presence check now correctly fails first —
     // asserting on the message (not just error-vs-no-error) is what actually
     // distinguishes the fixed behavior from the unfixed one.
-    const element = createElement("c-d3-lollipop-chart", {
-      is: D3LollipopChart
+    const element = createElement("c-d3-lollipop-chart-graphql", {
+      is: D3LollipopChartGraphql
     });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
@@ -359,8 +359,8 @@ describe("d3LollipopChart GraphQL path", () => {
   });
 
   it("ignores a blank graphqlQuery and falls through to the structured builder", async () => {
-    const element = createElement("c-d3-lollipop-chart", {
-      is: D3LollipopChart
+    const element = createElement("c-d3-lollipop-chart-graphql", {
+      is: D3LollipopChartGraphql
     });
     element.graphqlQuery = "   ";
     element.objectApiName = "Opportunity";

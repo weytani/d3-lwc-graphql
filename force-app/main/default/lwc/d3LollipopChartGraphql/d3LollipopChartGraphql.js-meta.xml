@@ -2,7 +2,7 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>D3 Lollipop Chart</masterLabel>
+    <masterLabel>D3 Lollipop Chart (GraphQL)</masterLabel>
     <description
   >Interactive lollipop chart powered by D3.js with aggregation and drill-down support.</description>
     <targets>
