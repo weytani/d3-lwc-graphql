@@ -99,7 +99,7 @@
         label="Record Limit"
         description="Maximum records to process. Leave empty for default."
         min="1"
-        max="10000"
+        max="2000"
       />
 
             <!-- GraphQL Query Override -->
@@ -178,6 +178,7 @@
         type="String"
         label="Color Theme"
         default="Salesforce Standard"
+        datasource="Salesforce Standard,Warm,Cool,Vibrant"
       />
             <property
         name="recordLimit"
@@ -185,7 +186,7 @@
         label="Record Limit"
         description="Maximum records to process. Leave empty for default."
         min="1"
-        max="10000"
+        max="2000"
       />
             <property
         name="advancedConfig"

@@ -3,6 +3,7 @@
 
 import { createElement } from "lwc";
 import D3DifferenceChartGraphql from "c/d3DifferenceChartGraphql";
+import { graphql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
 // Mock the bundle-local D3 loader. jest keys the module registry by resolved
@@ -138,6 +139,32 @@ const NEGATIVE_DATA = [
   { CloseDate: "2024-01-01", Amount: -50, ExpectedRevenue: 0 },
   { CloseDate: "2024-02-01", Amount: 100, ExpectedRevenue: -20 }
 ];
+
+// UI API record-query envelope, as the lightning/graphql wire delivers it.
+const WIRE_RESPONSE = {
+  uiapi: {
+    query: {
+      Opportunity: {
+        edges: [
+          {
+            node: {
+              CloseDate: { value: "2024-01-15" },
+              Amount: { value: 100 },
+              ExpectedRevenue: { value: 150 }
+            }
+          },
+          {
+            node: {
+              CloseDate: { value: "2024-02-15" },
+              Amount: { value: 300 },
+              ExpectedRevenue: { value: 200 }
+            }
+          }
+        ]
+      }
+    }
+  }
+};
 
 // Flush promises helper
 // eslint-disable-next-line @lwc/lwc/no-async-operation
@@ -882,6 +909,69 @@ describe("c-d3-difference-chart-graphql", () => {
 
       // A single unified observer drives both the first render and re-renders.
       expect(global.ResizeObserver).toHaveBeenCalledTimes(1);
+    });
+
+    it("rebinds the tooltip and observer when an error destroys and recreates the container", async () => {
+      // data → error → data walks the template's if/elseif chain through the
+      // error branch, which destroys .chart-container and builds a fresh one on
+      // recovery. Existence-only guards would strand the tooltip in the detached
+      // old node and leave the observer watching a dead element.
+      const roCallbacks = [];
+      global.ResizeObserver = jest.fn().mockImplementation((cb) => {
+        roCallbacks.push(cb);
+        return {
+          observe: jest.fn(),
+          unobserve: jest.fn(),
+          disconnect: jest.fn()
+        };
+      });
+
+      element = createElement("c-d3-difference-chart-graphql", {
+        is: D3DifferenceChartGraphql
+      });
+      Object.assign(element, {
+        objectApiName: "Opportunity",
+        dateField: "CloseDate",
+        primaryField: "Amount",
+        secondaryField: "ExpectedRevenue"
+      });
+      document.body.appendChild(element);
+      await flushPromises();
+
+      graphql.emit(WIRE_RESPONSE);
+      await flushPromises();
+      const firstContainer =
+        element.shadowRoot.querySelector(".chart-container");
+      expect(firstContainer).toBeTruthy();
+
+      graphql.emitErrors([{ message: "wire boom" }]);
+      await flushPromises();
+      expect(element.shadowRoot.querySelector(".chart-container")).toBeFalsy();
+
+      graphql.emit(WIRE_RESPONSE);
+      await flushPromises();
+
+      const secondContainer =
+        element.shadowRoot.querySelector(".chart-container");
+      expect(secondContainer).toBeTruthy();
+      expect(secondContainer).not.toBe(firstContainer);
+
+      // The tooltip must live in the container that is actually on screen.
+      expect(secondContainer.querySelector(".slds-popover")).toBeTruthy();
+      // One observer per container generation, rebound to the live container.
+      expect(global.ResizeObserver).toHaveBeenCalledTimes(2);
+
+      // The newly captured callback must drive a render, not watch a dead node.
+      mockD3.scaleTime.mockClear();
+      jest.useFakeTimers();
+      roCallbacks[roCallbacks.length - 1]([
+        { contentRect: { width: 400, height: 300 } }
+      ]);
+      jest.advanceTimersByTime(300);
+      jest.useRealTimers();
+      await flushPromises();
+
+      expect(mockD3.scaleTime).toHaveBeenCalled();
     });
   });
 
