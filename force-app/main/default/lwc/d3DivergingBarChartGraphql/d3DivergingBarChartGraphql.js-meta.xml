@@ -9,20 +9,12 @@
         <target>lightning__AppPage</target>
         <target>lightning__RecordPage</target>
         <target>lightning__HomePage</target>
+        <target>lightning__FlowScreen</target>
     </targets>
     <targetConfigs>
         <targetConfig
       targets="lightning__AppPage,lightning__RecordPage,lightning__HomePage"
     >
-            <!-- Data Source -->
-            <property
-        name="soqlQuery"
-        type="String"
-        label="SOQL Query"
-        description="SOQL query to fetch data"
-        placeholder="SELECT StageName, Amount FROM Opportunity"
-      />
-
             <!-- Field Mapping -->
             <property
         name="groupByField"
@@ -46,7 +38,7 @@
         label="Aggregation"
         default="Sum"
         datasource="Sum,Count,Average"
-        description="How to aggregate the values"
+        description="How to aggregate the values. On the GraphQL self-fetch path, Count is bounded to the first Record Limit rows (default 2000)."
       />
 
             <!-- Appearance -->
@@ -60,12 +52,12 @@
         max="800"
       />
 
-            <!-- Drill-Down -->
+            <!-- Query + Drill-Down -->
             <property
         name="objectApiName"
         type="String"
-        label="Drill-Down Object"
-        description="Object API name for navigation on bar click"
+        label="Object API Name"
+        description="Object to query. When set (and no records are passed in), the chart self-fetches this object via GraphQL. Also used for drill-down navigation on bar click."
         placeholder="Opportunity"
       />
             <property
@@ -84,14 +76,12 @@
         max="10000"
       />
 
-            <!-- GraphQL Self-Fetch -->
+            <!-- GraphQL Query Override -->
             <property
-        name="fetchMode"
+        name="graphqlQuery"
         type="String"
-        label="Data Source"
-        default="auto"
-        datasource="auto,apex,graphql"
-        description="How to fetch data: auto (existing priority order), apex (Apex-backed SOQL), or graphql (UI API GraphQL). GraphQL Count is bounded to the first Record Limit rows (default 2000) — use apex/auto for exact counts on larger objects."
+        label="GraphQL Query"
+        description="Optional override of the built query. Must be a UI API record query (uiapi.query) whose node selects the Group By Field and Value Field as top-level fields; the returned rows are aggregated client-side by the Group By Field, Value Field, and Aggregation. UI-API-queryable objects only; at most 2,000 records; GraphQL syntax. Footgun: if the Value Field is missing from the query, bars aggregate to zero and collapse onto the zero baseline rather than erroring. Leave blank to build the query automatically."
       />
 
             <!-- Advanced -->
@@ -100,6 +90,59 @@
         type="String"
         label="Advanced Config (JSON)"
         description='{"customColors": ["#00AA00", "#AA0000"]} — [positive, negative]; either side may be omitted to keep the theme default'
+      />
+        </targetConfig>
+        <targetConfig targets="lightning__FlowScreen">
+            <propertyType
+        name="T"
+        extends="SObject"
+        label="Record Type"
+        description="Generic sObject type of the input record collection"
+      />
+            <property
+        name="recordCollection"
+        type="{T[]}"
+        label="Records"
+        role="inputOnly"
+        description="Collection of records to chart, from the flow"
+      />
+            <property
+        name="groupByField"
+        type="String"
+        label="Group By Field"
+        description="API name of the category field"
+      />
+            <property
+        name="valueField"
+        type="String"
+        label="Value Field"
+        description="API name of the numeric field to aggregate (values may be signed; not required for Count)"
+      />
+            <property
+        name="operation"
+        type="String"
+        label="Aggregation"
+        datasource="Sum,Count,Average"
+        description="How to aggregate the values"
+      />
+            <property
+        name="height"
+        type="Integer"
+        label="Height (px)"
+        description="Chart height in pixels"
+      />
+            <property
+        name="theme"
+        type="String"
+        label="Color Theme"
+        datasource="Salesforce Standard,Warm,Cool,Vibrant"
+        description="Palette supplying the positive/negative bar color pair"
+      />
+            <property
+        name="advancedConfig"
+        type="String"
+        label="Advanced Config (JSON)"
+        description='{"customColors": ["#00AA00", "#AA0000"]} — [positive, negative]'
       />
         </targetConfig>
     </targetConfigs>
