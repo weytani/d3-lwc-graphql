@@ -89,6 +89,16 @@
           "minSvgDescendants": 10
         }
       ]
+    },
+    {
+      "tab": "d3_graphql_showcase_3",
+      "charts": [
+        {
+          "element": "c-d3-diverging-bar-chart-graphql",
+          "name": "d3DivergingBarChartGraphql",
+          "minSvgDescendants": 10
+        }
+      ]
     }
   ]
 }

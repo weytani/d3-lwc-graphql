@@ -5,6 +5,48 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-08-03
+
+First wave-4 release: the categorical/comparison family opens with the diverging bar chart, and
+the org gains a third showcase page.
+
+### Changed
+
+- **BREAKING: `d3DivergingBarChartGraphql` is now a standalone GraphQL-only bundle**, converted
+  per `docs/conversion-recipe.md` and renamed from `d3DivergingBarChart` to its `*Graphql`
+  suffixed identity (tag `c-d3-diverging-bar-chart-graphql`, masterLabel
+  "D3 Diverging Bar Chart (GraphQL)"): GraphQL wire self-fetch only, bundle-local support
+  modules (`d3Loader.js`, `theme.js`, `data.js`, `utils.js`, `graphql.js`), no shared `c/`
+  imports, no Apex. `soqlQuery` and `fetchMode` removed; `graphqlQuery` free-text record
+  queries and the `lightning__FlowScreen` target added. As a signed-value chart it routes Sum
+  and Average through the GraphQL grouped-aggregate path and Count through a raw record query
+  aggregated client-side, so negative aggregates survive every fetch path and extend left of
+  the zero baseline. Ships with the full unit + integration + graphql + e2e test tiers.
+  Live-verified on-org via the Playwright sweep (7 lead sources, 4 positive and 3 negative,
+  from `[D3DEMO]` quota-variance data).
+
+### Fixed
+
+- **`d3DivergingBarChartGraphql`: container-rebind hardening (recipe §4.3).** The template's
+  if/elseif chain destroys the `.chart-container` on every pass through loading/error/no-data,
+  so the previous existence-only guards left the tooltip writing into a detached node and the
+  ResizeObserver watching a dead element after a data → error → data cycle. `initializeChart`
+  now tracks the container generation it is bound to and cleans up and re-creates both when the
+  container identity changes. This bundle is the first to ship the fix; the 16 v1.0.0 bundles
+  still carry the defect (issue #2).
+- **`d3DivergingBarChartGraphql`: `recordLimit` meta max capped at 2,000**, the UI API
+  record-query ceiling (recipe §5). The previous 10,000 advertised a bound the only remaining
+  fetch path rejects.
+
+### Added
+
+- **Showcase page 3** (`d3_graphql_showcase_3` FlexiPage + CustomTab, granted by the
+  `D3_Graphql_Showcase` permission set) debuts on AGENT carrying the diverging bar chart —
+  quota variance by lead source. The remaining wave-4 charts append to this page as they ship.
+  Its component instance scopes itself to `[D3DEMO]` seeded Opportunities with a free-text
+  `graphqlQuery` `where` clause, so the committed Playwright baseline contains only synthetic
+  demo data.
+
 ## [1.0.0] - 2026-08-02
 
 Closes the v1.0.0 consolidation gate. Repo split from `weytani/d3-lwc` (now archived) at the

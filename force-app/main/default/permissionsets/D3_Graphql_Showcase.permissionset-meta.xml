@@ -12,4 +12,8 @@
     <tab>d3_graphql_showcase_2</tab>
     <visibility>Visible</visibility>
   </tabSettings>
+  <tabSettings>
+    <tab>d3_graphql_showcase_3</tab>
+    <visibility>Visible</visibility>
+  </tabSettings>
 </PermissionSet>
