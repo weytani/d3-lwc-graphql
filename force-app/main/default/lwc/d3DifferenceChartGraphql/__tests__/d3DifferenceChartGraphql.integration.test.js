@@ -1,20 +1,13 @@
-// ABOUTME: Integration tests for d3DifferenceChart verifying real service pipelines (dataService, themeService, chartUtils).
-// ABOUTME: Only D3, Apex, and NavigationMixin are mocked; time series processing and color logic run for real.
+// ABOUTME: Integration tests for d3DifferenceChartGraphql verifying the real bundle-local pipelines (data.js, theme.js, utils.js).
+// ABOUTME: Only D3 and NavigationMixin are mocked; time series processing and color logic run for real.
 
 import { createElement } from "lwc";
-import D3DifferenceChart from "c/d3DifferenceChart";
-import { loadD3 } from "c/d3Lib";
-import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
+import D3DifferenceChartGraphql from "c/d3DifferenceChartGraphql";
+import { loadD3 } from "../d3Loader";
 
-jest.mock("c/d3Lib", () => ({
+jest.mock("../d3Loader", () => ({
   loadD3: jest.fn()
 }));
-
-jest.mock(
-  "@salesforce/apex/D3ChartController.executeQuery",
-  () => ({ default: jest.fn() }),
-  { virtual: true }
-);
 
 const mockNavigate = jest.fn();
 jest.mock(
@@ -109,7 +102,7 @@ const SAMPLE_DATA = [
 
 const flushPromises = () => new Promise(process.nextTick);
 
-describe("c-d3-difference-chart integration", () => {
+describe("c-d3-difference-chart-graphql integration", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -119,7 +112,6 @@ describe("c-d3-difference-chart integration", () => {
 
     mockD3 = createMockD3();
     loadD3.mockResolvedValue(mockD3);
-    executeQuery.mockResolvedValue(SAMPLE_DATA);
 
     consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
 
@@ -148,8 +140,8 @@ describe("c-d3-difference-chart integration", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-difference-chart", {
-      is: D3DifferenceChart
+    element = createElement("c-d3-difference-chart-graphql", {
+      is: D3DifferenceChartGraphql
     });
 
     Object.assign(element, {
