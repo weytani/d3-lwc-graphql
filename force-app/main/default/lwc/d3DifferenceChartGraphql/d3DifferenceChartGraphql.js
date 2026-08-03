@@ -20,7 +20,7 @@ import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
 import { gql, graphql } from "lightning/graphql";
 import { buildRecordQuery, normalizeRecordsGeneric } from "c/graphqlService";
 
-export default class D3DifferenceChart extends NavigationMixin(
+export default class D3DifferenceChartGraphql extends NavigationMixin(
   LightningElement
 ) {
   // ═══════════════════════════════════════════════════════════════
@@ -235,7 +235,7 @@ export default class D3DifferenceChart extends NavigationMixin(
       await this.loadData();
     } catch (e) {
       this.error = e.message || "Failed to initialize chart";
-      console.error("D3DifferenceChart initialization error:", e);
+      console.error("D3DifferenceChartGraphql initialization error:", e);
     } finally {
       this.isLoading = false;
     }

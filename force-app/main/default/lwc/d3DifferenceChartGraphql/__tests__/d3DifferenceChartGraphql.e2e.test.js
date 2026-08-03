@@ -1,8 +1,8 @@
-// ABOUTME: End-to-end lifecycle tests for the d3DifferenceChart Lightning Web Component.
+// ABOUTME: End-to-end lifecycle tests for the d3DifferenceChartGraphql Lightning Web Component.
 // ABOUTME: Verifies full pipeline: D3 load, time series processing, two-area difference rendering, cleanup, and multi-instance isolation.
 
 import { createElement } from "lwc";
-import D3DifferenceChart from "c/d3DifferenceChart";
+import D3DifferenceChartGraphql from "c/d3DifferenceChartGraphql";
 import { loadD3 } from "c/d3Lib";
 import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
 
@@ -129,8 +129,8 @@ function flushPromises() {
 let consoleErrorSpy;
 
 async function createChart(props = {}) {
-  const element = createElement("c-d3-difference-chart", {
-    is: D3DifferenceChart
+  const element = createElement("c-d3-difference-chart-graphql", {
+    is: D3DifferenceChartGraphql
   });
 
   Object.assign(element, {
@@ -147,7 +147,7 @@ async function createChart(props = {}) {
   return element;
 }
 
-describe("c-d3-difference-chart e2e", () => {
+describe("c-d3-difference-chart-graphql e2e", () => {
   let mockD3;
 
   beforeEach(() => {

@@ -1,8 +1,8 @@
-// ABOUTME: Unit tests for the d3DifferenceChart Lightning Web Component.
+// ABOUTME: Unit tests for the d3DifferenceChartGraphql Lightning Web Component.
 // ABOUTME: Tests initialization, data handling, date parsing, the two-area clip-path difference fill, curves, legend, and error recovery.
 
 import { createElement } from "lwc";
-import D3DifferenceChart from "c/d3DifferenceChart";
+import D3DifferenceChartGraphql from "c/d3DifferenceChartGraphql";
 import { loadD3 } from "c/d3Lib";
 import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
 
@@ -151,7 +151,7 @@ const NEGATIVE_DATA = [
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-difference-chart", () => {
+describe("c-d3-difference-chart-graphql", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -192,8 +192,8 @@ describe("c-d3-difference-chart", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-difference-chart", {
-      is: D3DifferenceChart
+    element = createElement("c-d3-difference-chart-graphql", {
+      is: D3DifferenceChartGraphql
     });
 
     Object.assign(element, {
@@ -218,8 +218,8 @@ describe("c-d3-difference-chart", () => {
 
   describe("initialization", () => {
     it("shows loading state initially", async () => {
-      element = createElement("c-d3-difference-chart", {
-        is: D3DifferenceChart
+      element = createElement("c-d3-difference-chart-graphql", {
+        is: D3DifferenceChartGraphql
       });
       element.dateField = "CloseDate";
       element.recordCollection = SAMPLE_DATA;
@@ -252,8 +252,8 @@ describe("c-d3-difference-chart", () => {
     });
 
     it("has correct default property values", () => {
-      element = createElement("c-d3-difference-chart", {
-        is: D3DifferenceChart
+      element = createElement("c-d3-difference-chart-graphql", {
+        is: D3DifferenceChartGraphql
       });
       expect(element.dateField).toBe("CloseDate");
       expect(element.primaryField).toBe("Amount");
@@ -263,8 +263,8 @@ describe("c-d3-difference-chart", () => {
     });
 
     it("does not expose a valueField or seriesField property", () => {
-      element = createElement("c-d3-difference-chart", {
-        is: D3DifferenceChart
+      element = createElement("c-d3-difference-chart-graphql", {
+        is: D3DifferenceChartGraphql
       });
       expect(element.valueField).toBeUndefined();
       expect(element.seriesField).toBeUndefined();

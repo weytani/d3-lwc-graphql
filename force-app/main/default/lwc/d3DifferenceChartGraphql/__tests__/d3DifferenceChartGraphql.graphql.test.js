@@ -1,9 +1,9 @@
-// ABOUTME: Tests the additive GraphQL self-fetch path on d3DifferenceChart (Approach A, CT-REC).
+// ABOUTME: Tests the additive GraphQL self-fetch path on d3DifferenceChartGraphql (Approach A, CT-REC).
 // ABOUTME: Difference has no server-side aggregate — the graphql path always fetches raw
 // ABOUTME: dateField/primaryField/secondaryField records and feeds the existing
 // ABOUTME: processDifferenceData path, same as recordCollection/soqlQuery.
 import { createElement } from "lwc";
-import D3DifferenceChart from "c/d3DifferenceChart";
+import D3DifferenceChartGraphql from "c/d3DifferenceChartGraphql";
 import { graphql, gql } from "lightning/graphql";
 import { loadD3 } from "c/d3Lib";
 
@@ -63,7 +63,7 @@ async function flushPromises() {
   return Promise.resolve();
 }
 
-describe("d3DifferenceChart GraphQL path (Approach A, CT-REC)", () => {
+describe("d3DifferenceChartGraphql GraphQL path (Approach A, CT-REC)", () => {
   let d3Calls;
 
   beforeEach(() => {
@@ -94,8 +94,8 @@ describe("d3DifferenceChart GraphQL path (Approach A, CT-REC)", () => {
   });
 
   it("renders the chart container and actually draws the difference fill when GraphQL record data arrives", async () => {
-    const element = createElement("c-d3-difference-chart", {
-      is: D3DifferenceChart
+    const element = createElement("c-d3-difference-chart-graphql", {
+      is: D3DifferenceChartGraphql
     });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
@@ -135,8 +135,8 @@ describe("d3DifferenceChart GraphQL path (Approach A, CT-REC)", () => {
   });
 
   it("shows an error when the GraphQL wire emits errors", async () => {
-    const element = createElement("c-d3-difference-chart", {
-      is: D3DifferenceChart
+    const element = createElement("c-d3-difference-chart-graphql", {
+      is: D3DifferenceChartGraphql
     });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
@@ -155,8 +155,8 @@ describe("d3DifferenceChart GraphQL path (Approach A, CT-REC)", () => {
   });
 
   it("bounds the query with the same first: value as other CT-REC charts", async () => {
-    const element = createElement("c-d3-difference-chart", {
-      is: D3DifferenceChart
+    const element = createElement("c-d3-difference-chart-graphql", {
+      is: D3DifferenceChartGraphql
     });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
@@ -172,8 +172,8 @@ describe("d3DifferenceChart GraphQL path (Approach A, CT-REC)", () => {
   });
 
   it("requests dateField, primaryField, and secondaryField, deduped", async () => {
-    const element = createElement("c-d3-difference-chart", {
-      is: D3DifferenceChart
+    const element = createElement("c-d3-difference-chart-graphql", {
+      is: D3DifferenceChartGraphql
     });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
@@ -193,8 +193,8 @@ describe("d3DifferenceChart GraphQL path (Approach A, CT-REC)", () => {
   });
 
   it("does not provision the wire when secondaryField is missing", async () => {
-    const element = createElement("c-d3-difference-chart", {
-      is: D3DifferenceChart
+    const element = createElement("c-d3-difference-chart-graphql", {
+      is: D3DifferenceChartGraphql
     });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";

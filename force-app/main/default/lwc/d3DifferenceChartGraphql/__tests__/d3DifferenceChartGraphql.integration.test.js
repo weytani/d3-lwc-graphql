@@ -1,8 +1,8 @@
-// ABOUTME: Integration tests for d3DifferenceChart verifying real service pipelines (dataService, themeService, chartUtils).
+// ABOUTME: Integration tests for d3DifferenceChartGraphql verifying real service pipelines (dataService, themeService, chartUtils).
 // ABOUTME: Only D3, Apex, and NavigationMixin are mocked; time series processing and color logic run for real.
 
 import { createElement } from "lwc";
-import D3DifferenceChart from "c/d3DifferenceChart";
+import D3DifferenceChartGraphql from "c/d3DifferenceChartGraphql";
 import { loadD3 } from "c/d3Lib";
 import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
 
@@ -109,7 +109,7 @@ const SAMPLE_DATA = [
 
 const flushPromises = () => new Promise(process.nextTick);
 
-describe("c-d3-difference-chart integration", () => {
+describe("c-d3-difference-chart-graphql integration", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -148,8 +148,8 @@ describe("c-d3-difference-chart integration", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-difference-chart", {
-      is: D3DifferenceChart
+    element = createElement("c-d3-difference-chart-graphql", {
+      is: D3DifferenceChartGraphql
     });
 
     Object.assign(element, {
