@@ -2,12 +2,112 @@
 <FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
     <flexiPageRegions>
         <itemInstances>
+            <!-- Step Chart: Amount over CloseDate (Wave 1, CHART-INDEX #7) -->
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>objectApiName</name>
+                    <value>Opportunity</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>dateField</name>
+                    <value>CloseDate</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>valueField</name>
+                    <value>Amount</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>height</name>
+                    <value>350</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>theme</name>
+                    <value>Cool</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>advancedConfig</name>
+                    <value>{}</value>
+                </componentInstanceProperties>
+                <componentName>d3StepChartGraphql</componentName>
+                <identifier>c_d3StepChartGraphql</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <!-- Variable-Color Line: Amount over CloseDate, threshold alert (Wave 2, CHART-INDEX #12) -->
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>objectApiName</name>
+                    <value>Opportunity</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>dateField</name>
+                    <value>CloseDate</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>valueField</name>
+                    <value>Amount</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>height</name>
+                    <value>350</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>theme</name>
+                    <value>Cool</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>advancedConfig</name>
+                    <value>{"threshold": 50000}</value>
+                </componentInstanceProperties>
+                <componentName>d3VariableColorLineGraphql</componentName>
+                <identifier>c_d3VariableColorLineGraphql</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <!-- Sparkline Grid: Amount Trends by Type -->
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>objectApiName</name>
+                    <value>Opportunity</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>entityField</name>
+                    <value>Type</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>dateField</name>
+                    <value>CloseDate</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>valueField</name>
+                    <value>Amount</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>operation</name>
+                    <value>Sum</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>height</name>
+                    <value>400</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>theme</name>
+                    <value>Cool</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>advancedConfig</name>
+                    <value>{}</value>
+                </componentInstanceProperties>
+                <componentName>d3SparklineGridGraphql</componentName>
+                <identifier>c_d3SparklineGridGraphql</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
             <!-- Pie Chart: Pipeline Amount by Stage -->
             <componentInstance>
                 <componentInstanceProperties>
-                    <name>soqlQuery</name>
-                    <value
-          >SELECT StageName, Amount FROM Opportunity WHERE Amount != null</value>
+                    <name>objectApiName</name>
+                    <value>Opportunity</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>groupByField</name>
@@ -33,12 +133,12 @@
                     <name>advancedConfig</name>
                     <value>{}</value>
                 </componentInstanceProperties>
-                <componentName>d3PieChart</componentName>
-                <identifier>c_d3PieChart</identifier>
+                <componentName>d3PieChartGraphql</componentName>
+                <identifier>c_d3PieChartGraphql</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
-            <!-- Horizontal Bar Chart: Amount by Stage -->
+            <!-- Donut Chart: Opportunity Count by Type -->
             <componentInstance>
                 <componentInstanceProperties>
                     <name>objectApiName</name>
@@ -46,7 +146,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>groupByField</name>
-                    <value>StageName</value>
+                    <value>Type</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>valueField</name>
@@ -54,31 +154,34 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>operation</name>
-                    <value>Sum</value>
+                    <value>Count</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>height</name>
-                    <value>350</value>
+                    <value>500</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>theme</name>
-                    <value>Salesforce Standard</value>
+                    <value>Vibrant</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>innerRadiusRatio</name>
+                    <value>0.5</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>advancedConfig</name>
                     <value>{}</value>
                 </componentInstanceProperties>
-                <componentName>d3HorizontalBarChart</componentName>
-                <identifier>c_d3HorizontalBarChart</identifier>
+                <componentName>d3DonutChartGraphql</componentName>
+                <identifier>c_d3DonutChartGraphql</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
             <!-- Lollipop Chart: Amount by Stage -->
             <componentInstance>
                 <componentInstanceProperties>
-                    <name>soqlQuery</name>
-                    <value
-          >SELECT StageName, Amount FROM Opportunity WHERE Amount != null</value>
+                    <name>objectApiName</name>
+                    <value>Opportunity</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>groupByField</name>
@@ -104,25 +207,32 @@
                     <name>advancedConfig</name>
                     <value>{}</value>
                 </componentInstanceProperties>
-                <componentName>d3LollipopChart</componentName>
-                <identifier>c_d3LollipopChart</identifier>
+                <componentName>d3LollipopChartGraphql</componentName>
+                <identifier>c_d3LollipopChartGraphql</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
-            <!-- Progress Bar: Closed Won Amount vs Target -->
+            <!-- Funnel Chart: Pipeline by Stage -->
             <componentInstance>
                 <componentInstanceProperties>
-                    <name>soqlQuery</name>
-                    <value
-          >SELECT Amount FROM Opportunity WHERE Amount != null AND StageName = 'Closed Won'</value>
+                    <name>objectApiName</name>
+                    <value>Opportunity</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>groupByField</name>
+                    <value>StageName</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>valueField</name>
                     <value>Amount</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
+                    <name>operation</name>
+                    <value>Count</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
                     <name>height</name>
-                    <value>120</value>
+                    <value>300</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>theme</name>
@@ -130,51 +240,18 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>advancedConfig</name>
-                    <value>{"target": 1000000}</value>
-                </componentInstanceProperties>
-                <componentName>d3ProgressBar</componentName>
-                <identifier>c_d3ProgressBar</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <!-- Diverging Bar Chart: Quota Variance by Lead Source -->
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>soqlQuery</name>
-                    <value
-          >SELECT LeadSource, Quota_Variance__c FROM Opportunity WHERE Quota_Variance__c != null AND LeadSource != null</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>groupByField</name>
-                    <value>LeadSource</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>valueField</name>
-                    <value>Quota_Variance__c</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>operation</name>
-                    <value>Sum</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>height</name>
-                    <value>350</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>advancedConfig</name>
                     <value>{}</value>
                 </componentInstanceProperties>
-                <componentName>d3DivergingBarChart</componentName>
-                <identifier>c_d3DivergingBarChart</identifier>
+                <componentName>d3FunnelChartGraphql</componentName>
+                <identifier>c_d3FunnelChartGraphql</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
             <!-- Waffle Chart: Opportunity Count by Stage -->
             <componentInstance>
                 <componentInstanceProperties>
-                    <name>soqlQuery</name>
-                    <value
-          >SELECT StageName, Amount FROM Opportunity WHERE Amount != null</value>
+                    <name>objectApiName</name>
+                    <value>Opportunity</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>groupByField</name>
@@ -200,185 +277,14 @@
                     <name>advancedConfig</name>
                     <value>{}</value>
                 </componentInstanceProperties>
-                <componentName>d3WaffleChart</componentName>
-                <identifier>c_d3WaffleChart</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <!-- Sunburst Chart: Amount by Stage and Type -->
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>soqlQuery</name>
-                    <value
-          >SELECT StageName, Type, Amount FROM Opportunity WHERE Amount != null AND Type != null</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>objectApiName</name>
-                    <value>Opportunity</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>groupByField</name>
-                    <value>StageName</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>secondaryGroupByField</name>
-                    <value>Type</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>valueField</name>
-                    <value>Amount</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>operation</name>
-                    <value>Sum</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>height</name>
-                    <value>550</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>theme</name>
-                    <value>Cool</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>advancedConfig</name>
-                    <value>{}</value>
-                </componentInstanceProperties>
-                <componentName>d3SunburstChart</componentName>
-                <identifier>c_d3SunburstChart</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <!-- Bubble Chart: Amount vs Probability sized by Forecast Units -->
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>soqlQuery</name>
-                    <value
-          >SELECT Amount, Probability, Forecast_Units__c FROM Opportunity WHERE Amount != null AND Probability != null AND Forecast_Units__c != null</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>objectApiName</name>
-                    <value>Opportunity</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>xAxisField</name>
-                    <value>Amount</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>yAxisField</name>
-                    <value>Probability</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>sizeField</name>
-                    <value>Forecast_Units__c</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>xAxisLabel</name>
-                    <value>Amount</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>yAxisLabel</name>
-                    <value>Probability</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>height</name>
-                    <value>400</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>theme</name>
-                    <value>Vibrant</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>advancedConfig</name>
-                    <value>{}</value>
-                </componentInstanceProperties>
-                <componentName>d3BubbleChart</componentName>
-                <identifier>c_d3BubbleChart</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <!-- Chord Diagram: Stage to Lead Source Flow -->
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>soqlQuery</name>
-                    <value
-          >SELECT StageName, LeadSource, Amount FROM Opportunity WHERE Amount != null AND LeadSource != null</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>objectApiName</name>
-                    <value>Opportunity</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>groupByField</name>
-                    <value>StageName</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>seriesField</name>
-                    <value>LeadSource</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>valueField</name>
-                    <value>Amount</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>operation</name>
-                    <value>Sum</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>height</name>
-                    <value>550</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>theme</name>
-                    <value>Warm</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>advancedConfig</name>
-                    <value>{}</value>
-                </componentInstanceProperties>
-                <componentName>d3ChordDiagram</componentName>
-                <identifier>c_d3ChordDiagram</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <!-- Gantt Chart: Project Timelines (GraphQL self-fetch) -->
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>objectApiName</name>
-                    <value>Opportunity</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>labelField</name>
-                    <value>Name</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>startDateField</name>
-                    <value>Project_Start__c</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>endDateField</name>
-                    <value>Project_End__c</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>height</name>
-                    <value>400</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>theme</name>
-                    <value>Cool</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>advancedConfig</name>
-                    <value>{}</value>
-                </componentInstanceProperties>
-                <componentName>d3GanttChart</componentName>
-                <identifier>c_d3GanttChart</identifier>
+                <componentName>d3WaffleChartGraphql</componentName>
+                <identifier>c_d3WaffleChartGraphql</identifier>
             </componentInstance>
         </itemInstances>
         <name>main</name>
         <type>Region</type>
     </flexiPageRegions>
-    <masterLabel>d3-lwc Phase 3</masterLabel>
+    <masterLabel>D3 GraphQL Showcase 2</masterLabel>
     <template>
         <name>flexipage:defaultAppHomeTemplate</name>
     </template>
