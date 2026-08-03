@@ -16,15 +16,6 @@
         <targetConfig
       targets="lightning__AppPage,lightning__RecordPage,lightning__HomePage,lightningCommunity__Default"
     >
-            <!-- Data Source -->
-            <property
-        name="soqlQuery"
-        type="String"
-        label="SOQL Query"
-        description="SOQL query to fetch time series data"
-        placeholder="SELECT CloseDate, Amount, ExpectedRevenue FROM Opportunity ORDER BY CloseDate"
-      />
-
             <!-- Field Mapping -->
             <property
         name="dateField"
@@ -86,12 +77,12 @@
         description="Color palette for the chart"
       />
 
-            <!-- Drill-Down -->
+            <!-- Object / Drill-Down -->
             <property
         name="objectApiName"
         type="String"
-        label="Drill-Down Object"
-        description="Object API name for navigation on point click"
+        label="Object API Name"
+        description="Object to query. When set (and no records are passed in), the chart self-fetches this object via GraphQL for the Date, Primary, and Secondary fields. Also used for drill-down navigation on point click."
         placeholder="Opportunity"
       />
             <property
@@ -111,14 +102,12 @@
         max="10000"
       />
 
-            <!-- GraphQL Self-Fetch -->
+            <!-- GraphQL Query Override -->
             <property
-        name="fetchMode"
+        name="graphqlQuery"
         type="String"
-        label="Data Source"
-        default="auto"
-        datasource="auto,apex,graphql"
-        description="How to fetch data: auto (existing priority order), apex (Apex-backed SOQL), or graphql (UI API GraphQL)"
+        label="GraphQL Query"
+        description="Optional override of the built query. Must be a UI API record query (uiapi.query) whose node selects the Date Field, Primary Field, and Secondary Field as top-level fields; the returned rows are shaped client-side into date-ordered difference points. UI-API-queryable objects only; at most 2,000 records; GraphQL syntax. Footgun: if the Primary or Secondary Field is missing from the query, every row is dropped and the chart reports no data rather than erroring on the query. Leave blank to build the query automatically."
       />
 
             <!-- Advanced -->
@@ -197,6 +186,12 @@
         description="Maximum records to process. Leave empty for default."
         min="1"
         max="10000"
+      />
+            <property
+        name="advancedConfig"
+        type="String"
+        label="Advanced Config (JSON)"
+        description='{"showGrid": true, "customColors": ["#1589EE", "#FF9E2C"]}'
       />
         </targetConfig>
     </targetConfigs>
