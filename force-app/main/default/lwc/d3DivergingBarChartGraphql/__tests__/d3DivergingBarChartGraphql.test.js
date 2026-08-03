@@ -1,8 +1,8 @@
-// ABOUTME: Unit tests for the d3DivergingBarChart Lightning Web Component.
+// ABOUTME: Unit tests for the d3DivergingBarChartGraphql Lightning Web Component.
 // ABOUTME: Tests centered-zero domain, sign-based coloring, data handling, config, events, tooltip, resize, and error recovery.
 
 import { createElement } from "lwc";
-import D3DivergingBarChart from "c/d3DivergingBarChart";
+import D3DivergingBarChartGraphql from "c/d3DivergingBarChartGraphql";
 import { loadD3 } from "c/d3Lib";
 import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
 import getAggregatedData from "@salesforce/apex/D3ChartController.getAggregatedData";
@@ -116,7 +116,7 @@ const SPECIAL_CHAR_DATA = [
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-diverging-bar-chart", () => {
+describe("c-d3-diverging-bar-chart-graphql", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -166,8 +166,8 @@ describe("c-d3-diverging-bar-chart", () => {
 
   // Helper to create element with properties
   async function createChart(props = {}) {
-    element = createElement("c-d3-diverging-bar-chart", {
-      is: D3DivergingBarChart
+    element = createElement("c-d3-diverging-bar-chart-graphql", {
+      is: D3DivergingBarChartGraphql
     });
 
     Object.assign(element, {
@@ -193,8 +193,8 @@ describe("c-d3-diverging-bar-chart", () => {
 
   describe("initialization", () => {
     it("shows loading state initially", async () => {
-      element = createElement("c-d3-diverging-bar-chart", {
-        is: D3DivergingBarChart
+      element = createElement("c-d3-diverging-bar-chart-graphql", {
+        is: D3DivergingBarChartGraphql
       });
       element.groupByField = "StageName";
       element.recordCollection = SAMPLE_DATA;
@@ -368,8 +368,8 @@ describe("c-d3-diverging-bar-chart", () => {
       }));
 
       const toastHandler = jest.fn();
-      element = createElement("c-d3-diverging-bar-chart", {
-        is: D3DivergingBarChart
+      element = createElement("c-d3-diverging-bar-chart-graphql", {
+        is: D3DivergingBarChartGraphql
       });
       element.addEventListener("lightning__showtoast", toastHandler);
       Object.assign(element, {
@@ -1191,8 +1191,8 @@ describe("c-d3-diverging-bar-chart", () => {
     });
 
     it("showChart is false when loading", () => {
-      element = createElement("c-d3-diverging-bar-chart", {
-        is: D3DivergingBarChart
+      element = createElement("c-d3-diverging-bar-chart-graphql", {
+        is: D3DivergingBarChartGraphql
       });
       element.groupByField = "StageName";
       element.recordCollection = SAMPLE_DATA;

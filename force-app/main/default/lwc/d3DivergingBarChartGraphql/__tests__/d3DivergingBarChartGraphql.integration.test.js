@@ -1,8 +1,8 @@
-// ABOUTME: Integration tests for d3DivergingBarChart verifying real service pipelines (dataService, themeService, chartUtils).
+// ABOUTME: Integration tests for d3DivergingBarChartGraphql verifying real service pipelines (dataService, themeService, chartUtils).
 // ABOUTME: Only D3, Apex, NavigationMixin, and ShowToastEvent are mocked; sign coloring + symmetric domain use real services.
 
 import { createElement } from "lwc";
-import D3DivergingBarChart from "c/d3DivergingBarChart";
+import D3DivergingBarChartGraphql from "c/d3DivergingBarChartGraphql";
 import { loadD3 } from "c/d3Lib";
 import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
 // ShowToastEvent is imported by the component; we mock it below
@@ -123,7 +123,7 @@ const flushPromises = () => new Promise(process.nextTick);
 // TEST SUITE
 // ═══════════════════════════════════════════════════════════════
 
-describe("c-d3-diverging-bar-chart integration", () => {
+describe("c-d3-diverging-bar-chart-graphql integration", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -171,13 +171,13 @@ describe("c-d3-diverging-bar-chart integration", () => {
   });
 
   /**
-   * Helper to create a d3DivergingBarChart element with default and overridden properties.
+   * Helper to create a d3DivergingBarChartGraphql element with default and overridden properties.
    * @param {Object} props - Property overrides
    * @returns {HTMLElement} - The created element
    */
   async function createChart(props = {}) {
-    element = createElement("c-d3-diverging-bar-chart", {
-      is: D3DivergingBarChart
+    element = createElement("c-d3-diverging-bar-chart-graphql", {
+      is: D3DivergingBarChartGraphql
     });
 
     Object.assign(element, {
@@ -418,8 +418,8 @@ describe("c-d3-diverging-bar-chart integration", () => {
         Amount: (i + 1) * 10
       }));
 
-      element = createElement("c-d3-diverging-bar-chart", {
-        is: D3DivergingBarChart
+      element = createElement("c-d3-diverging-bar-chart-graphql", {
+        is: D3DivergingBarChartGraphql
       });
 
       // Capture dispatched events via listener before appending to DOM
@@ -456,8 +456,8 @@ describe("c-d3-diverging-bar-chart integration", () => {
         Amount: (i + 1) * 5
       }));
 
-      element = createElement("c-d3-diverging-bar-chart", {
-        is: D3DivergingBarChart
+      element = createElement("c-d3-diverging-bar-chart-graphql", {
+        is: D3DivergingBarChartGraphql
       });
 
       const toastHandler = jest.fn();

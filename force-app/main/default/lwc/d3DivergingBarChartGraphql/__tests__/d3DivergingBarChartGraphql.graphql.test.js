@@ -1,7 +1,7 @@
-// ABOUTME: Tests the additive GraphQL self-fetch path on d3DivergingBarChart (Approach A).
+// ABOUTME: Tests the additive GraphQL self-fetch path on d3DivergingBarChartGraphql (Approach A).
 // ABOUTME: Uses the real HTML selectors: .chart-container (chart) and .slds-text-color_error (error).
 import { createElement } from "lwc";
-import D3DivergingBarChart from "c/d3DivergingBarChart";
+import D3DivergingBarChartGraphql from "c/d3DivergingBarChartGraphql";
 import { graphql, gql } from "lightning/graphql";
 import { loadD3 } from "c/d3Lib";
 
@@ -77,7 +77,7 @@ async function flushPromises() {
   return Promise.resolve();
 }
 
-describe("d3DivergingBarChart GraphQL path (Approach A)", () => {
+describe("d3DivergingBarChartGraphql GraphQL path (Approach A)", () => {
   beforeEach(() => {
     loadD3.mockResolvedValue(makeD3Stub());
 
@@ -106,8 +106,8 @@ describe("d3DivergingBarChart GraphQL path (Approach A)", () => {
   });
 
   it("renders the chart container when GraphQL aggregate data arrives", async () => {
-    const element = createElement("c-d3-diverging-bar-chart", {
-      is: D3DivergingBarChart
+    const element = createElement("c-d3-diverging-bar-chart-graphql", {
+      is: D3DivergingBarChartGraphql
     });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
@@ -128,8 +128,8 @@ describe("d3DivergingBarChart GraphQL path (Approach A)", () => {
   });
 
   it("shows an error when the GraphQL wire emits errors", async () => {
-    const element = createElement("c-d3-diverging-bar-chart", {
-      is: D3DivergingBarChart
+    const element = createElement("c-d3-diverging-bar-chart-graphql", {
+      is: D3DivergingBarChartGraphql
     });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
@@ -148,8 +148,8 @@ describe("d3DivergingBarChart GraphQL path (Approach A)", () => {
   });
 
   it("falls back to a raw record query and counts client-side for Count operation", async () => {
-    const element = createElement("c-d3-diverging-bar-chart", {
-      is: D3DivergingBarChart
+    const element = createElement("c-d3-diverging-bar-chart-graphql", {
+      is: D3DivergingBarChartGraphql
     });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
@@ -169,8 +169,8 @@ describe("d3DivergingBarChart GraphQL path (Approach A)", () => {
   });
 
   it("bounds the Count-path query with the same first: value as the aggregate path", async () => {
-    const element = createElement("c-d3-diverging-bar-chart", {
-      is: D3DivergingBarChart
+    const element = createElement("c-d3-diverging-bar-chart-graphql", {
+      is: D3DivergingBarChartGraphql
     });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";

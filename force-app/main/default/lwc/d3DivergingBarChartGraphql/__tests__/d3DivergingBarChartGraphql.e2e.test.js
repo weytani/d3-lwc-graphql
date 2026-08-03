@@ -1,8 +1,8 @@
-// ABOUTME: End-to-end lifecycle tests for the d3DivergingBarChart Lightning Web Component.
+// ABOUTME: End-to-end lifecycle tests for the d3DivergingBarChartGraphql Lightning Web Component.
 // ABOUTME: Verifies full pipeline: D3 load, signed aggregation, SVG rendering, sign coloring, cleanup, and multi-instance isolation.
 
 import { createElement } from "lwc";
-import D3DivergingBarChart from "c/d3DivergingBarChart";
+import D3DivergingBarChartGraphql from "c/d3DivergingBarChartGraphql";
 import { loadD3 } from "c/d3Lib";
 import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
 
@@ -136,8 +136,8 @@ function flushPromises() {
 let consoleErrorSpy;
 
 async function createChart(props = {}) {
-  const element = createElement("c-d3-diverging-bar-chart", {
-    is: D3DivergingBarChart
+  const element = createElement("c-d3-diverging-bar-chart-graphql", {
+    is: D3DivergingBarChartGraphql
   });
 
   Object.assign(element, {
@@ -158,7 +158,7 @@ async function createChart(props = {}) {
 // TEST SUITE
 // ═══════════════════════════════════════════════════════════════
 
-describe("c-d3-diverging-bar-chart e2e", () => {
+describe("c-d3-diverging-bar-chart-graphql e2e", () => {
   let mockD3;
 
   beforeEach(() => {

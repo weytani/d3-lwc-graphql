@@ -31,7 +31,7 @@ import {
   normalizeRecords
 } from "c/graphqlService";
 
-export default class D3DivergingBarChart extends NavigationMixin(
+export default class D3DivergingBarChartGraphql extends NavigationMixin(
   LightningElement
 ) {
   // ═══════════════════════════════════════════════════════════════
@@ -249,7 +249,7 @@ export default class D3DivergingBarChart extends NavigationMixin(
       await this.loadData();
     } catch (e) {
       this.error = e.message || "Failed to initialize chart";
-      console.error("D3DivergingBarChart initialization error:", e);
+      console.error("D3DivergingBarChartGraphql initialization error:", e);
     } finally {
       this.isLoading = false;
     }
