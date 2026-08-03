@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local data processing for the d3HorizontalBarChart standalone bundle.
+// ABOUTME: Bundle-local data processing for the d3HorizontalBarChartGraphql standalone bundle.
 // ABOUTME: Client-side validation, truncation, and aggregation of records into label/value pairs.
 
 /**

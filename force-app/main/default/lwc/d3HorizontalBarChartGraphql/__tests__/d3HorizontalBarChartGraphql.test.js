@@ -1,8 +1,8 @@
-// ABOUTME: Unit tests for the d3HorizontalBarChart Lightning Web Component.
+// ABOUTME: Unit tests for the d3HorizontalBarChartGraphql Lightning Web Component.
 // ABOUTME: Tests initialization, data handling, aggregation, config, events, tooltip, resize, and error recovery for the horizontal (swapped-axis) bar chart.
 
 import { createElement } from "lwc";
-import D3HorizontalBarChart from "c/d3HorizontalBarChart";
+import D3HorizontalBarChartGraphql from "c/d3HorizontalBarChartGraphql";
 import { loadD3 } from "../d3Loader";
 
 // Mock the bundle-local D3 loader
@@ -97,7 +97,7 @@ const SPECIAL_CHAR_DATA = [
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-horizontal-bar-chart", () => {
+describe("c-d3-horizontal-bar-chart-graphql", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -141,8 +141,8 @@ describe("c-d3-horizontal-bar-chart", () => {
 
   // Helper to create element with properties
   async function createChart(props = {}) {
-    element = createElement("c-d3-horizontal-bar-chart", {
-      is: D3HorizontalBarChart
+    element = createElement("c-d3-horizontal-bar-chart-graphql", {
+      is: D3HorizontalBarChartGraphql
     });
 
     Object.assign(element, {
@@ -168,8 +168,8 @@ describe("c-d3-horizontal-bar-chart", () => {
 
   describe("initialization", () => {
     it("shows loading state initially", async () => {
-      element = createElement("c-d3-horizontal-bar-chart", {
-        is: D3HorizontalBarChart
+      element = createElement("c-d3-horizontal-bar-chart-graphql", {
+        is: D3HorizontalBarChartGraphql
       });
       element.groupByField = "StageName";
       element.recordCollection = SAMPLE_DATA;
@@ -341,8 +341,8 @@ describe("c-d3-horizontal-bar-chart", () => {
       }));
 
       const toastHandler = jest.fn();
-      element = createElement("c-d3-horizontal-bar-chart", {
-        is: D3HorizontalBarChart
+      element = createElement("c-d3-horizontal-bar-chart-graphql", {
+        is: D3HorizontalBarChartGraphql
       });
       element.addEventListener("lightning__showtoast", toastHandler);
       Object.assign(element, {
@@ -963,8 +963,8 @@ describe("c-d3-horizontal-bar-chart", () => {
     });
 
     it("showChart is false when loading", () => {
-      element = createElement("c-d3-horizontal-bar-chart", {
-        is: D3HorizontalBarChart
+      element = createElement("c-d3-horizontal-bar-chart-graphql", {
+        is: D3HorizontalBarChartGraphql
       });
       element.groupByField = "StageName";
       element.recordCollection = SAMPLE_DATA;

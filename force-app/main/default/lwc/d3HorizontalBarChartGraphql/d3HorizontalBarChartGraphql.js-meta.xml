@@ -2,7 +2,7 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>D3 Horizontal Bar Chart</masterLabel>
+    <masterLabel>D3 Horizontal Bar Chart (GraphQL)</masterLabel>
     <description
   >Interactive horizontal bar chart powered by D3.js with categories on the Y axis, values on the X axis, aggregation, and drill-down support.</description>
     <targets>

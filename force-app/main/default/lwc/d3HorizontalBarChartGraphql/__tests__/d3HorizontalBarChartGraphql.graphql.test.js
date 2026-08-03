@@ -1,7 +1,7 @@
-// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3HorizontalBarChart bundle.
+// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3HorizontalBarChartGraphql bundle.
 // ABOUTME: Covers the structured builders and the free-text graphqlQuery admin override.
 import { createElement } from "lwc";
-import D3HorizontalBarChart from "c/d3HorizontalBarChart";
+import D3HorizontalBarChartGraphql from "c/d3HorizontalBarChartGraphql";
 import { graphql, gql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
@@ -103,7 +103,7 @@ async function flushPromises() {
   return Promise.resolve();
 }
 
-describe("d3HorizontalBarChart GraphQL path", () => {
+describe("d3HorizontalBarChartGraphql GraphQL path", () => {
   beforeEach(() => {
     loadD3.mockResolvedValue(makeD3Stub());
 
@@ -132,8 +132,8 @@ describe("d3HorizontalBarChart GraphQL path", () => {
   });
 
   it("renders the chart container when GraphQL aggregate data arrives", async () => {
-    const element = createElement("c-d3-horizontal-bar-chart", {
-      is: D3HorizontalBarChart
+    const element = createElement("c-d3-horizontal-bar-chart-graphql", {
+      is: D3HorizontalBarChartGraphql
     });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -153,8 +153,8 @@ describe("d3HorizontalBarChart GraphQL path", () => {
   });
 
   it("keeps the loading spinner up while the wire is provisioned and awaiting its first emission", async () => {
-    const element = createElement("c-d3-horizontal-bar-chart", {
-      is: D3HorizontalBarChart
+    const element = createElement("c-d3-horizontal-bar-chart-graphql", {
+      is: D3HorizontalBarChartGraphql
     });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -183,8 +183,8 @@ describe("d3HorizontalBarChart GraphQL path", () => {
   });
 
   it("shows an error when the GraphQL wire emits errors", async () => {
-    const element = createElement("c-d3-horizontal-bar-chart", {
-      is: D3HorizontalBarChart
+    const element = createElement("c-d3-horizontal-bar-chart-graphql", {
+      is: D3HorizontalBarChartGraphql
     });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -218,8 +218,8 @@ describe("d3HorizontalBarChart GraphQL path", () => {
     });
     loadD3.mockResolvedValue(chain);
 
-    const element = createElement("c-d3-horizontal-bar-chart", {
-      is: D3HorizontalBarChart
+    const element = createElement("c-d3-horizontal-bar-chart-graphql", {
+      is: D3HorizontalBarChartGraphql
     });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -244,8 +244,8 @@ describe("d3HorizontalBarChart GraphQL path", () => {
   });
 
   it("bounds the Count-path query with the same first: value as the aggregate path", async () => {
-    const element = createElement("c-d3-horizontal-bar-chart", {
-      is: D3HorizontalBarChart
+    const element = createElement("c-d3-horizontal-bar-chart-graphql", {
+      is: D3HorizontalBarChartGraphql
     });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -259,8 +259,8 @@ describe("d3HorizontalBarChart GraphQL path", () => {
   });
 
   it("uses a free-text graphqlQuery verbatim and aggregates the rows client-side", async () => {
-    const element = createElement("c-d3-horizontal-bar-chart", {
-      is: D3HorizontalBarChart
+    const element = createElement("c-d3-horizontal-bar-chart-graphql", {
+      is: D3HorizontalBarChartGraphql
     });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
@@ -287,8 +287,8 @@ describe("d3HorizontalBarChart GraphQL path", () => {
   });
 
   it("surfaces wire errors from a free-text graphqlQuery in the error state", async () => {
-    const element = createElement("c-d3-horizontal-bar-chart", {
-      is: D3HorizontalBarChart
+    const element = createElement("c-d3-horizontal-bar-chart-graphql", {
+      is: D3HorizontalBarChartGraphql
     });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
@@ -309,8 +309,8 @@ describe("d3HorizontalBarChart GraphQL path", () => {
   it("hints record-query-only when a free-text graphqlQuery yields no records", async () => {
     // An aggregate-shaped payload has no uiapi.query, so the record normalizer
     // finds nothing — the error should point the admin at the record-query contract.
-    const element = createElement("c-d3-horizontal-bar-chart", {
-      is: D3HorizontalBarChart
+    const element = createElement("c-d3-horizontal-bar-chart-graphql", {
+      is: D3HorizontalBarChartGraphql
     });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
@@ -329,8 +329,8 @@ describe("d3HorizontalBarChart GraphQL path", () => {
   });
 
   it("ignores a blank graphqlQuery and falls through to the structured builder", async () => {
-    const element = createElement("c-d3-horizontal-bar-chart", {
-      is: D3HorizontalBarChart
+    const element = createElement("c-d3-horizontal-bar-chart-graphql", {
+      is: D3HorizontalBarChartGraphql
     });
     element.graphqlQuery = "   ";
     element.objectApiName = "Opportunity";
