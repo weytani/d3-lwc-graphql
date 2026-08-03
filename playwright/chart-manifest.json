@@ -97,6 +97,11 @@
           "element": "c-d3-diverging-bar-chart-graphql",
           "name": "d3DivergingBarChartGraphql",
           "minSvgDescendants": 10
+        },
+        {
+          "element": "c-d3-dot-plot-graphql",
+          "name": "d3DotPlotGraphql",
+          "minSvgDescendants": 10
         }
       ]
     }

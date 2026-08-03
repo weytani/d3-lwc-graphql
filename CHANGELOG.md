@@ -5,6 +5,44 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-08-03
+
+Wave 4 continues through the categorical/comparison family with the Cleveland dot plot, which
+joins the diverging bar chart on showcase page 3.
+
+### Changed
+
+- **BREAKING: `d3DotPlotGraphql` is now a standalone GraphQL-only bundle**, converted per
+  `docs/conversion-recipe.md` and renamed from `d3DotPlot` to its `*Graphql` suffixed identity
+  (tag `c-d3-dot-plot-graphql`, masterLabel "D3 Dot Plot (GraphQL)"): GraphQL wire self-fetch
+  only, bundle-local support modules (`d3Loader.js`, `theme.js`, `data.js`, `utils.js`,
+  `graphql.js`), no shared `c/` imports, no Apex. `soqlQuery` and `fetchMode` removed;
+  `graphqlQuery` free-text record queries and the `lightning__FlowScreen` target added. As a
+  single-value-per-category chart it routes Sum and Average through the GraphQL grouped-aggregate
+  path and Count through a raw record query aggregated client-side, so every fetch path lands on
+  the same one-dot-per-category shape. Ships with the full unit + integration + graphql + e2e
+  test tiers. Live-verified on-org via the Playwright sweep (9 opportunity stages sized by
+  `[D3DEMO]` amount sums).
+
+### Fixed
+
+- **`d3DotPlotGraphql`: container-rebind hardening (recipe §4.3).** The template's if/elseif chain
+  destroys the `.chart-container` on every pass through loading/error/no-data, so the previous
+  existence-only guards left the tooltip writing into a detached node and the ResizeObserver
+  watching a dead element after a data → error → data cycle. `initializeChart` now tracks the
+  container generation it is bound to and cleans up and re-creates both when the container
+  identity changes. Second bundle to ship the fix, after `d3DivergingBarChartGraphql`; the 16
+  v1.0.0 bundles still carry the defect (issue #2).
+- **`d3DotPlotGraphql`: `recordLimit` meta max capped at 2,000**, the UI API record-query ceiling
+  (recipe §5). The previous 10,000 advertised a bound the only remaining fetch path rejects.
+
+### Added
+
+- **Showcase page 3 gains the dot plot** — total amount by opportunity stage. Its component
+  instance uses the same free-text `graphqlQuery` `where` idiom the page was established with, so
+  it aggregates only `[D3DEMO]` seeded Opportunities and the committed Playwright baseline
+  contains only synthetic demo data.
+
 ## [1.1.0] - 2026-08-03
 
 First wave-4 release: the categorical/comparison family opens with the diverging bar chart, and

@@ -37,6 +37,46 @@
                 <identifier>c_d3DivergingBarChartGraphql</identifier>
             </componentInstance>
         </itemInstances>
+        <itemInstances>
+            <!-- Dot Plot: Amount by Stage (Wave 4). Free-text GraphQL record query scopes the page to [D3DEMO] seeded Opportunities; the Amount sums are aggregated client-side into one dot per stage. -->
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>graphqlQuery</name>
+                    <value
+          >query D3DemoAmountByStage { uiapi { query { Opportunity(first: 2000, where: { and: [{ Name: { like: "[D3DEMO]%" } }, { Amount: { ne: null } }, { StageName: { ne: null } }] }) { edges { node { StageName { value } Amount { value } } } } } } }</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>objectApiName</name>
+                    <value>Opportunity</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>groupByField</name>
+                    <value>StageName</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>valueField</name>
+                    <value>Amount</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>operation</name>
+                    <value>Sum</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>height</name>
+                    <value>350</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>theme</name>
+                    <value>Salesforce Standard</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>advancedConfig</name>
+                    <value>{}</value>
+                </componentInstanceProperties>
+                <componentName>d3DotPlotGraphql</componentName>
+                <identifier>c_d3DotPlotGraphql</identifier>
+            </componentInstance>
+        </itemInstances>
         <name>main</name>
         <type>Region</type>
     </flexiPageRegions>
