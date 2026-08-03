@@ -1,22 +1,14 @@
 // ABOUTME: End-to-end lifecycle tests for the d3DotPlotGraphql Lightning Web Component.
-// ABOUTME: Verifies full pipeline: D3 load, data aggregation, dot rendering, cleanup, and multi-instance isolation.
+// ABOUTME: Verifies full pipeline: D3 load, GraphQL self-fetch, data aggregation, dot rendering, cleanup, and multi-instance isolation.
 
 import { createElement } from "lwc";
 import D3DotPlotGraphql from "c/d3DotPlotGraphql";
-import { loadD3 } from "c/d3Lib";
-import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
+import { loadD3 } from "../d3Loader";
+import { graphql } from "lightning/graphql";
 
-jest.mock("c/d3Lib", () => ({
+jest.mock("../d3Loader", () => ({
   loadD3: jest.fn()
 }));
-
-jest.mock(
-  "@salesforce/apex/D3ChartController.executeQuery",
-  () => ({
-    default: jest.fn()
-  }),
-  { virtual: true }
-);
 
 jest.mock("lightning/navigation", () => {
   const Navigate = Symbol.for("Navigate");
@@ -140,7 +132,6 @@ describe("c-d3-dot-plot-graphql e2e", () => {
     jest.clearAllMocks();
     mockD3 = createMockD3();
     loadD3.mockResolvedValue(mockD3);
-    executeQuery.mockResolvedValue([]);
 
     consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
 
@@ -171,7 +162,6 @@ describe("c-d3-dot-plot-graphql e2e", () => {
       const element = await createChart({ recordCollection: LIFECYCLE_DATA });
 
       expect(loadD3).toHaveBeenCalled();
-      expect(executeQuery).not.toHaveBeenCalled();
       expect(mockD3.select).toHaveBeenCalled();
 
       const appendCalls = mockD3.append.mock.calls;
@@ -192,6 +182,60 @@ describe("c-d3-dot-plot-graphql e2e", () => {
         ".slds-text-color_error"
       );
       expect(errorEl).toBeFalsy();
+    });
+
+    it("GraphQL fetch path: no recordCollection -> wire emits -> full pipeline", async () => {
+      // The self-fetch happy path: nothing is passed in, the chart provisions
+      // the structured aggregate query itself, and the wire emission drives the
+      // whole render pipeline through to real dot marks.
+      const element = await createChart({
+        recordCollection: [],
+        objectApiName: "Opportunity",
+        groupByField: "StageName",
+        valueField: "Amount",
+        operation: "Sum"
+      });
+
+      graphql.emit({
+        uiapi: {
+          aggregate: {
+            Opportunity: {
+              edges: [
+                {
+                  node: {
+                    aggregate: {
+                      StageName: { value: "Discovery" },
+                      Amount: { sum: { value: 500 } }
+                    }
+                  }
+                },
+                {
+                  node: {
+                    aggregate: {
+                      StageName: { value: "Proposal" },
+                      Amount: { sum: { value: 300 } }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      });
+      await flushPromises();
+      await flushPromises();
+
+      expect(loadD3).toHaveBeenCalled();
+
+      const appendCalls = mockD3.append.mock.calls;
+      expect(appendCalls.some((call) => call[0] === "svg")).toBe(true);
+      expect(appendCalls.some((call) => call[0] === "circle")).toBe(true);
+
+      const container = element.shadowRoot.querySelector(".chart-container");
+      expect(container).toBeTruthy();
+      expect(
+        element.shadowRoot.querySelector(".slds-text-color_error")
+      ).toBeFalsy();
     });
 
     it("cleanup destroys resize handler and tooltip on disconnect", async () => {
@@ -231,29 +275,26 @@ describe("c-d3-dot-plot-graphql e2e", () => {
       expect(container).toBeFalsy();
     });
 
-    it("SOQL fetch path: no recordCollection -> Apex returns data -> full pipeline", async () => {
-      const soqlData = [
-        { StageName: "Discovery", Amount: 400 },
-        { StageName: "Discovery", Amount: 100 },
-        { StageName: "Proposal", Amount: 300 }
-      ];
-      executeQuery.mockResolvedValue(soqlData);
-
+    it("GraphQL wire error -> error state -> component shows the message", async () => {
       const element = await createChart({
         recordCollection: [],
-        soqlQuery: "SELECT StageName, Amount FROM Opportunity"
+        objectApiName: "Opportunity",
+        groupByField: "StageName",
+        valueField: "Amount",
+        operation: "Sum"
       });
 
-      expect(executeQuery).toHaveBeenCalledWith({
-        queryString: "SELECT StageName, Amount FROM Opportunity"
-      });
-      expect(loadD3).toHaveBeenCalled();
+      graphql.emitErrors([{ message: "FIELD_INTEGRITY_EXCEPTION" }]);
+      await flushPromises();
 
-      const appendCalls = mockD3.append.mock.calls;
-      expect(appendCalls.some((call) => call[0] === "svg")).toBe(true);
+      const errorEl = element.shadowRoot.querySelector(
+        ".slds-text-color_error"
+      );
+      expect(errorEl).toBeTruthy();
+      expect(errorEl.textContent).toContain("FIELD_INTEGRITY_EXCEPTION");
 
       const container = element.shadowRoot.querySelector(".chart-container");
-      expect(container).toBeTruthy();
+      expect(container).toBeFalsy();
     });
   });
 

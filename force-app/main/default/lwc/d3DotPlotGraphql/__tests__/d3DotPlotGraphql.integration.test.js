@@ -1,20 +1,14 @@
-// ABOUTME: Integration tests for d3DotPlotGraphql verifying real service pipelines (dataService, themeService, chartUtils).
-// ABOUTME: Only D3, Apex, NavigationMixin, and ShowToastEvent are mocked; all utility services use real implementations.
+// ABOUTME: Integration tests for d3DotPlotGraphql verifying the real bundle-local pipelines (data, theme, utils, graphql).
+// ABOUTME: Only D3, the GraphQL wire, NavigationMixin, and ShowToastEvent are mocked; all bundle-local modules use real implementations.
 
 import { createElement } from "lwc";
 import D3DotPlotGraphql from "c/d3DotPlotGraphql";
-import { loadD3 } from "c/d3Lib";
-import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
+import { loadD3 } from "../d3Loader";
+import { graphql } from "lightning/graphql";
 
-jest.mock("c/d3Lib", () => ({
+jest.mock("../d3Loader", () => ({
   loadD3: jest.fn()
 }));
-
-jest.mock(
-  "@salesforce/apex/D3ChartController.executeQuery",
-  () => ({ default: jest.fn() }),
-  { virtual: true }
-);
 
 jest.mock(
   "lightning/platformShowToastEvent",
@@ -111,7 +105,6 @@ describe("c-d3-dot-plot-graphql integration", () => {
 
     mockD3 = createMockD3();
     loadD3.mockResolvedValue(mockD3);
-    executeQuery.mockResolvedValue(SAMPLE_DATA);
 
     consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
     consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
@@ -200,35 +193,109 @@ describe("c-d3-dot-plot-graphql integration", () => {
       expect(chartDataCall).toBeTruthy();
       expect(chartDataCall[0][0]).toEqual({ label: "Prospecting", value: 2 });
     });
+  });
 
-    it("passes SOQL query results through same pipeline", async () => {
-      const soqlResults = [
-        { StageName: "Negotiation", Amount: 400 },
-        { StageName: "Negotiation", Amount: 100 },
-        { StageName: "Closed Lost", Amount: 250 }
-      ];
-      executeQuery.mockResolvedValue(soqlResults);
-
-      await createChart({
-        recordCollection: [],
-        soqlQuery: "SELECT StageName, Amount FROM Opportunity",
-        operation: "Sum",
+  describe("graphql wire integration", () => {
+    // Builds a chart with no recordCollection so the GraphQL wire is the data
+    // source, then drives it with a real wire emission.
+    async function createWiredChart(props, response) {
+      element = createElement("c-d3-dot-plot-graphql", {
+        is: D3DotPlotGraphql
+      });
+      Object.assign(element, {
+        objectApiName: "Opportunity",
         groupByField: "StageName",
-        valueField: "Amount"
+        ...props
       });
+      document.body.appendChild(element);
 
-      expect(executeQuery).toHaveBeenCalledWith({
-        queryString: "SELECT StageName, Amount FROM Opportunity"
-      });
+      await flushPromises();
+      graphql.emit(response);
+      await flushPromises();
+      await flushPromises();
 
-      const dataCalls = mockD3.data.mock.calls;
-      const chartDataCall = dataCalls.find(
+      return element;
+    }
+
+    it("counts a GraphQL record set client-side through the real aggregation pipeline", async () => {
+      // Count fetches raw records and counts them with the real aggregateData:
+      // two Prospecting rows and one Closed Won row.
+      await createWiredChart(
+        { operation: "Count" },
+        {
+          uiapi: {
+            query: {
+              Opportunity: {
+                edges: [
+                  { node: { StageName: { value: "Prospecting" } } },
+                  { node: { StageName: { value: "Prospecting" } } },
+                  { node: { StageName: { value: "Closed Won" } } }
+                ]
+              }
+            }
+          }
+        }
+      );
+
+      const chartDataCall = mockD3.data.mock.calls.find(
         (call) =>
           Array.isArray(call[0]) && call[0].length > 0 && call[0][0].label
       );
+      expect(chartDataCall).toBeTruthy();
       expect(chartDataCall[0]).toEqual([
-        { label: "Negotiation", value: 500 },
-        { label: "Closed Lost", value: 250 }
+        { label: "Prospecting", value: 2 },
+        { label: "Closed Won", value: 1 }
+      ]);
+    });
+
+    it("sums a free-text graphqlQuery record set through the real aggregation pipeline", async () => {
+      // The free-text rows arrive un-summed; the real aggregateData sums the
+      // duplicate Prospecting keys to 300 and sorts by value descending.
+      await createWiredChart(
+        {
+          graphqlQuery:
+            "query { uiapi { query { Opportunity { edges { node { StageName { value } Amount { value } } } } } } }",
+          valueField: "Amount",
+          operation: "Sum"
+        },
+        {
+          uiapi: {
+            query: {
+              Opportunity: {
+                edges: [
+                  {
+                    node: {
+                      StageName: { value: "Prospecting" },
+                      Amount: { value: 100 }
+                    }
+                  },
+                  {
+                    node: {
+                      StageName: { value: "Prospecting" },
+                      Amount: { value: 200 }
+                    }
+                  },
+                  {
+                    node: {
+                      StageName: { value: "Closed Won" },
+                      Amount: { value: 500 }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      );
+
+      const chartDataCall = mockD3.data.mock.calls.find(
+        (call) =>
+          Array.isArray(call[0]) && call[0].length > 0 && call[0][0].label
+      );
+      expect(chartDataCall).toBeTruthy();
+      expect(chartDataCall[0]).toEqual([
+        { label: "Closed Won", value: 500 },
+        { label: "Prospecting", value: 300 }
       ]);
     });
   });
@@ -287,7 +354,9 @@ describe("c-d3-dot-plot-graphql integration", () => {
         Amount: (i + 1) * 10
       }));
 
-      element = createElement("c-d3-dot-plot-graphql", { is: D3DotPlotGraphql });
+      element = createElement("c-d3-dot-plot-graphql", {
+        is: D3DotPlotGraphql
+      });
       const toastHandler = jest.fn();
       element.addEventListener("lightning__showtoast", toastHandler);
 
