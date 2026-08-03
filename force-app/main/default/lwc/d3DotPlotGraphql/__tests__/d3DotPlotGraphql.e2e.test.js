@@ -1,8 +1,8 @@
-// ABOUTME: End-to-end lifecycle tests for the d3DotPlot Lightning Web Component.
+// ABOUTME: End-to-end lifecycle tests for the d3DotPlotGraphql Lightning Web Component.
 // ABOUTME: Verifies full pipeline: D3 load, data aggregation, dot rendering, cleanup, and multi-instance isolation.
 
 import { createElement } from "lwc";
-import D3DotPlot from "c/d3DotPlot";
+import D3DotPlotGraphql from "c/d3DotPlotGraphql";
 import { loadD3 } from "c/d3Lib";
 import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
 
@@ -115,8 +115,8 @@ function flushPromises() {
 let consoleErrorSpy;
 
 async function createChart(props = {}) {
-  const element = createElement("c-d3-dot-plot", {
-    is: D3DotPlot
+  const element = createElement("c-d3-dot-plot-graphql", {
+    is: D3DotPlotGraphql
   });
 
   Object.assign(element, {
@@ -133,7 +133,7 @@ async function createChart(props = {}) {
   return element;
 }
 
-describe("c-d3-dot-plot e2e", () => {
+describe("c-d3-dot-plot-graphql e2e", () => {
   let mockD3;
 
   beforeEach(() => {

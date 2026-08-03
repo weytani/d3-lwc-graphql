@@ -1,8 +1,8 @@
-// ABOUTME: Unit tests for the d3DotPlot Lightning Web Component.
+// ABOUTME: Unit tests for the d3DotPlotGraphql Lightning Web Component.
 // ABOUTME: Tests initialization, data handling, aggregation, config, events, tooltip, resize, error recovery, and dot rendering.
 
 import { createElement } from "lwc";
-import D3DotPlot from "c/d3DotPlot";
+import D3DotPlotGraphql from "c/d3DotPlotGraphql";
 import { loadD3 } from "c/d3Lib";
 import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
 import getAggregatedData from "@salesforce/apex/D3ChartController.getAggregatedData";
@@ -114,7 +114,7 @@ const SPECIAL_CHAR_DATA = [
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-dot-plot", () => {
+describe("c-d3-dot-plot-graphql", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -160,8 +160,8 @@ describe("c-d3-dot-plot", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-dot-plot", {
-      is: D3DotPlot
+    element = createElement("c-d3-dot-plot-graphql", {
+      is: D3DotPlotGraphql
     });
 
     Object.assign(element, {
@@ -186,8 +186,8 @@ describe("c-d3-dot-plot", () => {
 
   describe("initialization", () => {
     it("shows loading state initially", async () => {
-      element = createElement("c-d3-dot-plot", {
-        is: D3DotPlot
+      element = createElement("c-d3-dot-plot-graphql", {
+        is: D3DotPlotGraphql
       });
       element.groupByField = "StageName";
       element.recordCollection = SAMPLE_DATA;
@@ -338,7 +338,7 @@ describe("c-d3-dot-plot", () => {
       }));
 
       const toastHandler = jest.fn();
-      element = createElement("c-d3-dot-plot", { is: D3DotPlot });
+      element = createElement("c-d3-dot-plot-graphql", { is: D3DotPlotGraphql });
       element.addEventListener("lightning__showtoast", toastHandler);
       Object.assign(element, {
         groupByField: "StageName",

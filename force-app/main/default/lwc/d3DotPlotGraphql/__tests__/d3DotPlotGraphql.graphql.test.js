@@ -1,7 +1,7 @@
-// ABOUTME: Tests the additive GraphQL self-fetch path on d3DotPlot (Approach A, CT-AGG).
+// ABOUTME: Tests the additive GraphQL self-fetch path on d3DotPlotGraphql (Approach A, CT-AGG).
 // ABOUTME: Uses the real HTML selectors: .chart-container (chart) and .slds-text-color_error (error).
 import { createElement } from "lwc";
-import D3DotPlot from "c/d3DotPlot";
+import D3DotPlotGraphql from "c/d3DotPlotGraphql";
 import { graphql, gql } from "lightning/graphql";
 import { loadD3 } from "c/d3Lib";
 
@@ -68,7 +68,7 @@ async function flushPromises() {
   return Promise.resolve();
 }
 
-describe("d3DotPlot GraphQL path (Approach A, CT-AGG)", () => {
+describe("d3DotPlotGraphql GraphQL path (Approach A, CT-AGG)", () => {
   beforeEach(() => {
     loadD3.mockResolvedValue(makeD3Stub());
 
@@ -95,7 +95,7 @@ describe("d3DotPlot GraphQL path (Approach A, CT-AGG)", () => {
   });
 
   it("renders the chart container when GraphQL aggregate data arrives", async () => {
-    const element = createElement("c-d3-dot-plot", { is: D3DotPlot });
+    const element = createElement("c-d3-dot-plot-graphql", { is: D3DotPlotGraphql });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -115,7 +115,7 @@ describe("d3DotPlot GraphQL path (Approach A, CT-AGG)", () => {
   });
 
   it("shows an error when the GraphQL wire emits errors", async () => {
-    const element = createElement("c-d3-dot-plot", { is: D3DotPlot });
+    const element = createElement("c-d3-dot-plot-graphql", { is: D3DotPlotGraphql });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -133,7 +133,7 @@ describe("d3DotPlot GraphQL path (Approach A, CT-AGG)", () => {
   });
 
   it("falls back to a raw record query and counts client-side for Count operation", async () => {
-    const element = createElement("c-d3-dot-plot", { is: D3DotPlot });
+    const element = createElement("c-d3-dot-plot-graphql", { is: D3DotPlotGraphql });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -152,7 +152,7 @@ describe("d3DotPlot GraphQL path (Approach A, CT-AGG)", () => {
   });
 
   it("bounds the Count-path query with the same first: value as the aggregate path", async () => {
-    const element = createElement("c-d3-dot-plot", { is: D3DotPlot });
+    const element = createElement("c-d3-dot-plot-graphql", { is: D3DotPlotGraphql });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -182,7 +182,7 @@ describe("d3DotPlot GraphQL path (Approach A, CT-AGG)", () => {
     });
     loadD3.mockResolvedValue(chain);
 
-    const element = createElement("c-d3-dot-plot", { is: D3DotPlot });
+    const element = createElement("c-d3-dot-plot-graphql", { is: D3DotPlotGraphql });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";

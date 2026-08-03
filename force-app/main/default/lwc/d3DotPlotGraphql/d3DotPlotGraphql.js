@@ -31,7 +31,7 @@ import {
   normalizeRecords
 } from "c/graphqlService";
 
-export default class D3DotPlot extends NavigationMixin(LightningElement) {
+export default class D3DotPlotGraphql extends NavigationMixin(LightningElement) {
   // ═══════════════════════════════════════════════════════════════
   // PUBLIC API PROPERTIES
   // ═══════════════════════════════════════════════════════════════
@@ -231,7 +231,7 @@ export default class D3DotPlot extends NavigationMixin(LightningElement) {
       await this.loadData();
     } catch (e) {
       this.error = e.message || "Failed to initialize chart";
-      console.error("D3DotPlot initialization error:", e);
+      console.error("D3DotPlotGraphql initialization error:", e);
     } finally {
       this.isLoading = false;
     }

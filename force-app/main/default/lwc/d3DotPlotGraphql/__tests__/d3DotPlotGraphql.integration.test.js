@@ -1,8 +1,8 @@
-// ABOUTME: Integration tests for d3DotPlot verifying real service pipelines (dataService, themeService, chartUtils).
+// ABOUTME: Integration tests for d3DotPlotGraphql verifying real service pipelines (dataService, themeService, chartUtils).
 // ABOUTME: Only D3, Apex, NavigationMixin, and ShowToastEvent are mocked; all utility services use real implementations.
 
 import { createElement } from "lwc";
-import D3DotPlot from "c/d3DotPlot";
+import D3DotPlotGraphql from "c/d3DotPlotGraphql";
 import { loadD3 } from "c/d3Lib";
 import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
 
@@ -100,7 +100,7 @@ const SAMPLE_DATA = [
 
 const flushPromises = () => new Promise(process.nextTick);
 
-describe("c-d3-dot-plot integration", () => {
+describe("c-d3-dot-plot-graphql integration", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -142,8 +142,8 @@ describe("c-d3-dot-plot integration", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-dot-plot", {
-      is: D3DotPlot
+    element = createElement("c-d3-dot-plot-graphql", {
+      is: D3DotPlotGraphql
     });
 
     Object.assign(element, {
@@ -287,7 +287,7 @@ describe("c-d3-dot-plot integration", () => {
         Amount: (i + 1) * 10
       }));
 
-      element = createElement("c-d3-dot-plot", { is: D3DotPlot });
+      element = createElement("c-d3-dot-plot-graphql", { is: D3DotPlotGraphql });
       const toastHandler = jest.fn();
       element.addEventListener("lightning__showtoast", toastHandler);
 
