@@ -107,6 +107,11 @@
           "element": "c-d3-slope-chart-graphql",
           "name": "d3SlopeChartGraphql",
           "minSvgDescendants": 10
+        },
+        {
+          "element": "c-d3-band-chart-graphql",
+          "name": "d3BandChartGraphql",
+          "minSvgDescendants": 10
         }
       ]
     }

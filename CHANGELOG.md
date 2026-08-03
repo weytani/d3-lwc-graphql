@@ -5,6 +5,74 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-08-03
+
+Wave 4 reaches its first date-axis chart: the band chart, which joins the diverging bar chart, the
+dot plot, and the slope chart on showcase page 3.
+
+### Changed
+
+- **BREAKING: `d3BandChartGraphql` is now a standalone GraphQL-only bundle**, converted per
+  `docs/conversion-recipe.md` and renamed from `d3BandChart` to its `*Graphql` suffixed identity
+  (tag `c-d3-band-chart-graphql`, masterLabel "D3 Band Chart (GraphQL)"): GraphQL wire self-fetch
+  only, bundle-local support modules (`d3Loader.js`, `theme.js`, `data.js`, `utils.js`,
+  `graphql.js`), no shared `c/` imports, no Apex. `soqlQuery` and `fetchMode` removed;
+  `graphqlQuery` free-text record queries added. Like the slope chart it has **no server-side
+  aggregate path** (recipe §9.2), but along a date axis: both the structured builder and the
+  free-text override fetch raw records projecting the Date, Lower Bound, Upper Bound, and optional
+  Center Line fields, then sort by date and shape one band point per record — the same path
+  `recordCollection` already took. Ships with the full unit + integration + graphql + e2e test
+  tiers. Live-verified on-org via the Playwright sweep (48 `[D3DEMO]` opportunities banding
+  `Amount` against `ExpectedRevenue` across ten months of `CloseDate`).
+
+### Fixed
+
+- **`d3BandChartGraphql`: container-rebind hardening (recipe §4.3).** The template's if/elseif
+  chain destroys the `.chart-container` on every pass through loading/error/no-data, so the
+  previous existence-only guards left the tooltip writing into a detached node and the
+  ResizeObserver watching a dead element after a data → error → data cycle. `initializeChart` now
+  tracks the container generation it is bound to and cleans up and re-creates both when the
+  container identity changes. Fourth bundle to ship the fix, after `d3DivergingBarChartGraphql`,
+  `d3DotPlotGraphql`, and `d3SlopeChartGraphql`; the 16 v1.0.0 bundles still carry the defect
+  (issue #2).
+- **`d3BandChartGraphql`: `filterClause` removed as dead surface.** The property and its
+  `applyFilterClause(this.soqlQuery, …)` call site only ever spliced a `WHERE` fragment into a
+  raw SOQL string. With `soqlQuery` gone there is nothing for it to modify, so keeping it would
+  have advertised a filter that silently did nothing on every remaining fetch path. Scoping on the
+  GraphQL paths belongs in the query's own `where` (free-text) or in `graphqlFilter` (structured).
+- **`d3BandChartGraphql`: `recordLimit` meta max capped at 2,000**, the UI API record-query
+  ceiling (recipe §5). The previous 10,000 advertised a bound the only remaining fetch path
+  rejects.
+- **`d3BandChartGraphql`: `graphqlQuery` footgun wording corrected for band semantics.** The two
+  failure modes differ by field and needed saying separately: a row missing the Date Field is
+  dropped outright (the date parser returns null before the row is kept), whereas a row missing a
+  bound field is _kept_ with that bound coerced to 0, so an under-projected query flattens the
+  band against the axis rather than erroring or drawing fewer points. The property description now
+  states both.
+- **`d3BandChartGraphql`: FlowScreen `theme` gains the picklist datasource** the App Builder
+  config already carried, so both targets offer the same four themes instead of a free-text box.
+  (Unlike the other wave-4 charts, this bundle already targeted `lightning__FlowScreen` before
+  conversion — only the datasource parity is new.)
+
+### Added
+
+- **Showcase page 3 gains the band chart** — `Amount` to `ExpectedRevenue` per opportunity across
+  `CloseDate`. Its component instance uses the same free-text `graphqlQuery` `where` idiom the page
+  was established with, so it reads only `[D3DEMO]` seeded Opportunities and the committed
+  Playwright baseline contains only synthetic demo data. Because this chart plots one point per
+  record rather than one mark per group, the instance pins `first: 48` and an explicit
+  `orderBy: { CloseDate: { order: ASC } }`: the `first` argument is what bounds the point count,
+  and the ordering keeps the selected records — and therefore the committed baseline — stable
+  across runs. The 48 seeded rows carry 48 distinct `CloseDate` values, so the band gets exactly
+  one point per date with no vertical spikes.
+- The instance deliberately leaves the optional **Center Line Field (`valueField`) unset**. No
+  numeric field seeded on the demo Opportunities shares the band's currency scale —
+  `Forecast_Units__c` spans 81–4,944 and `Quota_Variance__c` −51,159–48,277 against a band running
+  0–513,099, `Probability` is a 0–100 percent, and `TotalOpportunityQuantity` is null on every row
+  — so any of them would render as a flat trace pinned to the axis rather than a center line
+  within the band. The center-line path is covered instead by the bundle's unit tests, and the
+  sibling `d3-lwc-soql` band instance leaves the property unset for the same reason.
+
 ## [1.3.0] - 2026-08-03
 
 Wave 4 reaches its first raw-record chart: the slope chart, which joins the diverging bar chart
