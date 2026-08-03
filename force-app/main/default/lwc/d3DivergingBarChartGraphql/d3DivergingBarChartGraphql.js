@@ -86,6 +86,8 @@ export default class D3DivergingBarChartGraphql extends NavigationMixin(
   svg = null;
   tooltip = null;
   resizeHandler = null;
+  /** The .chart-container generation the tooltip and observer are bound to. */
+  _observedContainer = null;
   chartRendered = false;
   _config = {};
   _configParsed = false;
@@ -288,7 +290,7 @@ export default class D3DivergingBarChartGraphql extends NavigationMixin(
 
   renderedCallback() {
     if (this.showChart && !this.chartRendered) {
-      // initializeChart installs a lifetime ResizeObserver that draws the chart
+      // initializeChart installs a ResizeObserver that draws the chart
       // on the first measurable width and re-draws on resize — so it is safe to
       // mark initialization done even if the container is not measurable yet.
       this.chartRendered = this.initializeChart();
@@ -350,17 +352,24 @@ export default class D3DivergingBarChartGraphql extends NavigationMixin(
   // ═══════════════════════════════════════════════════════════════
 
   /**
-   * Initializes the tooltip and a single lifetime ResizeObserver, then attempts
-   * an immediate render. The observer drives both the first render (whenever the
-   * container becomes measurable — there is no fixed give-up window) and every
-   * subsequent resize, so a container that is unmeasurable or narrower than the
-   * chart's 170px horizontal margins at boot still renders the moment it gains
-   * usable width.
+   * Initializes the tooltip and a single ResizeObserver per container
+   * generation, then attempts an immediate render. The observer drives both the
+   * first render (whenever the container becomes measurable — there is no fixed
+   * give-up window) and every subsequent resize, so a container that is
+   * unmeasurable or narrower than the chart's 170px horizontal margins at boot
+   * still renders the moment it gains usable width.
    * @returns {boolean} true once the tooltip + observer are installed
    */
   initializeChart() {
     const container = this.template.querySelector(".chart-container");
     if (!container) return false;
+
+    if (this._observedContainer && this._observedContainer !== container) {
+      // The template destroyed the old container (loading/error/no-data pass):
+      // rebind, or the tooltip writes into a detached node and the observer
+      // watches a dead element.
+      this.cleanup();
+    }
 
     // Create the tooltip once.
     if (!this.tooltip) {
@@ -379,6 +388,8 @@ export default class D3DivergingBarChartGraphql extends NavigationMixin(
       );
       this.resizeHandler.observe();
     }
+
+    this._observedContainer = container;
 
     // Render immediately when the container is already measured (the common,
     // warm-cache path); otherwise the observer renders once it has a width.
