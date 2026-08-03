@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local color palettes and helpers for the d3BarChart standalone bundle.
+// ABOUTME: Bundle-local color palettes and helpers for the d3BarChartGraphql standalone bundle.
 // ABOUTME: Provides the SLDS-aligned palettes and getColors used to color the bars.
 
 /**

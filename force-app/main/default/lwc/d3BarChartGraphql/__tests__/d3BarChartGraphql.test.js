@@ -1,8 +1,8 @@
-// ABOUTME: Unit tests for the d3BarChart Lightning Web Component.
+// ABOUTME: Unit tests for the d3BarChartGraphql Lightning Web Component.
 // ABOUTME: Tests initialization, data handling, aggregation, config, events, tooltip, resize, and error recovery.
 
 import { createElement } from "lwc";
-import D3BarChart from "c/d3BarChart";
+import D3BarChartGraphql from "c/d3BarChartGraphql";
 import { loadD3 } from "../d3Loader";
 
 // Mock the bundle-local D3 loader
@@ -96,7 +96,7 @@ const SPECIAL_CHAR_DATA = [
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-bar-chart", () => {
+describe("c-d3-bar-chart-graphql", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -140,8 +140,8 @@ describe("c-d3-bar-chart", () => {
 
   // Helper to create element with properties
   async function createChart(props = {}) {
-    element = createElement("c-d3-bar-chart", {
-      is: D3BarChart
+    element = createElement("c-d3-bar-chart-graphql", {
+      is: D3BarChartGraphql
     });
 
     Object.assign(element, {
@@ -167,8 +167,8 @@ describe("c-d3-bar-chart", () => {
 
   describe("initialization", () => {
     it("shows loading state initially", async () => {
-      element = createElement("c-d3-bar-chart", {
-        is: D3BarChart
+      element = createElement("c-d3-bar-chart-graphql", {
+        is: D3BarChartGraphql
       });
       element.groupByField = "StageName";
       element.recordCollection = SAMPLE_DATA;
@@ -340,7 +340,9 @@ describe("c-d3-bar-chart", () => {
       }));
 
       const toastHandler = jest.fn();
-      element = createElement("c-d3-bar-chart", { is: D3BarChart });
+      element = createElement("c-d3-bar-chart-graphql", {
+        is: D3BarChartGraphql
+      });
       element.addEventListener("lightning__showtoast", toastHandler);
       Object.assign(element, {
         groupByField: "StageName",
@@ -936,7 +938,9 @@ describe("c-d3-bar-chart", () => {
     });
 
     it("showChart is false when loading", () => {
-      element = createElement("c-d3-bar-chart", { is: D3BarChart });
+      element = createElement("c-d3-bar-chart-graphql", {
+        is: D3BarChartGraphql
+      });
       element.groupByField = "StageName";
       element.recordCollection = SAMPLE_DATA;
       document.body.appendChild(element);

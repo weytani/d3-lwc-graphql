@@ -1,8 +1,8 @@
-// ABOUTME: Integration tests for d3BarChart verifying real bundle-local pipelines (data, theme, utils, graphql).
+// ABOUTME: Integration tests for d3BarChartGraphql verifying real bundle-local pipelines (data, theme, utils, graphql).
 // ABOUTME: Only D3, GraphQL, NavigationMixin, and ShowToastEvent are mocked; the bundle-local modules run for real.
 
 import { createElement } from "lwc";
-import D3BarChart from "c/d3BarChart";
+import D3BarChartGraphql from "c/d3BarChartGraphql";
 import { loadD3 } from "../d3Loader";
 // ShowToastEvent is imported by the component; we mock it below
 
@@ -116,7 +116,7 @@ const flushPromises = () => new Promise(process.nextTick);
 // TEST SUITE
 // ═══════════════════════════════════════════════════════════════
 
-describe("c-d3-bar-chart integration", () => {
+describe("c-d3-bar-chart-graphql integration", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -163,13 +163,13 @@ describe("c-d3-bar-chart integration", () => {
   });
 
   /**
-   * Helper to create a d3BarChart element with default and overridden properties.
+   * Helper to create a d3BarChartGraphql element with default and overridden properties.
    * @param {Object} props - Property overrides
    * @returns {HTMLElement} - The created element
    */
   async function createChart(props = {}) {
-    element = createElement("c-d3-bar-chart", {
-      is: D3BarChart
+    element = createElement("c-d3-bar-chart-graphql", {
+      is: D3BarChartGraphql
     });
 
     Object.assign(element, {
@@ -277,7 +277,9 @@ describe("c-d3-bar-chart integration", () => {
       // same real aggregate pipeline as recordCollection.
       const { graphql } = require("lightning/graphql");
 
-      element = createElement("c-d3-bar-chart", { is: D3BarChart });
+      element = createElement("c-d3-bar-chart-graphql", {
+        is: D3BarChartGraphql
+      });
       Object.assign(element, {
         objectApiName: "Opportunity",
         groupByField: "StageName",
@@ -320,7 +322,9 @@ describe("c-d3-bar-chart integration", () => {
     it("free-text graphqlQuery Sum aggregates the wire rows to the correct values", async () => {
       const { graphql } = require("lightning/graphql");
 
-      element = createElement("c-d3-bar-chart", { is: D3BarChart });
+      element = createElement("c-d3-bar-chart-graphql", {
+        is: D3BarChartGraphql
+      });
       Object.assign(element, {
         graphqlQuery:
           "query { uiapi { query { Opportunity { edges { node { StageName { value } Amount { value } } } } } } }",
@@ -379,7 +383,9 @@ describe("c-d3-bar-chart integration", () => {
     it("free-text graphqlQuery with a blank objectApiName auto-detects the object key", async () => {
       const { graphql } = require("lightning/graphql");
 
-      element = createElement("c-d3-bar-chart", { is: D3BarChart });
+      element = createElement("c-d3-bar-chart-graphql", {
+        is: D3BarChartGraphql
+      });
       Object.assign(element, {
         graphqlQuery:
           "query { uiapi { query { Opportunity { edges { node { StageName { value } Amount { value } } } } } } }",
@@ -522,8 +528,8 @@ describe("c-d3-bar-chart integration", () => {
         Amount: (i + 1) * 10
       }));
 
-      element = createElement("c-d3-bar-chart", {
-        is: D3BarChart
+      element = createElement("c-d3-bar-chart-graphql", {
+        is: D3BarChartGraphql
       });
 
       // Capture dispatched events via listener before appending to DOM
@@ -560,8 +566,8 @@ describe("c-d3-bar-chart integration", () => {
         Amount: (i + 1) * 5
       }));
 
-      element = createElement("c-d3-bar-chart", {
-        is: D3BarChart
+      element = createElement("c-d3-bar-chart-graphql", {
+        is: D3BarChartGraphql
       });
 
       const toastHandler = jest.fn();

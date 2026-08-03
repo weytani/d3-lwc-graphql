@@ -1,8 +1,8 @@
-// ABOUTME: End-to-end lifecycle tests for the d3BarChart Lightning Web Component.
+// ABOUTME: End-to-end lifecycle tests for the d3BarChartGraphql Lightning Web Component.
 // ABOUTME: Verifies full pipeline: D3 load, data aggregation, SVG rendering, cleanup, and multi-instance isolation.
 
 import { createElement } from "lwc";
-import D3BarChart from "c/d3BarChart";
+import D3BarChartGraphql from "c/d3BarChartGraphql";
 import { loadD3 } from "../d3Loader";
 import { graphql } from "lightning/graphql";
 
@@ -127,8 +127,8 @@ function flushPromises() {
 let consoleErrorSpy;
 
 async function createChart(props = {}) {
-  const element = createElement("c-d3-bar-chart", {
-    is: D3BarChart
+  const element = createElement("c-d3-bar-chart-graphql", {
+    is: D3BarChartGraphql
   });
 
   Object.assign(element, {
@@ -149,7 +149,7 @@ async function createChart(props = {}) {
 // TEST SUITE
 // ═══════════════════════════════════════════════════════════════
 
-describe("c-d3-bar-chart e2e", () => {
+describe("c-d3-bar-chart-graphql e2e", () => {
   let mockD3;
 
   beforeEach(() => {
@@ -288,7 +288,9 @@ describe("c-d3-bar-chart e2e", () => {
     });
 
     it("GraphQL fetch path: no recordCollection -> wire emits -> full pipeline", async () => {
-      const element = createElement("c-d3-bar-chart", { is: D3BarChart });
+      const element = createElement("c-d3-bar-chart-graphql", {
+        is: D3BarChartGraphql
+      });
       Object.assign(element, {
         groupByField: "StageName",
         valueField: "Amount",
