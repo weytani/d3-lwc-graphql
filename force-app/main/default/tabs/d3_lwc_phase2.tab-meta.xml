@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomTab xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description>Phase 2 D3 chart showcase</description>
-    <flexiPage>d3_lwc_phase2</flexiPage>
-    <label>d3-lwc Phase 2</label>
-    <motif>Custom34: Insect</motif>
-</CustomTab>

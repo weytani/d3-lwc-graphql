@@ -11,6 +11,14 @@ everything. No `c/d3Lib`, `c/dataService`, `c/themeService`, `c/chartUtils`,
 `c/graphqlService` imports; no `@salesforce/apex/*` imports; no `soqlQuery` or
 `fetchMode`; a new `graphqlQuery` free-text admin override.
 
+> **Amendment pending fold-in (waves 4–8):** the v1.0.0 consolidation gate added a
+> per-line suffix convention on top of this recipe — folder/class `d3XxxGraphql`,
+> tag `c-d3-xxx-graphql`, `masterLabel` gains ` (GraphQL)` — with a
+> rename-completeness grep gate. This recipe predates that amendment and does not
+> yet document the suffix step; until it's folded in, apply the suffix mechanics
+> from `docs/superpowers/plans/2026-08-02-v1-consolidation-gate.md` (Task 1) on
+> top of every step below.
+
 ---
 
 ## 0. Prerequisites

@@ -5,10 +5,11 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.0] - 2026-08-02
 
-Repo split from `weytani/d3-lwc` at the `v3-standalone` tip. This repo's own semver line
-starts at 1.0.0 (consolidation gate). Inherited tags are preserved as `legacy/v*`:
+Closes the v1.0.0 consolidation gate. Repo split from `weytani/d3-lwc` (now archived) at the
+`v3-standalone` tip; this repo's own semver line starts here. Inherited tags are preserved as
+`legacy/v*`:
 
 | Legacy tag                      | Meaning                                                         |
 | ------------------------------- | --------------------------------------------------------------- |
@@ -17,6 +18,132 @@ starts at 1.0.0 (consolidation gate). Inherited tags are preserved as `legacy/v*
 | `legacy/v2.0.0`                 | gantt GraphQL-only (first breaking release)                     |
 | `legacy/v2.1.0`                 | 40 charts, hybrid fetchMode — d3-lwc-soql fork point            |
 | `legacy/v3.0.0`–`legacy/v3.9.0` | per-chart standalone conversions — the line this repo continues |
+
+### Changed
+
+- **BREAKING: repo-wide `*Graphql` suffix rename — all 16 previously-converted charts.**
+  Every chart converted under the pre-split v3 line (`d3BarChart` → `d3BarChartGraphql`,
+  `d3SortedBarChart` → `d3SortedBarChartGraphql`, `d3HorizontalBarChart` →
+  `d3HorizontalBarChartGraphql`, `d3StackedBarChart` → `d3StackedBarChartGraphql`,
+  `d3StackedHorizontalBar` → `d3StackedHorizontalBarGraphql`, `d3NormalizedBar` →
+  `d3NormalizedBarGraphql`, `d3LineChart` → `d3LineChartGraphql`, `d3AreaChart` →
+  `d3AreaChartGraphql`, `d3StepChart` → `d3StepChartGraphql`, `d3VariableColorLine` →
+  `d3VariableColorLineGraphql`, plus the six below) is renamed: folder + exported class gain
+  the `Graphql` suffix, the component tag gains a `-graphql` suffix (e.g. `c-d3-bar-chart` →
+  `c-d3-bar-chart-graphql`), and `masterLabel` gains ` (GraphQL)` (e.g.
+  "Bar Chart (GraphQL)"). This lets this line's components coexist on the same org as the
+  sibling `d3-lwc-soql` line's `*Soql`-suffixed equivalents and any remaining unsuffixed
+  legacy instances, without name collisions. Suffixed components are **new bundles** — no
+  existing placed component's property surface was edited by this rename, so the detach →
+  deploy → reattach property-removal dance did not apply.
+
+- **BREAKING: `d3SparklineGridGraphql` is now a standalone GraphQL-only bundle**, converted
+  per the v3 recipe (see legacy `3.0.0`) and shipped directly under its `*Graphql` suffixed
+  identity (no prior unsuffixed release existed): GraphQL wire self-fetch only, bundle-local
+  support modules, no shared `c/` imports, no Apex. `soqlQuery` and `fetchMode` removed;
+  `graphqlQuery` free-text record queries and the `lightning__FlowScreen` target added;
+  render-orchestration hardening applied. As a small-multiples chart (one inline sparkline per
+  entity, monthly rollup) it shapes and buckets dates with its own parser on every data path —
+  the TZ-sensitive month-bucketing regression this chart is named for in `jest.config.js` is
+  guarded by the pinned `America/New_York` test timezone. Ships with the full unit +
+  integration + graphql + e2e test tiers. Live-verified on-org via the v1.0.0 Playwright sweep
+  (4 sparkline rows grouped by the demo `Type` field).
+
+- **BREAKING: `d3PieChartGraphql` is now a standalone GraphQL-only bundle**, converted per the
+  v3 recipe (see legacy `3.0.0`) and shipped directly under its `*Graphql` suffixed identity:
+  GraphQL wire self-fetch only, bundle-local support modules, no shared `c/` imports, no Apex.
+  `soqlQuery` and `fetchMode` removed; `graphqlQuery` free-text record queries and the
+  `lightning__FlowScreen` target added; render-orchestration hardening applied. As a
+  single-field aggregation chart it routes Sum/Average/Count through the same
+  structured-vs-free-text-vs-recordCollection pipeline as the bar family. Ships with the full
+  unit + integration + graphql + e2e test tiers. Live-verified on-org via the v1.0.0
+  Playwright sweep (10 wedges grouped by StageName, percentages summing to 100%).
+
+- **BREAKING: `d3DonutChartGraphql` is now a standalone GraphQL-only bundle**, converted per
+  the v3 recipe (see legacy `3.0.0`) and shipped directly under its `*Graphql` suffixed
+  identity: GraphQL wire self-fetch only, bundle-local support modules, no shared `c/`
+  imports, no Apex. `soqlQuery` and `fetchMode` removed; `graphqlQuery` free-text record
+  queries and the `lightning__FlowScreen` target added; render-orchestration hardening
+  applied. Same single-field aggregation family as the pie chart, with its center-total label
+  and configurable inner-radius ratio preserved through the conversion. Ships with the full
+  unit + integration + graphql + e2e test tiers. Live-verified on-org via the v1.0.0
+  Playwright sweep (4 segments grouped by the demo `Type` field, center total rendered).
+
+- **BREAKING: `d3LollipopChartGraphql` is now a standalone GraphQL-only bundle**, converted
+  per the v3 recipe (see legacy `3.0.0`) and shipped directly under its `*Graphql` suffixed
+  identity: GraphQL wire self-fetch only, bundle-local support modules, no shared `c/`
+  imports, no Apex. `soqlQuery` and `fetchMode` removed; `graphqlQuery` free-text record
+  queries and the `lightning__FlowScreen` target added; render-orchestration hardening
+  applied. Same single-field aggregation family as the bar chart (stem + circle rendering in
+  place of a rect). Ships with the full unit + integration + graphql + e2e test tiers.
+  Live-verified on-org via the v1.0.0 Playwright sweep (10 lollipops, same StageName grouping
+  as the bar family).
+
+- **BREAKING: `d3FunnelChartGraphql` is now a standalone GraphQL-only bundle**, converted per
+  the v3 recipe (see legacy `3.0.0`) and shipped directly under its `*Graphql` suffixed
+  identity: GraphQL wire self-fetch only, bundle-local support modules, no shared `c/`
+  imports, no Apex. `soqlQuery` and `fetchMode` removed; `graphqlQuery` free-text record
+  queries and the `lightning__FlowScreen` target added; render-orchestration hardening
+  applied. As an ordered-stage aggregation chart it preserves stage-progression ordering and
+  drop-off/conversion-percentage math through every data path. Ships with the full unit +
+  integration + graphql + e2e test tiers (the e2e tier was a backfill, see below). Live-
+  verified on-org via the v1.0.0 Playwright sweep (10 funnel segments with counts and a
+  conversion-percentage column, StageName grouping).
+
+- **BREAKING: `d3WaffleChartGraphql` is now a standalone GraphQL-only bundle**, converted per
+  the v3 recipe (see legacy `3.0.0`) and shipped directly under its `*Graphql` suffixed
+  identity: GraphQL wire self-fetch only, bundle-local support modules, no shared `c/`
+  imports, no Apex. `soqlQuery` and `fetchMode` removed; `graphqlQuery` free-text record
+  queries and the `lightning__FlowScreen` target added; render-orchestration hardening
+  applied. As a percentage-grid chart its contrast-aware cell labeling (WCAG luminance-based
+  black/white choice) is preserved verbatim through the conversion. Ships with the full unit +
+  integration + graphql + e2e test tiers. Live-verified on-org via the v1.0.0 Playwright sweep
+  (10×11 cell grid grouped by StageName, percentage legend).
+
+### Added
+
+- **Three test-tier backfills**, closing the known 2-tier gaps carried from earlier waves:
+  - `d3LineChartGraphql` — integration (11 tests) + e2e (7 tests) tiers, donor
+    `d3AreaChartGraphql` for the pipeline shape, `d3VariableColorLineGraphql` for the e2e
+    D3-load-failure console-error-spy pattern (139 suites / 3,485 tests after this backfill).
+  - `d3StackedBarChartGraphql` — integration (8 tests) + e2e (8 tests) tiers, donor
+    `d3StackedHorizontalBarGraphql` (`aggregateSeriesData` + `d3.stack` pipeline) (141 suites /
+    3,501 tests after this backfill).
+  - `d3FunnelChartGraphql` — e2e tier only (7 tests; unit/integration/graphql tiers already
+    existed), donor `d3PieChartGraphql` (142 suites / 3,508 tests after this backfill — the
+    full suite as of this release).
+- **`d3_graphql_showcase_1`/`_2`** Lightning app pages + tabs, demoing the 16 converted charts
+  against live `[D3DEMO]`-seeded Opportunity data (showcase_1 = the 8 wave-A charts,
+  showcase_2 = the 8 wave-B charts). Retires the 5 legacy `d3_lwc*`/`d3_graphql_test`
+  flexipage files, which referenced pre-rename component names no longer present in this
+  repo (the org's copies of those pages retire separately, in a joint cleanup with the
+  `d3-lwc-soql` line).
+- **`D3_Graphql_Showcase` permission set** — grants `tabSettings` visibility for both showcase
+  tabs. Deploying `CustomTab` metadata alone does not grant Profile/Permission Set visibility,
+  so without this the showcase tabs 404 with a generic "Page doesn't exist" shell even though
+  the CustomTab and FlexiPage both deployed correctly — assign with
+  `sf org assign permset -n D3_Graphql_Showcase -o AGENT`.
+- **Playwright live-org sweep rig** (`playwright/`) — a local-only release gate (never CI; this
+  is a public repo, no org credentials in GitHub Actions) that authenticates via a fresh
+  `sf org open -o AGENT --url-only --json` frontdoor URL, walks both showcase pages, and
+  asserts per chart: real SVG marks rendered (floor count), zero console errors, and a
+  pixel-diff against a committed baseline PNG.
+- **16-chart baseline set** (`playwright/chart-sweep.spec.js-snapshots/`) — one committed PNG
+  per chart per showcase page, `[D3DEMO]`-seeded synthetic Opportunity data only, manually
+  eyeballed before commit. `npm run test:e2e:live` runs clean against these baselines: zero
+  console errors, all 16 charts rendering real marks, both showcase pages green.
+
+### Migration
+
+- Replace any legacy unsuffixed component instance (`c-d3-bar-chart`, etc.) with its
+  `(GraphQL)`-labeled suffixed replacement (`c-d3-bar-chart-graphql`, etc.) — same property
+  surface as the chart's most recent pre-suffix conversion, plus `graphqlQuery`. The legacy
+  unsuffixed org artifacts (bundles and `d3_lwc*` pages) are not removed by this release; they
+  retire in a later joint cleanup alongside the `d3-lwc-soql` line's own suffixed rollout.
+- For the six charts converted for the first time in this release (sparklineGrid, pie, donut,
+  lollipop, funnel, waffle), replace a configured `soqlQuery` with either the structured
+  properties (Object API Name + fields + operation) or a pasted `graphqlQuery` record query —
+  same pattern as every prior v3 conversion (see legacy `3.0.0`).
 
 ## [3.9.0] - 2026-07-13
 

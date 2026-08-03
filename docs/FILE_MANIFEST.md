@@ -102,7 +102,6 @@ All chart paths relative to `force-app/main/default/`. Each component also has a
 | `eslint.config.js`                | Flat ESLint config: Aura rules, LWC recommended, Jest globals for test files      |
 | `sfdx-project.json`               | SFDX project definition, sourceApiVersion 65.0, namespace empty                   |
 | `config/project-scratch-def.json` | Scratch org definition                                                            |
-| `manifest/package.xml`            | Metadata API deployment manifest                                                  |
 
 ## Scripts
 

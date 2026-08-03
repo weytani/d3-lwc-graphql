@@ -2,7 +2,7 @@ const { jestConfig } = require("@salesforce/sfdx-lwc-jest/config");
 
 // Pin the timezone for deterministic date-based tests across every host and CI
 // runner. Several charts bucket date-only fields (parsed as UTC midnight); a
-// negative-UTC-offset zone is required for the d3SparklineGrid month-bucketing
+// negative-UTC-offset zone is required for the d3SparklineGridGraphql month-bucketing
 // regression test to catch its bug — under TZ=UTC (typical CI) it would pass
 // vacuously. Set here, before jest forks its workers, so each worker inherits it
 // at process start (a runtime assignment inside a test file does not re-tzset).

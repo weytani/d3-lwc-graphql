@@ -16,8 +16,6 @@ the shared modules and all Apex.
 
 - Program of record: `docs/superpowers/specs/2026-08-02-repo-split-soql-graphql-design.md`
 - Per-chart conversion recipe: `docs/conversion-recipe.md`
-- NOTE: the sections below predate the split and describe the hybrid architecture — still
-  accurate for the 24 unconverted charts; superseded per chart as conversions land.
 
 ---
 
@@ -27,131 +25,190 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Salesforce LWC library providing 30 D3.js chart components for use in Lightning App Builder, Flows, and Experience Builder. Each chart accepts data via `recordCollection` (from Flow/parent) or `soqlQuery` (Apex-backed SOQL).
+This repo's whole job is one architecture: convert every D3 chart into a fully standalone,
+GraphQL-only Lightning Web Component. A converted chart self-fetches its own data over the
+`lightning/graphql` wire adapter (FLS/sharing enforced by the platform) or renders a
+`recordCollection` passed in from a Flow/parent — there is no Apex controller and no shared
+`c/` module in its data path. 16/40 charts are converted as of v1.0.0; the other 24 still sit
+in this repo pre-conversion (shared-module Apex/SOQL architecture, documented in
+`docs/ARCHITECTURE.md`/`docs/ADMIN-GUIDE.md`) until their wave lands.
+
+## Suffix naming convention
+
+Every converted chart is renamed with the `Graphql` suffix at conversion time (v1.0.0
+amendment — see the design spec's "Amendment 2026-08-02"):
+
+- Folder + exported class: `d3XxxGraphql` (e.g. `d3BarChartGraphql`, class `D3BarChartGraphql`)
+- Component tag: `c-d3-xxx-graphql` (e.g. `c-d3-bar-chart-graphql`)
+- `.js-meta.xml` `<masterLabel>` gains ` (GraphQL)` (e.g. `Bar Chart (GraphQL)`), so App
+  Builder/Flow pickers disambiguate it from any unsuffixed legacy instance still on the org.
+
+**Rename-completeness gate**, run after renaming any chart: `grep -rn "<oldName>" force-app/main/default/lwc/<newName>/ | grep -v "<newName>"` must be empty, and the same check for the old kebab-case tag against the new one. Suffixed components are **new bundles** — this is why the old detach → deploy → reattach property-removal dance (below) no longer applies to conversions: nothing is edited in place.
+
+## Standalone-bundle anatomy
+
+A converted bundle's folder + the `d3` static resource is everything it needs. Its support
+code — a D3 loader, theme palette, data helpers, formatters, and GraphQL query builder — is
+inlined bundle-local (`d3Loader.js`, `theme.js`, `data.js`, `utils.js`, `graphql.js` inside
+the chart's own folder), not imported from a shared module. Copy the bundle folder plus the
+`d3` static resource into any org and it works standalone.
+
+`@api` surface on a converted chart: `recordCollection` (still wins over any self-fetch),
+field mappings, `objectApiName` for the structured self-fetch, `graphqlQuery` (free-text
+`uiapi.query` override — the replacement for the old raw-SOQL escape hatch), `height`,
+`theme`, `advancedConfig`. No `soqlQuery`, no `fetchMode` — those only exist on the 24
+charts not yet converted.
+
+## Never-deploy list
+
+This line **never** deploys, from any command run in this repo:
+
+- The shared LWC modules (`c/d3Lib`, `c/dataService`, `c/themeService`, `c/chartUtils`,
+  `c/graphqlService`) — they're frozen copies serving only the in-repo unconverted charts and
+  die at the purge release (below); they belong to the `d3-lwc-soql` sibling line.
+- Apex (`D3ChartController` + its test class) — same reason.
+- Any unconverted chart bundle.
+- The `d3` static resource — it already exists on AGENT; this line never redeploys it.
+
+Org deploys always name the exact suffixed bundles / `d3_graphql_*` pages/tabs with `-m`,
+never `--source-dir force-app/main/default/lwc` wholesale.
 
 ## Commands
 
 ```bash
-npm test                                        # Run all unit tests
+npm test                                        # Run all unit tests (jest, jsdom)
 # NOTE: --testPathPattern does NOT narrow in this jest config — it runs the FULL
 # suite regardless. There is no per-component narrowing flag; just run `npm test`
-# (the full ~2,561-test suite is fast). lint-staged runs the relevant tests on commit.
+# (142 suites / 3,508 tests, fast). lint-staged runs the relevant tests on commit.
+# To watch just one bundle while iterating: npx jest force-app/main/default/lwc/<bundle>
 npm run test:unit:watch                         # Watch mode
 npm run test:unit:coverage                      # With coverage report
-npm run lint                                    # ESLint
-npm run prettier                                # Format all files
+npm run lint                                    # ESLint (see gotcha below)
+npm run prettier                                # Format all files (whole repo — see gotcha below)
 npm run prettier:verify                         # Check formatting
 
-# Deploy to Salesforce org
-sf project deploy start --source-dir force-app -o <org-alias>
-
-# Start local dev server (use Node 20, not 25)
+# Deploy the 16 converted bundles to AGENT — bundles first, then pages/tabs (pages
+# reference the bundles). Node 20 required for every sf command.
 export PATH="/opt/homebrew/opt/node@20/bin:$PATH"
-sf lightning dev app -o <org-alias>
+sf project deploy start -o AGENT \
+  -m "LightningComponentBundle:d3BarChartGraphql" -m "LightningComponentBundle:d3SortedBarChartGraphql" \
+  -m "LightningComponentBundle:d3HorizontalBarChartGraphql" -m "LightningComponentBundle:d3StackedBarChartGraphql" \
+  -m "LightningComponentBundle:d3StackedHorizontalBarGraphql" -m "LightningComponentBundle:d3NormalizedBarGraphql" \
+  -m "LightningComponentBundle:d3LineChartGraphql" -m "LightningComponentBundle:d3AreaChartGraphql" \
+  -m "LightningComponentBundle:d3StepChartGraphql" -m "LightningComponentBundle:d3VariableColorLineGraphql" \
+  -m "LightningComponentBundle:d3SparklineGridGraphql" -m "LightningComponentBundle:d3PieChartGraphql" \
+  -m "LightningComponentBundle:d3DonutChartGraphql" -m "LightningComponentBundle:d3LollipopChartGraphql" \
+  -m "LightningComponentBundle:d3FunnelChartGraphql" -m "LightningComponentBundle:d3WaffleChartGraphql"
+sf project deploy start -o AGENT \
+  -m "FlexiPage:d3_graphql_showcase_1" -m "FlexiPage:d3_graphql_showcase_2" \
+  -m "CustomTab:d3_graphql_showcase_1" -m "CustomTab:d3_graphql_showcase_2"
+
+# Grant the showcase tabs (deploying the CustomTab metadata does NOT grant Profile/
+# Permission Set visibility on its own — see gotcha below)
+sf org assign permset -n D3_Graphql_Showcase -o AGENT
+
+# Local-only live-org QA gate (never runs in CI) — see playwright/ below
+export PATH="/opt/homebrew/opt/node@20/bin:$PATH"
+npm run test:e2e:live
 ```
 
 Pre-commit hook (husky + lint-staged) auto-runs Prettier, ESLint, and related Jest tests on staged files.
 
-## Architecture
+## QA: two tiers
 
-### Data Flow
+1. **Jest** (`npm test`, CI-enforced on every push/PR) — unit/integration/e2e tiers per
+   bundle, jsdom, mocked `lightning/graphql` wire. `jest.config.js` pins `TZ=America/New_York`
+   (several charts bucket date-only fields at UTC midnight; a negative-UTC-offset zone is
+   required for date-bucketing regressions to actually fail under a bug); `testPathIgnorePatterns`
+   excludes `playwright/` since its `*.spec.js` files need the Playwright runner, not jest.
+2. **Playwright live-org sweep** (`npm run test:e2e:live`, local only, never CI — public repo,
+   no org credentials in GitHub Actions) — walks both `d3_graphql_showcase_*` pages on AGENT,
+   asserts real SVG marks rendered (floor count, not exact), zero console errors, and a
+   pixel-diff against a committed baseline PNG per chart (`playwright/chart-sweep.spec.js-snapshots/`,
+   `[D3DEMO]`-seeded synthetic Opportunity data only — never real records). Auth is a fresh
+   `sf org open -o AGENT --url-only --json` frontdoor URL turned into a saved `storageState`
+   by `playwright/global-setup.js` on every run (`playwright/.auth/` is git-ignored); requires
+   `export PATH="/opt/homebrew/opt/node@20/bin:$PATH"` so the `sf` spawn works.
 
-1. **Server-preferred path** (when `objectApiName` + field config available):
-   - Aggregation charts (bar, donut, treemap): `getAggregatedData` → server-side GROUP BY → pre-bucketed results
-   - Histogram statistics: `getStatistics` → server-side mean/median/stdDev (raw values still fetched for binning)
-   - Scatter correlation: `getCorrelation` → server-side Pearson r, slope, intercept (raw points still fetched for rendering)
+## 16/40 status + roadmap
 
-2. **Client-side path** (recordCollection or soqlQuery-only fallback):
-   - `recordCollection` or `soqlQuery` → Apex `D3ChartController.executeQuery()`
-   - `dataService.validateData()` → `validateFields()` → `truncateData()` (2,000 record limit) → `aggregateData()`
-   - Processed data → D3 renders into an empty `<div>`
+**Converted (v1.0.0, 16):** bar, sortedBar, horizontalBar, stackedBar, stackedHorizontalBar,
+normalizedBar, line, area, step, variableColorLine, sparklineGrid, pie, donut, lollipop,
+funnel, waffle — every one renamed to its `*Graphql` suffix, all three-plus jest tiers,
+live-verified on AGENT via the Playwright sweep.
 
-### Shared Modules
+**Not yet converted (24):** everything else in `force-app/main/default/lwc/` without the
+suffix — still on the shared-module Apex/SOQL architecture pending its wave.
 
-- `d3Lib` — D3.js loader with singleton pattern and fetch+eval fallback for CSP-restricted environments. Use `loadD3(this)` first call, `getD3()` after, `resetD3()` in tests.
-- `dataService` — Data validation, aggregation (Sum/Count/Average), truncation (MAX_RECORDS: 2,000)
-- `themeService` — 4 color palettes (Salesforce Standard, Warm, Cool, Vibrant) + custom colors
-- `chartUtils` — Number formatting, tooltips, resize handling, layout retry
+**Waves 4–8** (one minor release per converted chart, per `docs/conversion-recipe.md` — the
+recipe still needs the suffix step folded in, see its header pointer):
 
-### Chart Component Pattern
+| Wave | Family                   | Charts                                                |
+| ---- | ------------------------ | ----------------------------------------------------- |
+| 4    | Categorical/comparison   | divergingBar, dotPlot, slope, band, difference        |
+| 5    | Distribution/statistical | histogram, boxPlot, heatmap, calendarHeatmap, scatter |
+| 6    | KPI/single-value         | progressBar, gauge, bullet, iconArray, waterfall      |
+| 7    | Hierarchy/flow           | treemap, sunburst, sankey, chord, choropleth          |
+| 8    | Relational/specialized   | forceGraph, gantt, radar, bubble                      |
 
-Every chart component follows this structure:
+**The purge (after wave 8):** delete the shared `c/` modules and all Apex classes. End state:
+40 standalone bundles + the `d3` static resource + nothing else, proven by a repo-wide grep
+gate (`c/`, `@salesforce/apex`) showing zero hits. Shipped as its own release.
 
-- **@api properties**: `recordCollection`, `soqlQuery`, field mappings (`groupByField`/`valueField` or `xField`/`yField`), `operation`, `height`, `theme`, `advancedConfig` (JSON string), `objectApiName`/`filterField` for drill-down
-- **Lifecycle**: `connectedCallback` loads D3 + fetches data; `renderedCallback` initializes chart with layout retry for container measurement; `disconnectedCallback` cleans up ResizeObserver
-- **State guards**: `chartRendered` flag prevents re-rendering; `_layoutRetry` handles cases where container has no dimensions yet
+**Legacy org cleanup (joint, both lines):** the org's pre-suffix unsuffixed bundles and
+`d3_lwc*` pages retire in a dedicated cleanup once both this line and `d3-lwc-soql` have their
+suffixed pages live — pages deleted before bundles. Not scheduled yet.
 
-### Apex Controller
+## Demo-data seeders
 
-`D3ChartController` (`with sharing`) — four `@AuraEnabled(cacheable=true)` methods:
+`scripts/apex/*` (`load_phase3_demo_data.apex`, `curate_gantt_demo_data.apex`,
+`populate_quota_variance.apex`) and `sfdmu/` stay in this repo until the purge release — they
+seed the `[D3DEMO]`-prefixed Opportunity data the live Playwright gate depends on. Decision
+2026-08-02: deferring their removal (they'd otherwise look like leftover shared-architecture
+scaffolding) to the purge, alongside the shared modules and Apex, rather than stripping them
+early and breaking the live gate mid-wave.
 
-- `executeQuery(queryString)` — Raw SOQL execution with FLS enforcement. Auto-adds LIMIT 2000.
-- `getAggregatedData(objectName, groupByField, valueField, operation, filterClause)` — Server-side GROUP BY aggregation. Validates object/field existence via Schema describe. Returns label/value pairs. LIMIT 200 groups.
-- `getStatistics(queryString, valueField)` — Computes count, min, max, mean, median, and population stdDev server-side.
-- `getCorrelation(queryString, xField, yField)` — Computes Pearson correlation coefficient, linear regression slope and intercept.
+## Carried-forward gotchas
 
-### Testing
-
-- Mocks in `__mocks__/` for `lightning/platformResourceLoader`, `lightning/navigation`, `lightning/platformShowToastEvent`, and `@salesforce/apex/D3ChartController.executeQuery`
-- Tests create a mock D3 factory with chainable method stubs (since D3 isn't available in jsdom)
-- Jest config extends `@salesforce/sfdx-lwc-jest/config` with custom `moduleNameMapper` for the mocks above
-
-### Conventions
-
-- Component names prefixed with `d3` (e.g., `d3BarChart`)
-- `// ABOUTME:` comments at top of component files for component-level documentation
-- Constants use UPPER_SNAKE_CASE (`MAX_RECORDS`, `OPERATIONS`, `PALETTES`)
-- HTML templates use SLDS classes with conditional rendering for loading/error/no-data/chart states
-
-## Chart Backlog
-
-- **ROADMAP.md** — Next 16 charts (Weeks 1–16), detailed specs with Salesforce use cases
-- **CHART-INDEX.md** — Next 50 charts beyond the roadmap, ordered by complexity (1 = simplest → 50 = most complex). When deciding what to build next, consult this index and build in order. Each entry includes: D3 gallery reference, proposed component name, Salesforce use case, and new D3 concepts required.
-
-Total library target: 76 charts (30 built + 46 more in CHART-INDEX).
-
-## Key Constraints
-
-- Node.js v20 required for Salesforce CLI compatibility (v25 has issues)
-- D3.js v7 loaded from the `d3` static resource (the file is named `d3`, with NO `.js` extension — a 285 KB full v7 build). Any plan/command reference to `staticresources/d3.js` is wrong; the real file is `staticresources/d3`.
-- Salesforce API version: 65.0
-
-## Two-Project Sync Strategy
-
-This project is the **source of truth**. Changes flow one direction: d3-lwc → agentforce-dev.
-
-### Path Mapping
-
-| d3-lwc                            | agentforce-dev                            |
-| --------------------------------- | ----------------------------------------- |
-| `force-app/main/default/lwc/`     | `force-app/main/d3/lwc/`                  |
-| `force-app/main/default/classes/` | `force-app/main/d3/classes/`              |
-| `__mocks__/`                      | `__mocks__/` (project root)               |
-| `jest.config.js`                  | `jest.config.js` (merge moduleNameMapper) |
-
-### Sync Checklist
-
-After making changes here, sync to `~/code/agentforce-dev/`:
-
-1. **Apex classes** — full replace (cls + meta.xml)
-2. **Service JS** (dataService, chartUtils, themeService, d3Lib) — full replace
-3. **Chart component JS** — full replace
-4. **Test files** — ALL tiers: unit (.test.js), integration (.integration.test.js), e2e (.e2e.test.js)
-5. **Mock files** (`__mocks__/`) — **additive copy** (the sync uses `rsync` WITHOUT `--delete`: agentforce-dev's `__mocks__/` is shared and holds non-d3 mocks that must be preserved)
-6. **jest.config.js** — merge moduleNameMapper (don't replace — agentforce-dev has other config)
-7. **meta.xml** — MERGE, don't replace. agentforce-dev has `lightningCommunity__Page` targets to preserve.
-
-### Automation
-
-Run `scripts/sync-to-agentforce.sh` to automate steps 1-5. Steps 6-7 require manual review.
-
-## Repo Tooling Gotchas
-
-- `npm test -- --testPathPattern=X` does NOT narrow here — it runs the full suite regardless. No per-component flag exists; run the full `npm test` (the ~2,561-test suite is fast). lint-staged runs the relevant tests on commit.
-- `npm run prettier` reformats the ENTIRE repo (it ignores path args). To format only your files: `npx prettier --write <file>...`. Never stage a whole-repo reformat alongside your change.
-- `npm run lint` fails on a stale `aura/**` glob in the eslint config (no `aura/` dir exists). Rely on the per-file lint-staged hook (which works) or `npx eslint <path>` over the dirs you touched, not the repo-wide `npm run lint`.
-- Apex has NO local compile/test. TDD is **deploy-then-test** against a live org (`sf project deploy start --source-dir force-app/main/default/classes -o <org>`, then `sf apex run test --tests <Class> -o <org>`). A deploy that fails to compile (referencing a not-yet-written method) IS the RED state. `.cls` commits are slow because lint-staged spins up a JVM `prettier-plugin-apex` parser — be patient, it's not hung. Confirm an authenticated org first (`sf org list`); the historical default `portfolio` may be deauthenticated — `AGENT` is the orgfarm dev edition.
-- **Removing an `@api` property from a chart bundle that's placed on a live page fails to deploy** (`You can't remove the property tag ... in use on one or more Lightning pages`) — Salesforce validates against the org's _current_ bundle, even in the same deploy as the page update, and even if that page instance sets no value for the property. Workaround: detach the component instance from the page, deploy the page, deploy the new bundle, then reattach. `scripts/deploy-property-removal.sh <org> <flexipage> <bundle-dir...>` automates the deploy sequencing (with correct `sf --json` status parsing) — you still hand-edit the page XML to detach first, since picking the right `<componentInstance>` block when a page has multiple instances of the same chart type is judgment, not a mechanical pattern.
+- **Design-time wedge.** If the org wedges with stale "design time component information"
+  errors, redeploy the 16 suffixed bundles only (list them with `-m`, per the Commands block
+  above), not the whole `lwc` dir.
+- **CustomTab deploy does not grant visibility.** `sf project deploy start -m "CustomTab:..."`
+  deploys the CustomTab record but does **not** add it to any Profile/Permission Set —
+  unlike creating a tab through the Setup UI wizard. Without a visibility grant,
+  `/lightning/n/<tab>` resolves to a generic "Page doesn't exist" shell even though the
+  CustomTab and FlexiPage both deployed correctly (confirmed via Setup's Classic tab-detail
+  redirect). Fix: deploy a Permission Set with `tabSettings` entries set `Visible` for the new
+  tab(s) and assign it (`D3_Graphql_Showcase` is the one covering the two v1.0.0 showcase
+  tabs) — never touch the Profile directly for this.
+- **Durable component cache.** When iterating in a Chrome DevTools MCP dev-loop session, a
+  stale durable LWC component cache can mask a bundle you just redeployed — clear it before
+  trusting what's on screen.
+- `npm run prettier` reformats the ENTIRE repo (it ignores path args). To format only your
+  files: `npx prettier --write <file>...`. Never stage a whole-repo reformat alongside your
+  change.
+- `npm run lint` fails on a stale `aura/**` glob in the eslint config (no `aura/` dir exists).
+  Rely on the per-file lint-staged hook (which works) or `npx eslint <path>` over the dirs you
+  touched, not the repo-wide `npm run lint`.
+- Apex (for the 24 unconverted charts) has NO local compile/test. TDD is **deploy-then-test**
+  against a live org (`sf project deploy start --source-dir force-app/main/default/classes -o
+<org>`, then `sf apex run test --tests <Class> -o <org>`). A deploy that fails to compile
+  (referencing a not-yet-written method) IS the RED state. `.cls` commits are slow because
+  lint-staged spins up a JVM `prettier-plugin-apex` parser — be patient, it's not hung.
+  Confirm an authenticated org first (`sf org list`); the historical default `portfolio` may
+  be deauthenticated — `AGENT` is the orgfarm dev edition.
+- **Property-removal deploy block — legacy concern, not a v1.0.0-conversion concern.**
+  Removing an `@api` property from a bundle placed on a live page fails to deploy (`You can't
+remove the property tag ... in use on one or more Lightning pages`). `scripts/deploy-property-removal.sh
+<org> <flexipage> <bundle-dir...>` automates the detach → deploy → reattach sequencing when
+  this is genuinely needed (e.g. editing an already-converted `*Graphql` bundle that's since
+  been placed on a page) — but per the suffix amendment, converting a chart no longer hits
+  this at all, since the suffixed bundle is a brand-new component, not an edit to a placed one.
+- D3.js v7 loaded from the `d3` static resource (the file is named `d3`, with NO `.js`
+  extension — a 285 KB full v7 build). Any plan/command reference to `staticresources/d3.js`
+  is wrong; the real file is `staticresources/d3`.
+- Node.js v20 required for Salesforce CLI compatibility (v25 has issues). Salesforce API
+  version: 65.0.
 
 ## Chart-Clone Hygiene Checklist (run BEFORE reporting a cloned chart DONE)
 
