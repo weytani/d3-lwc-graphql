@@ -1,26 +1,20 @@
-// ABOUTME: Integration tests for d3DivergingBarChart verifying real service pipelines (dataService, themeService, chartUtils).
-// ABOUTME: Only D3, Apex, NavigationMixin, and ShowToastEvent are mocked; sign coloring + symmetric domain use real services.
+// ABOUTME: Integration tests for d3DivergingBarChartGraphql verifying real bundle-local pipelines (data.js, theme.js, utils.js).
+// ABOUTME: Only D3, the GraphQL wire, NavigationMixin, and ShowToastEvent are mocked; sign coloring + symmetric domain use real modules.
 
 import { createElement } from "lwc";
-import D3DivergingBarChart from "c/d3DivergingBarChart";
-import { loadD3 } from "c/d3Lib";
-import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
+import D3DivergingBarChartGraphql from "c/d3DivergingBarChartGraphql";
+import { loadD3 } from "../d3Loader";
+import { graphql } from "lightning/graphql";
 // ShowToastEvent is imported by the component; we mock it below
 
 // ═══════════════════════════════════════════════════════════════
 // MOCKS — Only external dependencies that cannot run in JSDOM
-// Real services (dataService, themeService, chartUtils) are NOT mocked
+// The bundle-local data.js, theme.js, and utils.js are NOT mocked
 // ═══════════════════════════════════════════════════════════════
 
-jest.mock("c/d3Lib", () => ({
+jest.mock("../d3Loader", () => ({
   loadD3: jest.fn()
 }));
-
-jest.mock(
-  "@salesforce/apex/D3ChartController.executeQuery",
-  () => ({ default: jest.fn() }),
-  { virtual: true }
-);
 
 // ShowToastEvent mock must produce real Event instances so dispatchEvent() accepts them.
 // The factory is self-contained to work with jest.mock hoisting.
@@ -123,7 +117,7 @@ const flushPromises = () => new Promise(process.nextTick);
 // TEST SUITE
 // ═══════════════════════════════════════════════════════════════
 
-describe("c-d3-diverging-bar-chart integration", () => {
+describe("c-d3-diverging-bar-chart-graphql integration", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -135,7 +129,6 @@ describe("c-d3-diverging-bar-chart integration", () => {
 
     mockD3 = createMockD3();
     loadD3.mockResolvedValue(mockD3);
-    executeQuery.mockResolvedValue(SAMPLE_DATA);
 
     consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
     consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
@@ -171,13 +164,13 @@ describe("c-d3-diverging-bar-chart integration", () => {
   });
 
   /**
-   * Helper to create a d3DivergingBarChart element with default and overridden properties.
+   * Helper to create a d3DivergingBarChartGraphql element with default and overridden properties.
    * @param {Object} props - Property overrides
    * @returns {HTMLElement} - The created element
    */
   async function createChart(props = {}) {
-    element = createElement("c-d3-diverging-bar-chart", {
-      is: D3DivergingBarChart
+    element = createElement("c-d3-diverging-bar-chart-graphql", {
+      is: D3DivergingBarChartGraphql
     });
 
     Object.assign(element, {
@@ -280,25 +273,47 @@ describe("c-d3-diverging-bar-chart integration", () => {
       expect(passedData[2].value).toBe(150);
     });
 
-    it("passes SOQL query results through same pipeline", async () => {
-      const soqlResults = [
-        { StageName: "Negotiation", Amount: 400 },
-        { StageName: "Negotiation", Amount: 100 },
-        { StageName: "Closed Lost", Amount: 250 }
-      ];
-      executeQuery.mockResolvedValue(soqlResults);
-
+    it("passes free-text GraphQL record results through the same pipeline", async () => {
       await createChart({
         recordCollection: [],
-        soqlQuery: "SELECT StageName, Amount FROM Opportunity",
+        objectApiName: "Opportunity",
+        graphqlQuery:
+          "query { uiapi { query { Opportunity { edges { node { StageName { value } Amount { value } } } } } } }",
         operation: "Sum",
         groupByField: "StageName",
         valueField: "Amount"
       });
 
-      expect(executeQuery).toHaveBeenCalledWith({
-        queryString: "SELECT StageName, Amount FROM Opportunity"
+      graphql.emit({
+        uiapi: {
+          query: {
+            Opportunity: {
+              edges: [
+                {
+                  node: {
+                    StageName: { value: "Negotiation" },
+                    Amount: { value: 400 }
+                  }
+                },
+                {
+                  node: {
+                    StageName: { value: "Negotiation" },
+                    Amount: { value: 100 }
+                  }
+                },
+                {
+                  node: {
+                    StageName: { value: "Closed Lost" },
+                    Amount: { value: 250 }
+                  }
+                }
+              ]
+            }
+          }
+        }
       });
+      await flushPromises();
+      await flushPromises();
 
       const dataCalls = mockD3.data.mock.calls;
       const chartDataCall = dataCalls.find(
@@ -418,8 +433,8 @@ describe("c-d3-diverging-bar-chart integration", () => {
         Amount: (i + 1) * 10
       }));
 
-      element = createElement("c-d3-diverging-bar-chart", {
-        is: D3DivergingBarChart
+      element = createElement("c-d3-diverging-bar-chart-graphql", {
+        is: D3DivergingBarChartGraphql
       });
 
       // Capture dispatched events via listener before appending to DOM
@@ -456,8 +471,8 @@ describe("c-d3-diverging-bar-chart integration", () => {
         Amount: (i + 1) * 5
       }));
 
-      element = createElement("c-d3-diverging-bar-chart", {
-        is: D3DivergingBarChart
+      element = createElement("c-d3-diverging-bar-chart-graphql", {
+        is: D3DivergingBarChartGraphql
       });
 
       const toastHandler = jest.fn();
@@ -516,19 +531,20 @@ describe("c-d3-diverging-bar-chart integration", () => {
       expect(errorElement.textContent).toContain("Missing required fields");
     });
 
-    it("shows error when data is empty array", async () => {
+    it("shows the no-data state when recordCollection is empty and no query is configured", async () => {
       await createChart({
         recordCollection: [],
-        soqlQuery: ""
+        objectApiName: ""
       });
 
       await flushPromises();
 
-      // Component should display error state for no data source
+      // Nothing failed — an un-provisioned wire is an empty state, not an error.
       const errorElement = element.shadowRoot.querySelector(
         ".slds-text-color_error"
       );
-      expect(errorElement).toBeTruthy();
+      expect(errorElement).toBeFalsy();
+      expect(element.shadowRoot.textContent).toContain("No data available");
     });
   });
 

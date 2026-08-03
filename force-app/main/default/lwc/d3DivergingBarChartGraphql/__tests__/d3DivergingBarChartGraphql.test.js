@@ -1,33 +1,15 @@
-// ABOUTME: Unit tests for the d3DivergingBarChart Lightning Web Component.
+// ABOUTME: Unit tests for the d3DivergingBarChartGraphql Lightning Web Component.
 // ABOUTME: Tests centered-zero domain, sign-based coloring, data handling, config, events, tooltip, resize, and error recovery.
 
 import { createElement } from "lwc";
-import D3DivergingBarChart from "c/d3DivergingBarChart";
-import { loadD3 } from "c/d3Lib";
-import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
-import getAggregatedData from "@salesforce/apex/D3ChartController.getAggregatedData";
+import D3DivergingBarChartGraphql from "c/d3DivergingBarChartGraphql";
+import { graphql } from "lightning/graphql";
+import { loadD3 } from "../d3Loader";
 
-// Mock d3Lib
-jest.mock("c/d3Lib", () => ({
+// Mock the bundle-local D3 loader
+jest.mock("../d3Loader", () => ({
   loadD3: jest.fn()
 }));
-
-// Mock Apex
-jest.mock(
-  "@salesforce/apex/D3ChartController.executeQuery",
-  () => ({
-    default: jest.fn()
-  }),
-  { virtual: true }
-);
-
-jest.mock(
-  "@salesforce/apex/D3ChartController.getAggregatedData",
-  () => ({
-    default: jest.fn()
-  }),
-  { virtual: true }
-);
 
 // ═══════════════════════════════════════════════════════════════
 // MOCK D3 FACTORY
@@ -112,11 +94,39 @@ const SPECIAL_CHAR_DATA = [
   { StageName: "Stage <C>", Amount: 300 }
 ];
 
+// UI API aggregate-query envelope, as the lightning/graphql wire delivers it.
+const WIRE_RESPONSE = {
+  uiapi: {
+    aggregate: {
+      Opportunity: {
+        edges: [
+          {
+            node: {
+              aggregate: {
+                StageName: { value: "Loss" },
+                Amount: { sum: { value: -300 } }
+              }
+            }
+          },
+          {
+            node: {
+              aggregate: {
+                StageName: { value: "Gain" },
+                Amount: { sum: { value: 200 } }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+};
+
 // Flush promises helper
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-diverging-bar-chart", () => {
+describe("c-d3-diverging-bar-chart-graphql", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -126,12 +136,6 @@ describe("c-d3-diverging-bar-chart", () => {
     jest.clearAllMocks();
     mockD3 = createMockD3();
     loadD3.mockResolvedValue(mockD3);
-    executeQuery.mockResolvedValue(SAMPLE_DATA);
-    getAggregatedData.mockResolvedValue([
-      { label: "Closed Won", value: 500 },
-      { label: "Prospecting", value: 300 },
-      { label: "Lost", value: -250 }
-    ]);
 
     // Spy on console to ensure pristine output
     consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
@@ -166,8 +170,8 @@ describe("c-d3-diverging-bar-chart", () => {
 
   // Helper to create element with properties
   async function createChart(props = {}) {
-    element = createElement("c-d3-diverging-bar-chart", {
-      is: D3DivergingBarChart
+    element = createElement("c-d3-diverging-bar-chart-graphql", {
+      is: D3DivergingBarChartGraphql
     });
 
     Object.assign(element, {
@@ -193,8 +197,8 @@ describe("c-d3-diverging-bar-chart", () => {
 
   describe("initialization", () => {
     it("shows loading state initially", async () => {
-      element = createElement("c-d3-diverging-bar-chart", {
-        is: D3DivergingBarChart
+      element = createElement("c-d3-diverging-bar-chart-graphql", {
+        is: D3DivergingBarChartGraphql
       });
       element.groupByField = "StageName";
       element.recordCollection = SAMPLE_DATA;
@@ -232,55 +236,32 @@ describe("c-d3-diverging-bar-chart", () => {
   // ═══════════════════════════════════════════════════════════════
 
   describe("data handling", () => {
-    it("uses recordCollection when provided", async () => {
+    it("renders the chart from recordCollection when provided", async () => {
       await createChart({
         recordCollection: SAMPLE_DATA
       });
 
-      expect(executeQuery).not.toHaveBeenCalled();
+      expect(element.shadowRoot.querySelector(".chart-container")).toBeTruthy();
+      expect(
+        element.shadowRoot.querySelector(".slds-text-color_error")
+      ).toBeFalsy();
     });
 
-    it("executes SOQL when recordCollection is empty", async () => {
+    it("shows the no-data state when no data source is configured", async () => {
+      // No recordCollection and no objectApiName leaves the wire un-provisioned.
+      // That is an empty state, not an error — nothing failed.
       await createChart({
         recordCollection: [],
-        soqlQuery: "SELECT StageName, Amount FROM Opportunity"
-      });
-
-      expect(executeQuery).toHaveBeenCalledWith({
-        queryString: "SELECT StageName, Amount FROM Opportunity"
-      });
-    });
-
-    it("shows error when no data source provided", async () => {
-      await createChart({
-        recordCollection: [],
-        soqlQuery: ""
+        objectApiName: ""
       });
 
       await flushPromises();
 
-      const errorElement = element.shadowRoot.querySelector(
-        ".slds-text-color_error"
-      );
-      expect(errorElement).toBeTruthy();
-    });
-
-    it("shows error when SOQL query fails", async () => {
-      executeQuery.mockRejectedValue({
-        body: { message: "Query error" }
-      });
-
-      await createChart({
-        recordCollection: [],
-        soqlQuery: "SELECT Invalid FROM Opportunity"
-      });
-
-      await flushPromises();
-
-      const errorElement = element.shadowRoot.querySelector(
-        ".slds-text-color_error"
-      );
-      expect(errorElement).toBeTruthy();
+      expect(
+        element.shadowRoot.querySelector(".slds-text-color_error")
+      ).toBeFalsy();
+      expect(element.shadowRoot.querySelector(".chart-container")).toBeFalsy();
+      expect(element.shadowRoot.textContent).toContain("No data available");
     });
   });
 
@@ -368,8 +349,8 @@ describe("c-d3-diverging-bar-chart", () => {
       }));
 
       const toastHandler = jest.fn();
-      element = createElement("c-d3-diverging-bar-chart", {
-        is: D3DivergingBarChart
+      element = createElement("c-d3-diverging-bar-chart-graphql", {
+        is: D3DivergingBarChartGraphql
       });
       element.addEventListener("lightning__showtoast", toastHandler);
       Object.assign(element, {
@@ -469,15 +450,22 @@ describe("c-d3-diverging-bar-chart", () => {
       expect(container.getAttribute("style")).toContain("400px");
     });
 
-    it("parses advancedConfig JSON", async () => {
+    it("parses advancedConfig JSON and applies customColors to the bar fills", async () => {
+      // customColors is the only advancedConfig key this chart consumes, so it
+      // is the only one that can prove the JSON was actually parsed and used.
       await createChart({
-        advancedConfig: '{"showGrid": true, "showLegend": false}'
+        advancedConfig: '{"customColors": ["#00AA00", "#AA0000"]}',
+        recordCollection: [
+          { StageName: "Loss", Amount: -300 },
+          { StageName: "Gain", Amount: 200 }
+        ]
       });
 
-      const errorElement = element.shadowRoot.querySelector(
-        ".slds-text-color_error"
-      );
-      expect(errorElement).toBeFalsy();
+      await flushPromises();
+      const fillCalls = mockD3.attr.mock.calls.filter((c) => c[0] === "fill");
+      const fillFn = fillCalls[fillCalls.length - 1][1];
+      expect(fillFn({ label: "Gain", value: 200 })).toBe("#00AA00");
+      expect(fillFn({ label: "Loss", value: -300 })).toBe("#AA0000");
     });
 
     it("handles invalid advancedConfig JSON gracefully", async () => {
@@ -695,99 +683,153 @@ describe("c-d3-diverging-bar-chart", () => {
       expect(loadD3).toHaveBeenCalled();
     });
 
-    it("retries chart init when container starts at zero width", async () => {
-      // Start with zero width
-      let containerWidth = 0;
-      Element.prototype.getBoundingClientRect = jest.fn(() => ({
-        width: containerWidth,
-        height: 300,
-        top: 0,
-        left: 0,
-        bottom: 300,
-        right: containerWidth
-      }));
-
-      // Track RAF calls
-      const rafCallbacks = [];
-      global.requestAnimationFrame = jest.fn((cb) => {
-        rafCallbacks.push(cb);
-        return rafCallbacks.length;
+    it("renders once the container becomes measurable via the resize observer", async () => {
+      // Container starts at zero width; capture the ResizeObserver callback.
+      let roCallback = null;
+      global.ResizeObserver = jest.fn().mockImplementation((cb) => {
+        roCallback = cb;
+        return {
+          observe: jest.fn(),
+          unobserve: jest.fn(),
+          disconnect: jest.fn()
+        };
       });
-      global.cancelAnimationFrame = jest.fn();
+      Element.prototype.getBoundingClientRect = jest.fn(() => ({
+        width: 0,
+        height: 300,
+        top: 0,
+        left: 0,
+        bottom: 300,
+        right: 0
+      }));
 
       await createChart();
       await flushPromises();
 
-      // Chart was not rendered (width was 0), but RAF should have been requested
-      expect(global.requestAnimationFrame).toHaveBeenCalled();
+      // Zero width: nothing drawn yet, but the observer must already be
+      // registered so a later measurement can render (no fixed give-up window).
       expect(mockD3.scaleBand).not.toHaveBeenCalled();
+      expect(roCallback).toBeTruthy();
 
-      // Simulate container getting width from layout engine
-      containerWidth = 400;
+      // The container becomes measurable; the observer fires the render.
+      jest.useFakeTimers();
+      roCallback([{ contentRect: { width: 400, height: 300 } }]);
+      jest.advanceTimersByTime(250);
+      jest.useRealTimers();
+      await flushPromises();
+
+      expect(mockD3.scaleBand).toHaveBeenCalled();
+    });
+
+    it("does not latch an empty shell when first measured below the chart margins, and recovers when it grows", async () => {
+      // This chart's horizontal margins are left 150 + right 20 = 170px, so a
+      // 100px container makes renderChart bail before appending the svg while
+      // still clearing the non-zero-width gate. The observer must draw the
+      // chart once the container grows past the margins.
+      let roCallback = null;
+      global.ResizeObserver = jest.fn().mockImplementation((cb) => {
+        roCallback = cb;
+        return {
+          observe: jest.fn(),
+          unobserve: jest.fn(),
+          disconnect: jest.fn()
+        };
+      });
       Element.prototype.getBoundingClientRect = jest.fn(() => ({
-        width: 400,
+        width: 100,
         height: 300,
         top: 0,
         left: 0,
         bottom: 300,
-        right: 400
+        right: 100
       }));
-
-      // Fire the RAF callback chain
-      while (rafCallbacks.length > 0) {
-        const cb = rafCallbacks.shift();
-        cb();
-      }
-
-      // Chart should now have rendered
-      expect(mockD3.select).toHaveBeenCalled();
-    });
-
-    it("cancels layout retry on disconnect", async () => {
-      // Start with zero width
-      Element.prototype.getBoundingClientRect = jest.fn(() => ({
-        width: 0,
-        height: 0,
-        top: 0,
-        left: 0,
-        bottom: 0,
-        right: 0
-      }));
-
-      global.requestAnimationFrame = jest.fn(() => 42);
-      global.cancelAnimationFrame = jest.fn();
 
       await createChart();
       await flushPromises();
 
-      // Remove element triggers disconnectedCallback
-      document.body.removeChild(element);
+      // 100px is below the 170px horizontal margin sum: no bars drawn yet.
+      expect(mockD3.scaleBand).not.toHaveBeenCalled();
+      expect(roCallback).toBeTruthy();
 
-      expect(global.cancelAnimationFrame).toHaveBeenCalled();
+      jest.useFakeTimers();
+      roCallback([{ contentRect: { width: 400, height: 300 } }]);
+      jest.advanceTimersByTime(250);
+      jest.useRealTimers();
+      await flushPromises();
+
+      expect(mockD3.scaleBand).toHaveBeenCalled();
     });
 
-    it("does not start duplicate retries on multiple renderedCallback calls", async () => {
-      // Start with zero width
-      Element.prototype.getBoundingClientRect = jest.fn(() => ({
-        width: 0,
-        height: 300,
-        top: 0,
-        left: 0,
-        bottom: 300,
-        right: 0
-      }));
-
-      let rafCount = 0;
-      global.requestAnimationFrame = jest.fn(() => ++rafCount);
-      global.cancelAnimationFrame = jest.fn();
-
+    it("creates exactly one resize observer across the render lifecycle", async () => {
       await createChart();
       await flushPromises();
       await flushPromises();
+
+      // A single unified observer drives both the first render and re-renders.
+      expect(global.ResizeObserver).toHaveBeenCalledTimes(1);
+    });
+
+    it("rebinds the tooltip and observer when an error destroys and recreates the container", async () => {
+      // data → error → data walks the template's if/elseif chain through the
+      // error branch, which destroys .chart-container and builds a fresh one on
+      // recovery. Existence-only guards would strand the tooltip in the detached
+      // old node and leave the observer watching a dead element.
+      const roCallbacks = [];
+      global.ResizeObserver = jest.fn().mockImplementation((cb) => {
+        roCallbacks.push(cb);
+        return {
+          observe: jest.fn(),
+          unobserve: jest.fn(),
+          disconnect: jest.fn()
+        };
+      });
+
+      element = createElement("c-d3-diverging-bar-chart-graphql", {
+        is: D3DivergingBarChartGraphql
+      });
+      Object.assign(element, {
+        objectApiName: "Opportunity",
+        groupByField: "StageName",
+        valueField: "Amount",
+        operation: "Sum"
+      });
+      document.body.appendChild(element);
       await flushPromises();
 
-      // Only one RAF should be requested (one retry loop, not multiple)
-      expect(global.requestAnimationFrame).toHaveBeenCalledTimes(1);
+      graphql.emit(WIRE_RESPONSE);
+      await flushPromises();
+      const firstContainer =
+        element.shadowRoot.querySelector(".chart-container");
+      expect(firstContainer).toBeTruthy();
+
+      graphql.emitErrors([{ message: "wire boom" }]);
+      await flushPromises();
+      expect(element.shadowRoot.querySelector(".chart-container")).toBeFalsy();
+
+      graphql.emit(WIRE_RESPONSE);
+      await flushPromises();
+
+      const secondContainer =
+        element.shadowRoot.querySelector(".chart-container");
+      expect(secondContainer).toBeTruthy();
+      expect(secondContainer).not.toBe(firstContainer);
+
+      // The tooltip must live in the container that is actually on screen.
+      expect(secondContainer.querySelector(".slds-popover")).toBeTruthy();
+      // One observer per container generation, rebound to the live container.
+      expect(global.ResizeObserver).toHaveBeenCalledTimes(2);
+
+      // The newly captured callback must drive a render, not watch a dead node.
+      mockD3.scaleBand.mockClear();
+      jest.useFakeTimers();
+      roCallbacks[roCallbacks.length - 1]([
+        { contentRect: { width: 400, height: 300 } }
+      ]);
+      jest.advanceTimersByTime(300);
+      jest.useRealTimers();
+      await flushPromises();
+
+      expect(mockD3.scaleBand).toHaveBeenCalled();
     });
   });
 
@@ -796,36 +838,22 @@ describe("c-d3-diverging-bar-chart", () => {
   // ═══════════════════════════════════════════════════════════════
 
   describe("error recovery", () => {
-    it("shows error from SOQL body.message", async () => {
-      executeQuery.mockRejectedValue({
-        body: { message: "Specific SOQL error" }
+    it("surfaces an exception thrown during renderChart to the error state", async () => {
+      // Force renderChart to throw mid-flight; it must not die silently and
+      // leave a partially drawn shell. mockD3 is rebuilt per test by the
+      // createMockD3() factory in beforeEach, so this mutation cannot leak.
+      mockD3.select = jest.fn(() => {
+        throw new Error("render boom");
       });
 
-      await createChart({
-        recordCollection: [],
-        soqlQuery: "SELECT Bad FROM Object"
-      });
+      await createChart();
       await flushPromises();
 
       const errorElement = element.shadowRoot.querySelector(
         ".slds-text-color_error"
       );
       expect(errorElement).toBeTruthy();
-    });
-
-    it("falls back to e.message when body is missing", async () => {
-      executeQuery.mockRejectedValue(new Error("Network error"));
-
-      await createChart({
-        recordCollection: [],
-        soqlQuery: "SELECT Id FROM Account"
-      });
-      await flushPromises();
-
-      const errorElement = element.shadowRoot.querySelector(
-        ".slds-text-color_error"
-      );
-      expect(errorElement).toBeTruthy();
+      expect(errorElement.textContent).toContain("render boom");
     });
 
     it("shows error when D3 fails to load", async () => {
@@ -923,7 +951,7 @@ describe("c-d3-diverging-bar-chart", () => {
       expect(mockD3.scaleBand).toHaveBeenCalled();
     });
 
-    it("creates linear scale for y-axis", async () => {
+    it("creates linear scale for the x (value) axis", async () => {
       await createChart();
       await flushPromises();
 
@@ -1020,152 +1048,6 @@ describe("c-d3-diverging-bar-chart", () => {
   });
 
   // ═══════════════════════════════════════════════════════════════
-  // SERVER AGGREGATION TESTS
-  // ═══════════════════════════════════════════════════════════════
-
-  describe("server aggregation", () => {
-    it("calls getAggregatedData when objectApiName, groupByField, valueField, and operation are set", async () => {
-      await createChart({
-        recordCollection: [],
-        soqlQuery: "",
-        objectApiName: "Opportunity",
-        groupByField: "StageName",
-        valueField: "Amount",
-        operation: "Sum"
-      });
-
-      await flushPromises();
-
-      expect(getAggregatedData).toHaveBeenCalledWith({
-        objectName: "Opportunity",
-        groupByField: "StageName",
-        valueField: "Amount",
-        operation: "Sum",
-        filterClause: null
-      });
-      expect(executeQuery).not.toHaveBeenCalled();
-    });
-
-    it("passes filterClause to getAggregatedData when set", async () => {
-      await createChart({
-        recordCollection: [],
-        soqlQuery: "",
-        objectApiName: "Opportunity",
-        groupByField: "StageName",
-        valueField: "Amount",
-        operation: "Sum",
-        filterClause: "Amount > 1000"
-      });
-
-      await flushPromises();
-
-      expect(getAggregatedData).toHaveBeenCalledWith({
-        objectName: "Opportunity",
-        groupByField: "StageName",
-        valueField: "Amount",
-        operation: "Sum",
-        filterClause: "Amount > 1000"
-      });
-    });
-
-    it("falls back to soqlQuery with client aggregation when objectApiName is not set", async () => {
-      await createChart({
-        recordCollection: [],
-        soqlQuery: "SELECT StageName, Amount FROM Opportunity",
-        objectApiName: "",
-        groupByField: "StageName",
-        valueField: "Amount",
-        operation: "Sum"
-      });
-
-      await flushPromises();
-
-      expect(getAggregatedData).not.toHaveBeenCalled();
-      expect(executeQuery).toHaveBeenCalledWith({
-        queryString: "SELECT StageName, Amount FROM Opportunity"
-      });
-    });
-
-    it("renders chart from server aggregated data", async () => {
-      await createChart({
-        recordCollection: [],
-        soqlQuery: "",
-        objectApiName: "Opportunity",
-        groupByField: "StageName",
-        valueField: "Amount",
-        operation: "Sum"
-      });
-
-      await flushPromises();
-      await flushPromises();
-
-      const container = element.shadowRoot.querySelector(".chart-container");
-      expect(container).toBeTruthy();
-      const errorElement = element.shadowRoot.querySelector(
-        ".slds-text-color_error"
-      );
-      expect(errorElement).toBeFalsy();
-    });
-
-    it("shows error when getAggregatedData fails", async () => {
-      getAggregatedData.mockRejectedValue({
-        body: { message: "Aggregation failed" }
-      });
-
-      await createChart({
-        recordCollection: [],
-        soqlQuery: "",
-        objectApiName: "Opportunity",
-        groupByField: "StageName",
-        valueField: "Amount",
-        operation: "Sum"
-      });
-
-      await flushPromises();
-
-      const errorElement = element.shadowRoot.querySelector(
-        ".slds-text-color_error"
-      );
-      expect(errorElement).toBeTruthy();
-    });
-
-    it("shows error when getAggregatedData returns empty array", async () => {
-      getAggregatedData.mockResolvedValue([]);
-
-      await createChart({
-        recordCollection: [],
-        soqlQuery: "",
-        objectApiName: "Opportunity",
-        groupByField: "StageName",
-        valueField: "Amount",
-        operation: "Sum"
-      });
-
-      await flushPromises();
-
-      const errorElement = element.shadowRoot.querySelector(
-        ".slds-text-color_error"
-      );
-      expect(errorElement).toBeTruthy();
-    });
-
-    it("prefers recordCollection over server aggregation", async () => {
-      await createChart({
-        recordCollection: SAMPLE_DATA,
-        objectApiName: "Opportunity",
-        groupByField: "StageName",
-        valueField: "Amount",
-        operation: "Sum"
-      });
-
-      await flushPromises();
-
-      expect(getAggregatedData).not.toHaveBeenCalled();
-      expect(executeQuery).not.toHaveBeenCalled();
-    });
-  });
-
-  // ═══════════════════════════════════════════════════════════════
   // GETTER TESTS
   // ═══════════════════════════════════════════════════════════════
 
@@ -1191,8 +1073,8 @@ describe("c-d3-diverging-bar-chart", () => {
     });
 
     it("showChart is false when loading", () => {
-      element = createElement("c-d3-diverging-bar-chart", {
-        is: D3DivergingBarChart
+      element = createElement("c-d3-diverging-bar-chart-graphql", {
+        is: D3DivergingBarChartGraphql
       });
       element.groupByField = "StageName";
       element.recordCollection = SAMPLE_DATA;

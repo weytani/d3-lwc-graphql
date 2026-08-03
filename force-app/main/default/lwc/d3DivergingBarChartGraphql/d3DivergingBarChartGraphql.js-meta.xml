@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>D3 Diverging Bar Chart (GraphQL)</masterLabel>
+    <description
+  >Diverging bar chart powered by D3.js. Signed values extend left (negative) or right (positive) from a centered zero baseline, colored by sign.</description>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig
+      targets="lightning__AppPage,lightning__RecordPage,lightning__HomePage"
+    >
+            <!-- Field Mapping -->
+            <property
+        name="groupByField"
+        type="String"
+        label="Group By Field"
+        default="StageName"
+        description="API name of the category field (e.g., StageName)"
+        placeholder="StageName"
+      />
+            <property
+        name="valueField"
+        type="String"
+        label="Value Field"
+        default="Amount"
+        description="API name of the numeric field to aggregate (values may be signed; not required for Count)"
+        placeholder="Amount"
+      />
+            <property
+        name="operation"
+        type="String"
+        label="Aggregation"
+        default="Sum"
+        datasource="Sum,Count,Average"
+        description="How to aggregate the values. On the GraphQL self-fetch path, Count is bounded to the first Record Limit rows (default 2000)."
+      />
+
+            <!-- Appearance -->
+            <property
+        name="height"
+        type="Integer"
+        label="Height (px)"
+        default="300"
+        description="Chart height in pixels"
+        min="150"
+        max="800"
+      />
+
+            <!-- Query + Drill-Down -->
+            <property
+        name="objectApiName"
+        type="String"
+        label="Object API Name"
+        description="Object to query. When set (and no records are passed in), the chart self-fetches this object via GraphQL. Also used for drill-down navigation on bar click."
+        placeholder="Opportunity"
+      />
+            <property
+        name="filterField"
+        type="String"
+        label="Filter Field"
+        description="Field to filter by on drill-down (defaults to Group By Field)"
+      />
+
+            <property
+        name="recordLimit"
+        type="Integer"
+        label="Record Limit"
+        description="Maximum records to process. Leave empty for default."
+        min="1"
+        max="2000"
+      />
+
+            <!-- GraphQL Query Override -->
+            <property
+        name="graphqlQuery"
+        type="String"
+        label="GraphQL Query"
+        description="Optional override of the built query. Must be a UI API record query (uiapi.query) whose node selects the Group By Field and Value Field as top-level fields; the returned rows are aggregated client-side by the Group By Field, Value Field, and Aggregation. UI-API-queryable objects only; at most 2,000 records; GraphQL syntax. Footgun: if the Value Field is missing from the query, bars aggregate to zero and collapse onto the zero baseline rather than erroring. Leave blank to build the query automatically."
+      />
+
+            <!-- Advanced -->
+            <property
+        name="advancedConfig"
+        type="String"
+        label="Advanced Config (JSON)"
+        description='{"customColors": ["#00AA00", "#AA0000"]} — [positive, negative]; either side may be omitted to keep the theme default'
+      />
+        </targetConfig>
+        <targetConfig targets="lightning__FlowScreen">
+            <propertyType
+        name="T"
+        extends="SObject"
+        label="Record Type"
+        description="Generic sObject type of the input record collection"
+      />
+            <property
+        name="recordCollection"
+        type="{T[]}"
+        label="Records"
+        role="inputOnly"
+        description="Collection of records to chart, from the flow"
+      />
+            <property
+        name="groupByField"
+        type="String"
+        label="Group By Field"
+        description="API name of the category field"
+      />
+            <property
+        name="valueField"
+        type="String"
+        label="Value Field"
+        description="API name of the numeric field to aggregate (values may be signed; not required for Count)"
+      />
+            <property
+        name="operation"
+        type="String"
+        label="Aggregation"
+        datasource="Sum,Count,Average"
+        description="How to aggregate the values"
+      />
+            <property
+        name="height"
+        type="Integer"
+        label="Height (px)"
+        description="Chart height in pixels"
+      />
+            <property
+        name="theme"
+        type="String"
+        label="Color Theme"
+        datasource="Salesforce Standard,Warm,Cool,Vibrant"
+        description="Palette supplying the positive/negative bar color pair"
+      />
+            <property
+        name="advancedConfig"
+        type="String"
+        label="Advanced Config (JSON)"
+        description='{"customColors": ["#00AA00", "#AA0000"]} — [positive, negative]'
+      />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

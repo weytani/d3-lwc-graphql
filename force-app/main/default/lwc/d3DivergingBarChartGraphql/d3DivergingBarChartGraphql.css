@@ -1,5 +1,5 @@
 /* ABOUTME: Styles for the D3 Diverging Bar Chart Lightning Web Component. */
-/* ABOUTME: Defines svg font and the bar hover state (matching d3BarChart's sibling .bar rule). */
+/* ABOUTME: Defines svg font and the bar hover state (matching d3BarChartGraphql's sibling .bar rule). */
 
 .diverging-bar-chart-svg {
   font-family: "Salesforce Sans", Arial, sans-serif;
