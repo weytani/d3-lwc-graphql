@@ -1,8 +1,8 @@
-// ABOUTME: Integration tests for d3BandChart verifying real service pipelines (dataService, themeService, chartUtils).
+// ABOUTME: Integration tests for d3BandChartGraphql verifying real service pipelines (dataService, themeService, chartUtils).
 // ABOUTME: Only D3, Apex, and NavigationMixin are mocked; time series processing and color logic run for real.
 
 import { createElement } from "lwc";
-import D3BandChart from "c/d3BandChart";
+import D3BandChartGraphql from "c/d3BandChartGraphql";
 import { loadD3 } from "c/d3Lib";
 import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
 
@@ -109,7 +109,7 @@ const SAMPLE_DATA = [
 
 const flushPromises = () => new Promise(process.nextTick);
 
-describe("c-d3-band-chart integration", () => {
+describe("c-d3-band-chart-graphql integration", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -148,7 +148,7 @@ describe("c-d3-band-chart integration", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-band-chart", { is: D3BandChart });
+    element = createElement("c-d3-band-chart-graphql", { is: D3BandChartGraphql });
 
     Object.assign(element, {
       dateField: "CloseDate",

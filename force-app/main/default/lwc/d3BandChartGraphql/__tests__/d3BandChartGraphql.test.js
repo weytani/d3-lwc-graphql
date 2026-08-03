@@ -1,8 +1,8 @@
-// ABOUTME: Unit tests for the d3BandChart Lightning Web Component.
+// ABOUTME: Unit tests for the d3BandChartGraphql Lightning Web Component.
 // ABOUTME: Tests initialization, data handling, date parsing, the lower/upper band area, optional center line, curves, and error recovery.
 
 import { createElement } from "lwc";
-import D3BandChart from "c/d3BandChart";
+import D3BandChartGraphql from "c/d3BandChartGraphql";
 import { loadD3 } from "c/d3Lib";
 import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
 
@@ -151,7 +151,7 @@ const NEGATIVE_DATA = [
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-band-chart", () => {
+describe("c-d3-band-chart-graphql", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -192,8 +192,8 @@ describe("c-d3-band-chart", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-band-chart", {
-      is: D3BandChart
+    element = createElement("c-d3-band-chart-graphql", {
+      is: D3BandChartGraphql
     });
 
     Object.assign(element, {
@@ -218,7 +218,7 @@ describe("c-d3-band-chart", () => {
 
   describe("initialization", () => {
     it("shows loading state initially", async () => {
-      element = createElement("c-d3-band-chart", { is: D3BandChart });
+      element = createElement("c-d3-band-chart-graphql", { is: D3BandChartGraphql });
       element.dateField = "CloseDate";
       element.recordCollection = SAMPLE_DATA;
 
@@ -250,7 +250,7 @@ describe("c-d3-band-chart", () => {
     });
 
     it("has correct default property values", () => {
-      element = createElement("c-d3-band-chart", { is: D3BandChart });
+      element = createElement("c-d3-band-chart-graphql", { is: D3BandChartGraphql });
       expect(element.dateField).toBe("CloseDate");
       expect(element.lowerField).toBe("Amount");
       expect(element.upperField).toBe("ExpectedRevenue");

@@ -1,9 +1,9 @@
-// ABOUTME: Tests the additive GraphQL self-fetch path on d3BandChart (Approach A, CT-REC).
+// ABOUTME: Tests the additive GraphQL self-fetch path on d3BandChartGraphql (Approach A, CT-REC).
 // ABOUTME: Band has no server-side aggregate — the graphql path always fetches raw
 // ABOUTME: dateField/lowerField/upperField(/valueField) records and feeds the existing
 // ABOUTME: processBandData path, same as recordCollection/soqlQuery.
 import { createElement } from "lwc";
-import D3BandChart from "c/d3BandChart";
+import D3BandChartGraphql from "c/d3BandChartGraphql";
 import { graphql, gql } from "lightning/graphql";
 import { loadD3 } from "c/d3Lib";
 
@@ -63,7 +63,7 @@ async function flushPromises() {
   return Promise.resolve();
 }
 
-describe("d3BandChart GraphQL path (Approach A, CT-REC)", () => {
+describe("d3BandChartGraphql GraphQL path (Approach A, CT-REC)", () => {
   let d3Calls;
 
   beforeEach(() => {
@@ -94,7 +94,7 @@ describe("d3BandChart GraphQL path (Approach A, CT-REC)", () => {
   });
 
   it("renders the chart container and actually draws the band when GraphQL record data arrives", async () => {
-    const element = createElement("c-d3-band-chart", { is: D3BandChart });
+    const element = createElement("c-d3-band-chart-graphql", { is: D3BandChartGraphql });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
@@ -122,7 +122,7 @@ describe("d3BandChart GraphQL path (Approach A, CT-REC)", () => {
   });
 
   it("shows an error when the GraphQL wire emits errors", async () => {
-    const element = createElement("c-d3-band-chart", { is: D3BandChart });
+    const element = createElement("c-d3-band-chart-graphql", { is: D3BandChartGraphql });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
@@ -140,7 +140,7 @@ describe("d3BandChart GraphQL path (Approach A, CT-REC)", () => {
   });
 
   it("bounds the query with the same first: value as other CT-REC charts", async () => {
-    const element = createElement("c-d3-band-chart", { is: D3BandChart });
+    const element = createElement("c-d3-band-chart-graphql", { is: D3BandChartGraphql });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
@@ -155,7 +155,7 @@ describe("d3BandChart GraphQL path (Approach A, CT-REC)", () => {
   });
 
   it("requests dateField, lowerField, upperField, and valueField, deduped", async () => {
-    const element = createElement("c-d3-band-chart", { is: D3BandChart });
+    const element = createElement("c-d3-band-chart-graphql", { is: D3BandChartGraphql });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
@@ -176,7 +176,7 @@ describe("d3BandChart GraphQL path (Approach A, CT-REC)", () => {
   });
 
   it("does not provision the wire when upperField is missing", async () => {
-    const element = createElement("c-d3-band-chart", { is: D3BandChart });
+    const element = createElement("c-d3-band-chart-graphql", { is: D3BandChartGraphql });
     element.fetchMode = "graphql";
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";

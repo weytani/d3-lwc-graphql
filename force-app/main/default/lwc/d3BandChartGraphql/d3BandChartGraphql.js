@@ -16,7 +16,7 @@ import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
 import { gql, graphql } from "lightning/graphql";
 import { buildRecordQuery, normalizeRecordsGeneric } from "c/graphqlService";
 
-export default class D3BandChart extends NavigationMixin(LightningElement) {
+export default class D3BandChartGraphql extends NavigationMixin(LightningElement) {
   // ═══════════════════════════════════════════════════════════════
   // PUBLIC API PROPERTIES
   // ═══════════════════════════════════════════════════════════════
@@ -232,7 +232,7 @@ export default class D3BandChart extends NavigationMixin(LightningElement) {
       await this.loadData();
     } catch (e) {
       this.error = e.message || "Failed to initialize chart";
-      console.error("D3BandChart initialization error:", e);
+      console.error("D3BandChartGraphql initialization error:", e);
     } finally {
       this.isLoading = false;
     }

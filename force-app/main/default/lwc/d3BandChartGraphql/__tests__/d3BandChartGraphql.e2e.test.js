@@ -1,8 +1,8 @@
-// ABOUTME: End-to-end lifecycle tests for the d3BandChart Lightning Web Component.
+// ABOUTME: End-to-end lifecycle tests for the d3BandChartGraphql Lightning Web Component.
 // ABOUTME: Verifies full pipeline: D3 load, time series processing, band rendering, cleanup, and multi-instance isolation.
 
 import { createElement } from "lwc";
-import D3BandChart from "c/d3BandChart";
+import D3BandChartGraphql from "c/d3BandChartGraphql";
 import { loadD3 } from "c/d3Lib";
 import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
 
@@ -129,8 +129,8 @@ function flushPromises() {
 let consoleErrorSpy;
 
 async function createChart(props = {}) {
-  const element = createElement("c-d3-band-chart", {
-    is: D3BandChart
+  const element = createElement("c-d3-band-chart-graphql", {
+    is: D3BandChartGraphql
   });
 
   Object.assign(element, {
@@ -147,7 +147,7 @@ async function createChart(props = {}) {
   return element;
 }
 
-describe("c-d3-band-chart e2e", () => {
+describe("c-d3-band-chart-graphql e2e", () => {
   let mockD3;
 
   beforeEach(() => {

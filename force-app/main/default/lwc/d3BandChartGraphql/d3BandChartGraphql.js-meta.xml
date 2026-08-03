@@ -2,7 +2,7 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>D3 Band Chart</masterLabel>
+    <masterLabel>D3 Band Chart (GraphQL)</masterLabel>
     <description
   >Time series confidence-interval / acceptable-range chart powered by D3.js — fills the band between a lower and upper bound, with an optional center line, and drill-down support.</description>
     <targets>
