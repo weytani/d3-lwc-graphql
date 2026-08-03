@@ -118,3 +118,14 @@ Each repo gets its own CLAUDE.md (carrying forward the tooling gotchas, clone-hy
 - Phase-2 implementation details (own spec).
 - Any change to d3-lwc-soql's data-service behavior beyond the strip + hardening backport.
 - Managed-package / AppExchange packaging.
+
+## Amendment 2026-08-02: per-line component suffixes (single-org coexistence)
+
+David's direction at strip-plan review: "put -soql or -graphql on the end of each chart to make it clearer."
+
+- Every chart bundle is renamed with a per-line suffix: `d3BarChartSoql` (tag `c-d3-bar-chart-soql`) in d3-lwc-soql; `d3BarChartGraphql` (tag `c-d3-bar-chart-graphql`) in d3-lwc-graphql. LWC names cannot contain hyphens, so the camelCase suffix realizes the `-soql`/`-graphql` ending in every tag, template, and test. `masterLabel` gains ` (SOQL)` / ` (GraphQL)` so App Builder/Flow pickers disambiguate.
+- Both lines coexist on the AGENT org; no second org is provisioned. This supersedes the earlier one-line-per-org assumption.
+- Shared modules (`d3Lib`, `dataService`, `themeService`, `chartUtils`) and Apex (`D3ChartController`) stay UNsuffixed, owned by the soql line. The graphql repo's frozen copies serve only its unconverted charts in-repo, are never deployed by that line, and die at its purge release.
+- Each line ships its OWN showcase flexipages + tabs (`d3_soql_*` / `d3_graphql_*`) referencing suffixed components. The org's existing unsuffixed bundles and `d3_lwc*` pages become legacy, retired in a dedicated joint cleanup after both lines' pages are live (pages deleted before bundles).
+- Consequence: the detach → deploy → reattach property-removal dance disappears from both streams — suffixed components are NEW bundles; no placed component's property surface is ever edited.
+- The archived weytani/d3-lwc copy of this spec cannot be updated; the copies in d3-lwc-soql and d3-lwc-graphql are canonical from this amendment forward.
