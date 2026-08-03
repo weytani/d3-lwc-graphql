@@ -1,8 +1,8 @@
-// ABOUTME: Integration tests for d3FunnelChart verifying real bundle-local pipelines (data, theme, utils, graphql).
+// ABOUTME: Integration tests for d3FunnelChartGraphql verifying real bundle-local pipelines (data, theme, utils, graphql).
 // ABOUTME: Only D3, GraphQL, and NavigationMixin are mocked; aggregation, color, and a11y logic run for real.
 
 import { createElement } from "lwc";
-import D3FunnelChart from "c/d3FunnelChart";
+import D3FunnelChartGraphql from "c/d3FunnelChartGraphql";
 import { loadD3 } from "../d3Loader";
 
 // ═══════════════════════════════════════════════════════════════
@@ -81,8 +81,8 @@ const SAMPLE_DATA = [
 const flushPromises = () => new Promise(process.nextTick);
 
 async function createChart(props = {}) {
-  const element = createElement("c-d3-funnel-chart", {
-    is: D3FunnelChart
+  const element = createElement("c-d3-funnel-chart-graphql", {
+    is: D3FunnelChartGraphql
   });
 
   Object.assign(element, {
@@ -106,7 +106,7 @@ async function createChart(props = {}) {
 // TEST SUITE
 // ═══════════════════════════════════════════════════════════════
 
-describe("c-d3-funnel-chart integration", () => {
+describe("c-d3-funnel-chart-graphql integration", () => {
   let mockD3;
   let consoleErrorSpy;
   let consoleWarnSpy;
@@ -186,8 +186,8 @@ describe("c-d3-funnel-chart integration", () => {
     it("free-text graphqlQuery Sum aggregates the wire rows through the real data.js pipeline", async () => {
       const { graphql } = require("lightning/graphql");
 
-      const element = createElement("c-d3-funnel-chart", {
-        is: D3FunnelChart
+      const element = createElement("c-d3-funnel-chart-graphql", {
+        is: D3FunnelChartGraphql
       });
       Object.assign(element, {
         graphqlQuery:

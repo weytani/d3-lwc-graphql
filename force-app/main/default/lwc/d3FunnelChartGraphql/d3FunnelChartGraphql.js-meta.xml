@@ -2,7 +2,7 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>D3 Funnel Chart</masterLabel>
+    <masterLabel>D3 Funnel Chart (GraphQL)</masterLabel>
     <description
   >Pipeline funnel chart powered by D3.js with conversion rate labels and drill-down.</description>
     <targets>

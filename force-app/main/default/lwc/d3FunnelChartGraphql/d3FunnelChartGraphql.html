@@ -32,7 +32,11 @@
 
     <!-- Chart Container (has data) -->
     <template lwc:elseif={hasData}>
-      <div class="chart-container" lwc:dom="manual" style={containerStyle}></div>
+      <div
+        class="chart-container"
+        lwc:dom="manual"
+        style={containerStyle}
+      ></div>
     </template>
 
     <!-- No Data State -->

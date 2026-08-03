@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local chart utilities for the d3FunnelChart standalone bundle.
+// ABOUTME: Bundle-local chart utilities for the d3FunnelChartGraphql standalone bundle.
 // ABOUTME: Number formatting, tooltip, resize observer, and SVG a11y helpers.
 
 // ===== NUMBER FORMATTERS =====

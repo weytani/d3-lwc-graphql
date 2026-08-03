@@ -1,7 +1,7 @@
-// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3FunnelChart bundle.
+// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3FunnelChartGraphql bundle.
 // ABOUTME: Covers the structured builders, the free-text graphqlQuery admin override, and the §4.2 loading-state gate.
 import { createElement } from "lwc";
-import D3FunnelChart from "c/d3FunnelChart";
+import D3FunnelChartGraphql from "c/d3FunnelChartGraphql";
 import { graphql, gql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
@@ -104,7 +104,7 @@ async function flushPromises() {
   return Promise.resolve();
 }
 
-describe("d3FunnelChart GraphQL path", () => {
+describe("d3FunnelChartGraphql GraphQL path", () => {
   let d3Calls;
 
   beforeEach(() => {
@@ -137,7 +137,9 @@ describe("d3FunnelChart GraphQL path", () => {
   });
 
   it("renders the chart container and draws a real segment when GraphQL aggregate data arrives", async () => {
-    const element = createElement("c-d3-funnel-chart", { is: D3FunnelChart });
+    const element = createElement("c-d3-funnel-chart-graphql", {
+      is: D3FunnelChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
     element.valueField = "Amount";
@@ -164,7 +166,9 @@ describe("d3FunnelChart GraphQL path", () => {
   });
 
   it("keeps the loading spinner up while the wire is provisioned and awaiting its first emission", async () => {
-    const element = createElement("c-d3-funnel-chart", { is: D3FunnelChart });
+    const element = createElement("c-d3-funnel-chart-graphql", {
+      is: D3FunnelChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
     element.valueField = "Amount";
@@ -192,7 +196,9 @@ describe("d3FunnelChart GraphQL path", () => {
   });
 
   it("shows an error when the GraphQL wire emits errors", async () => {
-    const element = createElement("c-d3-funnel-chart", { is: D3FunnelChart });
+    const element = createElement("c-d3-funnel-chart-graphql", {
+      is: D3FunnelChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
     element.valueField = "Amount";
@@ -209,7 +215,9 @@ describe("d3FunnelChart GraphQL path", () => {
   });
 
   it("falls back to a raw record query and counts client-side for Count operation, drawing a real segment", async () => {
-    const element = createElement("c-d3-funnel-chart", { is: D3FunnelChart });
+    const element = createElement("c-d3-funnel-chart-graphql", {
+      is: D3FunnelChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
     element.operation = "Count";
@@ -235,7 +243,9 @@ describe("d3FunnelChart GraphQL path", () => {
   });
 
   it("bounds the Count-path query with the same first: value as the aggregate path", async () => {
-    const element = createElement("c-d3-funnel-chart", { is: D3FunnelChart });
+    const element = createElement("c-d3-funnel-chart-graphql", {
+      is: D3FunnelChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
     element.operation = "Count";
@@ -248,7 +258,9 @@ describe("d3FunnelChart GraphQL path", () => {
   });
 
   it("uses a free-text graphqlQuery verbatim and aggregates the rows client-side", async () => {
-    const element = createElement("c-d3-funnel-chart", { is: D3FunnelChart });
+    const element = createElement("c-d3-funnel-chart-graphql", {
+      is: D3FunnelChartGraphql
+    });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -282,7 +294,9 @@ describe("d3FunnelChart GraphQL path", () => {
     // fires and aggregateData groups every row under a single bogus "Null"
     // bucket instead of surfacing an error. filter(Boolean) drops the blank
     // entry so the missing-field check fires as intended.
-    const element = createElement("c-d3-funnel-chart", { is: D3FunnelChart });
+    const element = createElement("c-d3-funnel-chart-graphql", {
+      is: D3FunnelChartGraphql
+    });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
     element.groupByField = "";
@@ -310,7 +324,9 @@ describe("d3FunnelChart GraphQL path", () => {
     // ("No data after aggregation", from that unrelated downstream guard)
     // instead of this dedup fix's precise "Missing required fields" message.
     // The message assertion is load-bearing, not decorative.
-    const element = createElement("c-d3-funnel-chart", { is: D3FunnelChart });
+    const element = createElement("c-d3-funnel-chart-graphql", {
+      is: D3FunnelChartGraphql
+    });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
     element.groupByField = "";
@@ -329,7 +345,9 @@ describe("d3FunnelChart GraphQL path", () => {
   });
 
   it("surfaces wire errors from a free-text graphqlQuery in the error state", async () => {
-    const element = createElement("c-d3-funnel-chart", { is: D3FunnelChart });
+    const element = createElement("c-d3-funnel-chart-graphql", {
+      is: D3FunnelChartGraphql
+    });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -349,7 +367,9 @@ describe("d3FunnelChart GraphQL path", () => {
   it("hints record-query-only when a free-text graphqlQuery yields no records", async () => {
     // An aggregate-shaped payload has no uiapi.query, so the record normalizer
     // finds nothing — the error should point the admin at the record-query contract.
-    const element = createElement("c-d3-funnel-chart", { is: D3FunnelChart });
+    const element = createElement("c-d3-funnel-chart-graphql", {
+      is: D3FunnelChartGraphql
+    });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -367,7 +387,9 @@ describe("d3FunnelChart GraphQL path", () => {
   });
 
   it("ignores a blank graphqlQuery and falls through to the structured builder", async () => {
-    const element = createElement("c-d3-funnel-chart", { is: D3FunnelChart });
+    const element = createElement("c-d3-funnel-chart-graphql", {
+      is: D3FunnelChartGraphql
+    });
     element.graphqlQuery = "   ";
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";

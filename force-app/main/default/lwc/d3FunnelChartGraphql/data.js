@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local data processing for the d3FunnelChart standalone bundle.
+// ABOUTME: Bundle-local data processing for the d3FunnelChartGraphql standalone bundle.
 // ABOUTME: Client-side validation, truncation, and aggregation of records into label/value pairs.
 
 /**
