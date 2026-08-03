@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local color palettes and helpers for the d3SparklineGrid standalone bundle.
+// ABOUTME: Bundle-local color palettes and helpers for the d3SparklineGridGraphql standalone bundle.
 // ABOUTME: Provides the SLDS-aligned palettes and getColors used to color each entity's sparkline.
 
 /**

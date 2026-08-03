@@ -1,8 +1,8 @@
-// ABOUTME: Unit tests for the d3SparklineGrid Lightning Web Component.
+// ABOUTME: Unit tests for the d3SparklineGridGraphql Lightning Web Component.
 // ABOUTME: Tests entity grouping, sparkline rendering, date bucketing, reference lines, spark types, and theme colors.
 
 import { createElement } from "lwc";
-import D3SparklineGrid from "c/d3SparklineGrid";
+import D3SparklineGridGraphql from "c/d3SparklineGridGraphql";
 import { loadD3 } from "../d3Loader";
 
 // Mock the bundle-local D3 loader
@@ -162,7 +162,7 @@ const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 // TESTS
 // ===============================================================
 
-describe("c-d3-sparkline-grid", () => {
+describe("c-d3-sparkline-grid-graphql", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -206,8 +206,8 @@ describe("c-d3-sparkline-grid", () => {
 
   // Helper to create element with properties
   async function createChart(props = {}) {
-    element = createElement("c-d3-sparkline-grid", {
-      is: D3SparklineGrid
+    element = createElement("c-d3-sparkline-grid-graphql", {
+      is: D3SparklineGridGraphql
     });
 
     Object.assign(element, {
@@ -239,8 +239,8 @@ describe("c-d3-sparkline-grid", () => {
     });
 
     it("shows loading spinner initially", async () => {
-      element = createElement("c-d3-sparkline-grid", {
-        is: D3SparklineGrid
+      element = createElement("c-d3-sparkline-grid-graphql", {
+        is: D3SparklineGridGraphql
       });
       element.entityField = "Type";
       element.recordCollection = SPARKLINE_RECORDS;
@@ -294,8 +294,8 @@ describe("c-d3-sparkline-grid", () => {
     });
 
     it("has default empty entityField", async () => {
-      element = createElement("c-d3-sparkline-grid", {
-        is: D3SparklineGrid
+      element = createElement("c-d3-sparkline-grid-graphql", {
+        is: D3SparklineGridGraphql
       });
       expect(element.entityField).toBe("");
     });
@@ -421,8 +421,8 @@ describe("c-d3-sparkline-grid", () => {
       }));
 
       const toastHandler = jest.fn();
-      element = createElement("c-d3-sparkline-grid", {
-        is: D3SparklineGrid
+      element = createElement("c-d3-sparkline-grid-graphql", {
+        is: D3SparklineGridGraphql
       });
       element.addEventListener("lightning__showtoast", toastHandler);
       Object.assign(element, {

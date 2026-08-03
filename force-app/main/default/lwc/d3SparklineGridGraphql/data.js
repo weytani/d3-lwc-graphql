@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local data processing for the d3SparklineGrid standalone bundle.
+// ABOUTME: Bundle-local data processing for the d3SparklineGridGraphql standalone bundle.
 // ABOUTME: Client-side validation, truncation, and the per-chart record limit for raw sparkline rows.
 
 /**

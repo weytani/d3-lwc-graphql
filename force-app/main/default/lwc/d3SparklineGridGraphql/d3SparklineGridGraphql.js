@@ -16,7 +16,9 @@ import { NavigationMixin } from "lightning/navigation";
 import { gql, graphql } from "lightning/graphql";
 import { buildRecordQuery, normalizeRecordsGeneric } from "./graphql";
 
-export default class D3SparklineGrid extends NavigationMixin(LightningElement) {
+export default class D3SparklineGridGraphql extends NavigationMixin(
+  LightningElement
+) {
   // ===============================================================
   // PUBLIC API PROPERTIES
   // ===============================================================
@@ -222,7 +224,7 @@ export default class D3SparklineGrid extends NavigationMixin(LightningElement) {
       await this.loadData();
     } catch (e) {
       this.error = e.message || "Failed to initialize chart";
-      console.error("D3SparklineGrid initialization error:", e);
+      console.error("D3SparklineGridGraphql initialization error:", e);
     } finally {
       // Keep the spinner up while a GraphQL query is provisioned but has not yet
       // emitted data or an error — the wire handler clears isLoading on arrival.

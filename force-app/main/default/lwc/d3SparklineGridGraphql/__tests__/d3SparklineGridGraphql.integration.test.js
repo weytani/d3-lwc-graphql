@@ -1,8 +1,8 @@
-// ABOUTME: Integration tests for d3SparklineGrid verifying real bundle-local pipelines (data, theme, utils).
+// ABOUTME: Integration tests for d3SparklineGridGraphql verifying real bundle-local pipelines (data, theme, utils).
 // ABOUTME: Only D3 and NavigationMixin are mocked; entity bucketing, aggregation math, palette selection, and a11y wiring run for real.
 
 import { createElement } from "lwc";
-import D3SparklineGrid from "c/d3SparklineGrid";
+import D3SparklineGridGraphql from "c/d3SparklineGridGraphql";
 import { loadD3 } from "../d3Loader";
 
 jest.mock("../d3Loader", () => ({
@@ -105,7 +105,7 @@ const createMockD3 = () => {
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-sparkline-grid integration", () => {
+describe("c-d3-sparkline-grid-graphql integration", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -143,7 +143,9 @@ describe("c-d3-sparkline-grid integration", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-sparkline-grid", { is: D3SparklineGrid });
+    element = createElement("c-d3-sparkline-grid-graphql", {
+      is: D3SparklineGridGraphql
+    });
 
     Object.assign(element, {
       entityField: "Type",

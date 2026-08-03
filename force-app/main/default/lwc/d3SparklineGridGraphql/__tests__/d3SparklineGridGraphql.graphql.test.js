@@ -1,9 +1,9 @@
-// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3SparklineGrid bundle.
+// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3SparklineGridGraphql bundle.
 // ABOUTME: The grid has no server-side aggregate — the structured path and the free-text
 // ABOUTME: graphqlQuery override both fetch raw records and feed the same client-side
 // ABOUTME: per-entity monthly bucketing (processEntityData).
 import { createElement } from "lwc";
-import D3SparklineGrid from "c/d3SparklineGrid";
+import D3SparklineGridGraphql from "c/d3SparklineGridGraphql";
 import { graphql, gql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
@@ -129,15 +129,15 @@ async function flushPromises() {
 }
 
 function attach(props) {
-  const element = createElement("c-d3-sparkline-grid", {
-    is: D3SparklineGrid
+  const element = createElement("c-d3-sparkline-grid-graphql", {
+    is: D3SparklineGridGraphql
   });
   Object.assign(element, props);
   document.body.appendChild(element);
   return element;
 }
 
-describe("d3SparklineGrid GraphQL path", () => {
+describe("d3SparklineGridGraphql GraphQL path", () => {
   let d3Calls;
 
   beforeEach(() => {

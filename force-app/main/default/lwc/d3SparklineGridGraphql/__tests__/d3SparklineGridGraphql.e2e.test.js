@@ -1,8 +1,8 @@
-// ABOUTME: End-to-end lifecycle tests for the d3SparklineGrid Lightning Web Component.
+// ABOUTME: End-to-end lifecycle tests for the d3SparklineGridGraphql Lightning Web Component.
 // ABOUTME: Verifies full pipeline: D3 load, entity bucketing (recordCollection and GraphQL self-fetch), multi-entity grid rendering, cleanup, and multi-instance isolation.
 
 import { createElement } from "lwc";
-import D3SparklineGrid from "c/d3SparklineGrid";
+import D3SparklineGridGraphql from "c/d3SparklineGridGraphql";
 import { graphql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
@@ -25,7 +25,7 @@ jest.mock("lightning/navigation", () => {
   };
 });
 
-// Real-computing mock D3, matching d3SparklineGrid.integration.test.js: extent/
+// Real-computing mock D3, matching d3SparklineGridGraphql.integration.test.js: extent/
 // max/min/mean reduce over the real sparkline data instead of a constant, so
 // the full lifecycle actually exercises entity bucketing rather than masking it.
 function createMockD3() {
@@ -137,8 +137,8 @@ function countClassAttrs(attrCalls, className) {
 let consoleErrorSpy;
 
 async function createChart(props = {}) {
-  const element = createElement("c-d3-sparkline-grid", {
-    is: D3SparklineGrid
+  const element = createElement("c-d3-sparkline-grid-graphql", {
+    is: D3SparklineGridGraphql
   });
 
   Object.assign(element, {
@@ -156,7 +156,7 @@ async function createChart(props = {}) {
   return element;
 }
 
-describe("c-d3-sparkline-grid e2e", () => {
+describe("c-d3-sparkline-grid-graphql e2e", () => {
   let mockD3;
 
   beforeEach(() => {
