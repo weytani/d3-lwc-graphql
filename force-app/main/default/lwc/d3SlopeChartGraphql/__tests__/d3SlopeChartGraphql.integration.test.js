@@ -1,20 +1,14 @@
-// ABOUTME: Integration tests for d3SlopeChartGraphql verifying real service pipelines (dataService, themeService, chartUtils).
-// ABOUTME: Only D3, Apex, and NavigationMixin are mocked; data processing and semantic-color logic run for real.
+// ABOUTME: Integration tests for d3SlopeChartGraphql verifying the real bundle-local pipelines (data, theme, utils, graphql).
+// ABOUTME: Only D3 and NavigationMixin are mocked; data processing and semantic-color logic run for real.
 
 import { createElement } from "lwc";
 import D3SlopeChartGraphql from "c/d3SlopeChartGraphql";
-import { loadD3 } from "c/d3Lib";
-import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
+import { loadD3 } from "../d3Loader";
+import { graphql } from "lightning/graphql";
 
-jest.mock("c/d3Lib", () => ({
+jest.mock("../d3Loader", () => ({
   loadD3: jest.fn()
 }));
-
-jest.mock(
-  "@salesforce/apex/D3ChartController.executeQuery",
-  () => ({ default: jest.fn() }),
-  { virtual: true }
-);
 
 const mockNavigate = jest.fn();
 jest.mock(
@@ -77,7 +71,6 @@ describe("c-d3-slope-chart-graphql integration", () => {
 
     mockD3 = createMockD3();
     loadD3.mockResolvedValue(mockD3);
-    executeQuery.mockResolvedValue(SAMPLE_DATA);
 
     consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
 
@@ -163,16 +156,28 @@ describe("c-d3-slope-chart-graphql integration", () => {
       ]);
     });
 
-    it("passes SOQL query results through the same processing pipeline", async () => {
-      const soqlResults = [
-        { Name: "Umbrella", Amount: 300, ExpectedRevenue: 250 }
-      ];
-      executeQuery.mockResolvedValue(soqlResults);
+    it("passes GraphQL self-fetch results through the same processing pipeline", async () => {
+      await createChart({ recordCollection: [], objectApiName: "Opportunity" });
 
-      await createChart({
-        recordCollection: [],
-        soqlQuery: "SELECT Name, Amount, ExpectedRevenue FROM Opportunity"
+      graphql.emit({
+        uiapi: {
+          query: {
+            Opportunity: {
+              edges: [
+                {
+                  node: {
+                    Name: { value: "Umbrella" },
+                    Amount: { value: 300 },
+                    ExpectedRevenue: { value: 250 }
+                  }
+                }
+              ]
+            }
+          }
+        }
       });
+      await flushPromises();
+      await flushPromises();
 
       const dataCall = mockD3.data.mock.calls.find(
         (call) =>
@@ -180,13 +185,15 @@ describe("c-d3-slope-chart-graphql integration", () => {
           call[0].length > 0 &&
           call[0][0].delta !== undefined
       );
+      // The real normalizer flattens the wire envelope to the same flat record
+      // shape recordCollection supplies, so the delta math is identical.
       expect(dataCall[0]).toEqual([
         {
           label: "Umbrella",
           startValue: 300,
           endValue: 250,
           delta: -50,
-          record: soqlResults[0]
+          record: { Name: "Umbrella", Amount: 300, ExpectedRevenue: 250 }
         }
       ]);
     });

@@ -3,20 +3,12 @@
 
 import { createElement } from "lwc";
 import D3SlopeChartGraphql from "c/d3SlopeChartGraphql";
-import { loadD3 } from "c/d3Lib";
-import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
+import { loadD3 } from "../d3Loader";
+import { graphql } from "lightning/graphql";
 
-jest.mock("c/d3Lib", () => ({
+jest.mock("../d3Loader", () => ({
   loadD3: jest.fn()
 }));
-
-jest.mock(
-  "@salesforce/apex/D3ChartController.executeQuery",
-  () => ({
-    default: jest.fn()
-  }),
-  { virtual: true }
-);
 
 jest.mock("lightning/navigation", () => {
   const Navigate = Symbol.for("Navigate");
@@ -112,7 +104,6 @@ describe("c-d3-slope-chart-graphql e2e", () => {
     jest.clearAllMocks();
     mockD3 = createMockD3();
     loadD3.mockResolvedValue(mockD3);
-    executeQuery.mockResolvedValue([]);
 
     consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
 
@@ -141,7 +132,6 @@ describe("c-d3-slope-chart-graphql e2e", () => {
       const element = await createChart({ recordCollection: LIFECYCLE_DATA });
 
       expect(loadD3).toHaveBeenCalled();
-      expect(executeQuery).not.toHaveBeenCalled();
       expect(mockD3.select).toHaveBeenCalled();
 
       const appendCalls = mockD3.append.mock.calls;
@@ -154,6 +144,45 @@ describe("c-d3-slope-chart-graphql e2e", () => {
 
       const spinner = element.shadowRoot.querySelector("lightning-spinner");
       expect(spinner).toBeFalsy();
+
+      const errorEl = element.shadowRoot.querySelector(
+        ".slds-text-color_error"
+      );
+      expect(errorEl).toBeFalsy();
+    });
+
+    it("GraphQL self-fetch path: no recordCollection -> wire emits records -> full pipeline", async () => {
+      const element = await createChart({
+        recordCollection: [],
+        objectApiName: "Opportunity"
+      });
+
+      graphql.emit({
+        uiapi: {
+          query: {
+            Opportunity: {
+              edges: [
+                {
+                  node: {
+                    Name: { value: "Discovery Co" },
+                    Amount: { value: 400 },
+                    ExpectedRevenue: { value: 350 }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      });
+      await flushPromises();
+      await flushPromises();
+
+      const appendCalls = mockD3.append.mock.calls;
+      expect(appendCalls.some((call) => call[0] === "svg")).toBe(true);
+      expect(appendCalls.some((call) => call[0] === "circle")).toBe(true);
+
+      const container = element.shadowRoot.querySelector(".chart-container");
+      expect(container).toBeTruthy();
 
       const errorEl = element.shadowRoot.querySelector(
         ".slds-text-color_error"
@@ -192,23 +221,20 @@ describe("c-d3-slope-chart-graphql e2e", () => {
       expect(errorEl.textContent).toContain("CDN unreachable");
     });
 
-    it("SOQL fetch path: no recordCollection -> Apex returns data -> full pipeline", async () => {
-      const soqlData = [
-        { Name: "Discovery Co", Amount: 400, ExpectedRevenue: 350 }
-      ];
-      executeQuery.mockResolvedValue(soqlData);
-
+    it("GraphQL wire error -> error state -> component shows error", async () => {
       const element = await createChart({
         recordCollection: [],
-        soqlQuery: "SELECT Name, Amount, ExpectedRevenue FROM Opportunity"
+        objectApiName: "Opportunity"
       });
 
-      expect(executeQuery).toHaveBeenCalledWith({
-        queryString: "SELECT Name, Amount, ExpectedRevenue FROM Opportunity"
-      });
+      graphql.emitErrors([{ message: "FIELD_INTEGRITY_EXCEPTION" }]);
+      await flushPromises();
 
-      const container = element.shadowRoot.querySelector(".chart-container");
-      expect(container).toBeTruthy();
+      const errorEl = element.shadowRoot.querySelector(
+        ".slds-text-color_error"
+      );
+      expect(errorEl).toBeTruthy();
+      expect(errorEl.textContent).toContain("FIELD_INTEGRITY_EXCEPTION");
     });
   });
 
