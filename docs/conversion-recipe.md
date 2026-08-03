@@ -586,6 +586,15 @@ often. Every converted chart needs the fix in its inlined `utils.js`.
   `first:` at 2,000; the legacy meta's `max="10000"` advertises a ceiling the
   only remaining fetch path rejects (wave-4 finding — the wave-1/2 bundles still
   carry `max="10000"`; hardening backlog).
+- **`recordLimit` governs the structured path only — the meta must say so.**
+  The structured builder passes `first: this.recordLimit || 2000` and the
+  recordCollection path truncates via `prepareData`, but the free-text
+  `graphqlQuery` path performs NO truncation — the pasted document's own
+  `first:` clause is the only bound there (wave-4 finding, confirmed on all
+  five bundles). The legacy description "Maximum records to process"
+  over-promises; use wording like: "Maximum records to fetch on the structured
+  self-fetch path. A free-text GraphQL Query is bounded only by its own
+  `first:` clause."
 - Update `<description>` only if it names SOQL/Apex (bar's did not).
 
 ### 5.1 Flow screen target (F1 — every converted chart, uniformly)
@@ -1015,6 +1024,11 @@ to guarantee.
   `[...new Set([...fields].filter(Boolean))]` form (§9.3(b)) — a field collision
   or a blank/omitted mapping otherwise malforms the query. Applies to the bar
   (§9.1) and raw-record (§9.2) families too, not just the stacked family.
+- **Free-text bound:** `recordLimit` never bounds the free-text path (§5) — the
+  admin document's own `first:` clause is the only cap. Flexipage/showcase
+  instances of record-drawn charts (one mark per record) must pin `first:` AND
+  an `orderBy` in the free-text document so the render — and any committed
+  pixel baseline — is deterministic.
 
 ---
 
