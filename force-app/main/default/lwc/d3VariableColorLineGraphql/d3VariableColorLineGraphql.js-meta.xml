@@ -2,7 +2,7 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>D3 Variable-Color Line Chart</masterLabel>
+    <masterLabel>D3 Variable-Color Line Chart (GraphQL)</masterLabel>
     <description
   >Time series line chart powered by D3.js whose stroke color switches at a configurable threshold (e.g. red below target, green above), with drill-down support.</description>
     <targets>

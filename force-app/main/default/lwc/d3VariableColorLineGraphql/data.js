@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local data processing for the d3VariableColorLine standalone bundle.
+// ABOUTME: Bundle-local data processing for the d3VariableColorLineGraphql standalone bundle.
 // ABOUTME: Client-side validation and truncation of time-series records before rendering.
 
 /**

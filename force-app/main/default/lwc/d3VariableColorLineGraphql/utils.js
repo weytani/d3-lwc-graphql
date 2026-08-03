@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local chart utilities for the d3VariableColorLine standalone bundle.
+// ABOUTME: Bundle-local chart utilities for the d3VariableColorLineGraphql standalone bundle.
 // ABOUTME: Number formatting, tooltip, resize observer, and SVG a11y helpers.
 
 // ===== NUMBER FORMATTERS =====

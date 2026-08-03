@@ -16,7 +16,7 @@ import { NavigationMixin } from "lightning/navigation";
 import { gql, graphql } from "lightning/graphql";
 import { buildRecordQuery, normalizeRecordsGeneric } from "./graphql";
 
-export default class D3VariableColorLine extends NavigationMixin(
+export default class D3VariableColorLineGraphql extends NavigationMixin(
   LightningElement
 ) {
   // ═══════════════════════════════════════════════════════════════
@@ -257,7 +257,7 @@ export default class D3VariableColorLine extends NavigationMixin(
       await this.loadData();
     } catch (e) {
       this.error = e.message || "Failed to initialize chart";
-      console.error("D3VariableColorLine initialization error:", e);
+      console.error("D3VariableColorLineGraphql initialization error:", e);
     } finally {
       // Keep the spinner up while a GraphQL query is provisioned but has not yet
       // emitted data or an error — the wire handler clears isLoading on arrival.

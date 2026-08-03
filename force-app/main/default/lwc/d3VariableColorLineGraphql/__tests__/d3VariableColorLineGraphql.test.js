@@ -1,8 +1,8 @@
-// ABOUTME: Unit tests for the d3VariableColorLine Lightning Web Component.
+// ABOUTME: Unit tests for the d3VariableColorLineGraphql Lightning Web Component.
 // ABOUTME: Tests initialization, data sources, date parsing, threshold-gradient coloring, legend, a11y, and responsive behavior.
 
 import { createElement } from "lwc";
-import D3VariableColorLine from "c/d3VariableColorLine";
+import D3VariableColorLineGraphql from "c/d3VariableColorLineGraphql";
 import { loadD3 } from "../d3Loader";
 
 jest.mock("../d3Loader", () => ({
@@ -102,7 +102,7 @@ const EU_DATE_DATA = [
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-variable-color-line", () => {
+describe("c-d3-variable-color-line-graphql", () => {
   let element;
   let consoleErrorSpy;
 
@@ -137,8 +137,8 @@ describe("c-d3-variable-color-line", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-variable-color-line", {
-      is: D3VariableColorLine
+    element = createElement("c-d3-variable-color-line-graphql", {
+      is: D3VariableColorLineGraphql
     });
 
     Object.assign(element, {
@@ -159,8 +159,8 @@ describe("c-d3-variable-color-line", () => {
 
   describe("initialization", () => {
     it("shows loading spinner initially", () => {
-      element = createElement("c-d3-variable-color-line", {
-        is: D3VariableColorLine
+      element = createElement("c-d3-variable-color-line-graphql", {
+        is: D3VariableColorLineGraphql
       });
       element.dateField = "CloseDate";
       element.valueField = "Amount";

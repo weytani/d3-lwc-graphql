@@ -1,9 +1,9 @@
-// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3VariableColorLine bundle.
+// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3VariableColorLineGraphql bundle.
 // ABOUTME: This chart has no server-side aggregate — it fetches raw dateField/valueField
 // ABOUTME: records (structured builder or a free-text graphqlQuery override) and feeds the
 // ABOUTME: existing processTimeSeriesData / threshold-gradient pipeline.
 import { createElement } from "lwc";
-import D3VariableColorLine from "c/d3VariableColorLine";
+import D3VariableColorLineGraphql from "c/d3VariableColorLineGraphql";
 import { graphql, gql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
@@ -70,7 +70,7 @@ async function flushPromises() {
   return Promise.resolve();
 }
 
-describe("d3VariableColorLine GraphQL path", () => {
+describe("d3VariableColorLineGraphql GraphQL path", () => {
   let d3Calls;
 
   beforeEach(() => {
@@ -101,8 +101,8 @@ describe("d3VariableColorLine GraphQL path", () => {
   });
 
   it("renders the chart container and draws the threshold-gradient line when GraphQL record data arrives", async () => {
-    const element = createElement("c-d3-variable-color-line", {
-      is: D3VariableColorLine
+    const element = createElement("c-d3-variable-color-line-graphql", {
+      is: D3VariableColorLineGraphql
     });
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
@@ -135,8 +135,8 @@ describe("d3VariableColorLine GraphQL path", () => {
   });
 
   it("keeps the loading spinner up while the wire is provisioned and awaiting its first emission", async () => {
-    const element = createElement("c-d3-variable-color-line", {
-      is: D3VariableColorLine
+    const element = createElement("c-d3-variable-color-line-graphql", {
+      is: D3VariableColorLineGraphql
     });
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
@@ -163,8 +163,8 @@ describe("d3VariableColorLine GraphQL path", () => {
   });
 
   it("shows an error when the GraphQL wire emits errors", async () => {
-    const element = createElement("c-d3-variable-color-line", {
-      is: D3VariableColorLine
+    const element = createElement("c-d3-variable-color-line-graphql", {
+      is: D3VariableColorLineGraphql
     });
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
@@ -181,8 +181,8 @@ describe("d3VariableColorLine GraphQL path", () => {
   });
 
   it("bounds the query with the same first: value as other record-fetch charts", async () => {
-    const element = createElement("c-d3-variable-color-line", {
-      is: D3VariableColorLine
+    const element = createElement("c-d3-variable-color-line-graphql", {
+      is: D3VariableColorLineGraphql
     });
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
@@ -196,8 +196,8 @@ describe("d3VariableColorLine GraphQL path", () => {
   });
 
   it("requests only dateField and valueField, deduped", async () => {
-    const element = createElement("c-d3-variable-color-line", {
-      is: D3VariableColorLine
+    const element = createElement("c-d3-variable-color-line-graphql", {
+      is: D3VariableColorLineGraphql
     });
     element.objectApiName = "Opportunity";
     // dateField repeats valueField's name on purpose to prove deduping.
@@ -213,8 +213,8 @@ describe("d3VariableColorLine GraphQL path", () => {
   });
 
   it("does not provision the wire when valueField is missing", async () => {
-    const element = createElement("c-d3-variable-color-line", {
-      is: D3VariableColorLine
+    const element = createElement("c-d3-variable-color-line-graphql", {
+      is: D3VariableColorLineGraphql
     });
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
@@ -227,8 +227,8 @@ describe("d3VariableColorLine GraphQL path", () => {
   });
 
   it("uses a free-text graphqlQuery verbatim and feeds the record pipeline", async () => {
-    const element = createElement("c-d3-variable-color-line", {
-      is: D3VariableColorLine
+    const element = createElement("c-d3-variable-color-line-graphql", {
+      is: D3VariableColorLineGraphql
     });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
@@ -254,8 +254,8 @@ describe("d3VariableColorLine GraphQL path", () => {
   });
 
   it("auto-detects the object key for a free-text query with a blank objectApiName", async () => {
-    const element = createElement("c-d3-variable-color-line", {
-      is: D3VariableColorLine
+    const element = createElement("c-d3-variable-color-line-graphql", {
+      is: D3VariableColorLineGraphql
     });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = ""; // blank: normalizeRecordsGeneric must auto-detect
@@ -276,8 +276,8 @@ describe("d3VariableColorLine GraphQL path", () => {
   });
 
   it("surfaces wire errors from a free-text graphqlQuery in the error state", async () => {
-    const element = createElement("c-d3-variable-color-line", {
-      is: D3VariableColorLine
+    const element = createElement("c-d3-variable-color-line-graphql", {
+      is: D3VariableColorLineGraphql
     });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.dateField = "CloseDate";
@@ -296,8 +296,8 @@ describe("d3VariableColorLine GraphQL path", () => {
   it("hints record-query-only when a free-text graphqlQuery yields no records", async () => {
     // An aggregate-shaped payload has no uiapi.query, so the record normalizer
     // finds nothing — the error should point the admin at the record-query contract.
-    const element = createElement("c-d3-variable-color-line", {
-      is: D3VariableColorLine
+    const element = createElement("c-d3-variable-color-line-graphql", {
+      is: D3VariableColorLineGraphql
     });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.dateField = "CloseDate";
@@ -314,8 +314,8 @@ describe("d3VariableColorLine GraphQL path", () => {
   });
 
   it("ignores a blank graphqlQuery and falls through to the structured builder", async () => {
-    const element = createElement("c-d3-variable-color-line", {
-      is: D3VariableColorLine
+    const element = createElement("c-d3-variable-color-line-graphql", {
+      is: D3VariableColorLineGraphql
     });
     element.graphqlQuery = "   ";
     element.objectApiName = "Opportunity";
@@ -335,8 +335,8 @@ describe("d3VariableColorLine GraphQL path", () => {
   });
 
   it("recordCollection beats a set graphqlQuery (wire never provisioned)", async () => {
-    const element = createElement("c-d3-variable-color-line", {
-      is: D3VariableColorLine
+    const element = createElement("c-d3-variable-color-line-graphql", {
+      is: D3VariableColorLineGraphql
     });
     element.recordCollection = [
       { CloseDate: "2024-01-01", Amount: -20 },

@@ -1,8 +1,8 @@
-// ABOUTME: Integration tests for d3VariableColorLine verifying real bundle-local pipelines (data, theme, utils, graphql).
+// ABOUTME: Integration tests for d3VariableColorLineGraphql verifying real bundle-local pipelines (data, theme, utils, graphql).
 // ABOUTME: Only D3 and NavigationMixin are mocked; time series processing and threshold-color logic run for real.
 
 import { createElement } from "lwc";
-import D3VariableColorLine from "c/d3VariableColorLine";
+import D3VariableColorLineGraphql from "c/d3VariableColorLineGraphql";
 import { loadD3 } from "../d3Loader";
 
 jest.mock("../d3Loader", () => ({
@@ -94,7 +94,7 @@ const SINGLE_SERIES_DATA = [
 
 const flushPromises = () => new Promise(process.nextTick);
 
-describe("c-d3-variable-color-line integration", () => {
+describe("c-d3-variable-color-line-graphql integration", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -132,8 +132,8 @@ describe("c-d3-variable-color-line integration", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-variable-color-line", {
-      is: D3VariableColorLine
+    element = createElement("c-d3-variable-color-line-graphql", {
+      is: D3VariableColorLineGraphql
     });
 
     Object.assign(element, {

@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local color helpers for the d3VariableColorLine standalone bundle.
+// ABOUTME: Bundle-local color helpers for the d3VariableColorLineGraphql standalone bundle.
 // ABOUTME: Provides the default theme and the positive/negative semantic pair that colors the line by threshold.
 
 /**

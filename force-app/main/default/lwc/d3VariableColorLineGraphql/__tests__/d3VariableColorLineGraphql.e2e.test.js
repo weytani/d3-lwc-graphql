@@ -1,8 +1,8 @@
-// ABOUTME: End-to-end lifecycle tests for the d3VariableColorLine Lightning Web Component.
+// ABOUTME: End-to-end lifecycle tests for the d3VariableColorLineGraphql Lightning Web Component.
 // ABOUTME: Verifies full pipeline: D3 load, time series processing, threshold-gradient line rendering, cleanup, and multi-instance isolation.
 
 import { createElement } from "lwc";
-import D3VariableColorLine from "c/d3VariableColorLine";
+import D3VariableColorLineGraphql from "c/d3VariableColorLineGraphql";
 import { graphql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
@@ -113,8 +113,8 @@ function flushPromises() {
 let consoleErrorSpy;
 
 async function createChart(props = {}) {
-  const element = createElement("c-d3-variable-color-line", {
-    is: D3VariableColorLine
+  const element = createElement("c-d3-variable-color-line-graphql", {
+    is: D3VariableColorLineGraphql
   });
 
   Object.assign(element, {
@@ -130,7 +130,7 @@ async function createChart(props = {}) {
   return element;
 }
 
-describe("c-d3-variable-color-line e2e", () => {
+describe("c-d3-variable-color-line-graphql e2e", () => {
   let mockD3;
 
   beforeEach(() => {
