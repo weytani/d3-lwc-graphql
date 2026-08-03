@@ -1,8 +1,8 @@
-// ABOUTME: Integration tests for d3AreaChart verifying real bundle-local pipelines (data, theme, utils).
+// ABOUTME: Integration tests for d3AreaChartGraphql verifying real bundle-local pipelines (data, theme, utils).
 // ABOUTME: Only D3 and NavigationMixin are mocked; time series processing, palette selection, and area-mode config parsing run for real.
 
 import { createElement } from "lwc";
-import D3AreaChart from "c/d3AreaChart";
+import D3AreaChartGraphql from "c/d3AreaChartGraphql";
 import { loadD3 } from "../d3Loader";
 
 jest.mock("../d3Loader", () => ({
@@ -155,7 +155,7 @@ const MULTI_SERIES_DATA = [
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-area-chart integration", () => {
+describe("c-d3-area-chart-graphql integration", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -193,7 +193,9 @@ describe("c-d3-area-chart integration", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-area-chart", { is: D3AreaChart });
+    element = createElement("c-d3-area-chart-graphql", {
+      is: D3AreaChartGraphql
+    });
 
     Object.assign(element, {
       dateField: "CloseDate",

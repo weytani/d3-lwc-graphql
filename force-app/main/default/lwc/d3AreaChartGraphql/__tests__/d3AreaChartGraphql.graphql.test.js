@@ -1,9 +1,9 @@
-// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3AreaChart bundle.
+// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3AreaChartGraphql bundle.
 // ABOUTME: Area never aggregates server-side — both the structured record query and
 // ABOUTME: the free-text graphqlQuery override fetch raw date/value/series records and
 // ABOUTME: feed the same processTimeSeriesData path, so the two paths match by construction.
 import { createElement } from "lwc";
-import D3AreaChart from "c/d3AreaChart";
+import D3AreaChartGraphql from "c/d3AreaChartGraphql";
 import { graphql, gql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
@@ -147,7 +147,7 @@ function countAreaPaths(calls) {
   ).length;
 }
 
-describe("d3AreaChart GraphQL path", () => {
+describe("d3AreaChartGraphql GraphQL path", () => {
   let d3Calls;
 
   beforeEach(() => {
@@ -182,7 +182,9 @@ describe("d3AreaChart GraphQL path", () => {
   // ═══════════════════════════════════════════════════════════════
 
   it("renders the chart and draws the area when structured GraphQL record data arrives", async () => {
-    const element = createElement("c-d3-area-chart", { is: D3AreaChart });
+    const element = createElement("c-d3-area-chart-graphql", {
+      is: D3AreaChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
     element.valueField = "Amount";
@@ -204,7 +206,9 @@ describe("d3AreaChart GraphQL path", () => {
   });
 
   it("keeps the loading spinner up while the wire is provisioned and awaiting its first emission", async () => {
-    const element = createElement("c-d3-area-chart", { is: D3AreaChart });
+    const element = createElement("c-d3-area-chart-graphql", {
+      is: D3AreaChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
     element.valueField = "Amount";
@@ -230,7 +234,9 @@ describe("d3AreaChart GraphQL path", () => {
   });
 
   it("shows an error when the GraphQL wire emits errors", async () => {
-    const element = createElement("c-d3-area-chart", { is: D3AreaChart });
+    const element = createElement("c-d3-area-chart-graphql", {
+      is: D3AreaChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
     element.valueField = "Amount";
@@ -246,7 +252,9 @@ describe("d3AreaChart GraphQL path", () => {
   });
 
   it("bounds the structured query with first: 2000", async () => {
-    const element = createElement("c-d3-area-chart", { is: D3AreaChart });
+    const element = createElement("c-d3-area-chart-graphql", {
+      is: D3AreaChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
     element.valueField = "Amount";
@@ -259,7 +267,9 @@ describe("d3AreaChart GraphQL path", () => {
   });
 
   it("requests dateField, valueField, and seriesField, deduped", async () => {
-    const element = createElement("c-d3-area-chart", { is: D3AreaChart });
+    const element = createElement("c-d3-area-chart-graphql", {
+      is: D3AreaChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
     element.valueField = "Amount";
@@ -281,7 +291,9 @@ describe("d3AreaChart GraphQL path", () => {
   // ═══════════════════════════════════════════════════════════════
 
   it("uses a free-text graphqlQuery verbatim and charts the rows, auto-detecting a blank objectApiName", async () => {
-    const element = createElement("c-d3-area-chart", { is: D3AreaChart });
+    const element = createElement("c-d3-area-chart-graphql", {
+      is: D3AreaChartGraphql
+    });
     // No objectApiName: the free-text query targets Contact and the normalizer
     // must auto-detect that key from the payload.
     element.graphqlQuery = CONTACT_FREE_TEXT_QUERY;
@@ -310,7 +322,9 @@ describe("d3AreaChart GraphQL path", () => {
   });
 
   it("surfaces wire errors from a free-text graphqlQuery in the error state", async () => {
-    const element = createElement("c-d3-area-chart", { is: D3AreaChart });
+    const element = createElement("c-d3-area-chart-graphql", {
+      is: D3AreaChartGraphql
+    });
     element.graphqlQuery = CONTACT_FREE_TEXT_QUERY;
     element.dateField = "CreatedDate";
     element.valueField = "AnnualRevenue";
@@ -328,7 +342,9 @@ describe("d3AreaChart GraphQL path", () => {
   it("hints record-query-only when a free-text graphqlQuery yields no records", async () => {
     // An aggregate-shaped payload has no uiapi.query, so the record normalizer
     // finds nothing — the error should point the admin at the record-query contract.
-    const element = createElement("c-d3-area-chart", { is: D3AreaChart });
+    const element = createElement("c-d3-area-chart-graphql", {
+      is: D3AreaChartGraphql
+    });
     element.graphqlQuery = CONTACT_FREE_TEXT_QUERY;
     element.dateField = "CreatedDate";
     element.valueField = "AnnualRevenue";
@@ -344,7 +360,9 @@ describe("d3AreaChart GraphQL path", () => {
   });
 
   it("ignores a blank graphqlQuery and falls through to the structured builder", async () => {
-    const element = createElement("c-d3-area-chart", { is: D3AreaChart });
+    const element = createElement("c-d3-area-chart-graphql", {
+      is: D3AreaChartGraphql
+    });
     element.graphqlQuery = "   ";
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
@@ -365,7 +383,9 @@ describe("d3AreaChart GraphQL path", () => {
   });
 
   it("lets recordCollection win over a set graphqlQuery (wire never provisioned)", async () => {
-    const element = createElement("c-d3-area-chart", { is: D3AreaChart });
+    const element = createElement("c-d3-area-chart-graphql", {
+      is: D3AreaChartGraphql
+    });
     element.recordCollection = RECORD_COLLECTION;
     element.graphqlQuery = CONTACT_FREE_TEXT_QUERY;
     element.dateField = "CloseDate";
@@ -389,7 +409,9 @@ describe("d3AreaChart GraphQL path", () => {
   // ═══════════════════════════════════════════════════════════════
 
   it("charts every series from a multi-series free-text response (overlapping, no client-side summation)", async () => {
-    const element = createElement("c-d3-area-chart", { is: D3AreaChart });
+    const element = createElement("c-d3-area-chart-graphql", {
+      is: D3AreaChartGraphql
+    });
     element.graphqlQuery = MULTI_SERIES_FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";
@@ -411,7 +433,9 @@ describe("d3AreaChart GraphQL path", () => {
   });
 
   it("preserves stacked rendering on the free-text path", async () => {
-    const element = createElement("c-d3-area-chart", { is: D3AreaChart });
+    const element = createElement("c-d3-area-chart-graphql", {
+      is: D3AreaChartGraphql
+    });
     element.graphqlQuery = MULTI_SERIES_FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
     element.dateField = "CloseDate";

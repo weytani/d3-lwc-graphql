@@ -1,8 +1,8 @@
-// ABOUTME: Unit tests for the d3AreaChart Lightning Web Component.
+// ABOUTME: Unit tests for the d3AreaChartGraphql Lightning Web Component.
 // ABOUTME: Tests initialization, data handling, date parsing, area modes, gradients, curves, legends, and error recovery.
 
 import { createElement } from "lwc";
-import D3AreaChart from "c/d3AreaChart";
+import D3AreaChartGraphql from "c/d3AreaChartGraphql";
 import { loadD3 } from "../d3Loader";
 
 // Mock the bundle-local D3 loader. jest keys the module registry by resolved
@@ -170,7 +170,7 @@ const ZERO_DATA = [
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-area-chart", () => {
+describe("c-d3-area-chart-graphql", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -214,8 +214,8 @@ describe("c-d3-area-chart", () => {
 
   // Helper to create element with properties
   async function createChart(props = {}) {
-    element = createElement("c-d3-area-chart", {
-      is: D3AreaChart
+    element = createElement("c-d3-area-chart-graphql", {
+      is: D3AreaChartGraphql
     });
 
     Object.assign(element, {
@@ -240,8 +240,8 @@ describe("c-d3-area-chart", () => {
 
   describe("initialization", () => {
     it("shows loading state initially", async () => {
-      element = createElement("c-d3-area-chart", {
-        is: D3AreaChart
+      element = createElement("c-d3-area-chart-graphql", {
+        is: D3AreaChartGraphql
       });
       element.dateField = "CloseDate";
       element.recordCollection = SAMPLE_DATA;
@@ -274,8 +274,8 @@ describe("c-d3-area-chart", () => {
     });
 
     it("has correct default property values", async () => {
-      element = createElement("c-d3-area-chart", {
-        is: D3AreaChart
+      element = createElement("c-d3-area-chart-graphql", {
+        is: D3AreaChartGraphql
       });
       expect(element.dateField).toBe("CloseDate");
       expect(element.valueField).toBe("Amount");
@@ -489,7 +489,9 @@ describe("c-d3-area-chart", () => {
         Amount: i * 10
       }));
 
-      element = createElement("c-d3-area-chart", { is: D3AreaChart });
+      element = createElement("c-d3-area-chart-graphql", {
+        is: D3AreaChartGraphql
+      });
       Object.assign(element, {
         dateField: "CloseDate",
         valueField: "Amount",
@@ -1321,7 +1323,9 @@ describe("c-d3-area-chart", () => {
     });
 
     it("showChart is false when loading", () => {
-      element = createElement("c-d3-area-chart", { is: D3AreaChart });
+      element = createElement("c-d3-area-chart-graphql", {
+        is: D3AreaChartGraphql
+      });
       element.dateField = "CloseDate";
       element.recordCollection = SAMPLE_DATA;
       document.body.appendChild(element);

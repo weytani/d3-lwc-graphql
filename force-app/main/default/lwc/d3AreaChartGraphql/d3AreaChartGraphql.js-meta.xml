@@ -2,7 +2,7 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>D3 Area Chart</masterLabel>
+    <masterLabel>D3 Area Chart (GraphQL)</masterLabel>
     <description
   >Interactive time series area chart powered by D3.js with stacked/overlapping modes and gradient fill.</description>
     <targets>

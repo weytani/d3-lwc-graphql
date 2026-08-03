@@ -30,7 +30,11 @@
 
     <!-- Chart Container (has data) -->
     <template lwc:elseif={hasData}>
-      <div class="chart-container" lwc:dom="manual" style={containerStyle}></div>
+      <div
+        class="chart-container"
+        lwc:dom="manual"
+        style={containerStyle}
+      ></div>
 
       <!-- Legend (rendered via LWC for accessibility) -->
       <template lwc:if={effectiveShowLegend}>

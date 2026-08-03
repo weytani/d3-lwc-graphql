@@ -1,8 +1,8 @@
-// ABOUTME: End-to-end lifecycle tests for the d3AreaChart Lightning Web Component.
+// ABOUTME: End-to-end lifecycle tests for the d3AreaChartGraphql Lightning Web Component.
 // ABOUTME: Verifies full pipeline: D3 load, time series processing (recordCollection and GraphQL self-fetch), gradient/stacked area rendering, cleanup, and multi-instance isolation.
 
 import { createElement } from "lwc";
-import D3AreaChart from "c/d3AreaChart";
+import D3AreaChartGraphql from "c/d3AreaChartGraphql";
 import { graphql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
@@ -164,7 +164,7 @@ function flushPromises() {
 }
 
 // Counts <path class="area-path"> elements from the mockD3.attr call log —
-// mirrors the countAreaPaths() helper in d3AreaChart.graphql.test.js, adapted
+// mirrors the countAreaPaths() helper in d3AreaChartGraphql.graphql.test.js, adapted
 // to this file's per-method jest.fn() mock (rather than a unified call log).
 function countAreaPaths(attrCalls) {
   return attrCalls.filter(
@@ -175,8 +175,8 @@ function countAreaPaths(attrCalls) {
 let consoleErrorSpy;
 
 async function createChart(props = {}) {
-  const element = createElement("c-d3-area-chart", {
-    is: D3AreaChart
+  const element = createElement("c-d3-area-chart-graphql", {
+    is: D3AreaChartGraphql
   });
 
   Object.assign(element, {
@@ -192,7 +192,7 @@ async function createChart(props = {}) {
   return element;
 }
 
-describe("c-d3-area-chart e2e", () => {
+describe("c-d3-area-chart-graphql e2e", () => {
   let mockD3;
 
   beforeEach(() => {

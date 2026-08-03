@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local chart utilities for the d3AreaChart standalone bundle.
+// ABOUTME: Bundle-local chart utilities for the d3AreaChartGraphql standalone bundle.
 // ABOUTME: Number formatting, label truncation, tooltip, resize observer, and SVG a11y helpers.
 
 // ===== NUMBER FORMATTERS =====

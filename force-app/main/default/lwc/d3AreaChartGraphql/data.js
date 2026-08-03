@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local data processing for the d3AreaChart standalone bundle.
+// ABOUTME: Bundle-local data processing for the d3AreaChartGraphql standalone bundle.
 // ABOUTME: Client-side validation and truncation of records before time-series shaping.
 
 /**
