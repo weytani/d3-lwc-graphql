@@ -1,20 +1,13 @@
-// ABOUTME: Integration tests for d3BandChartGraphql verifying real service pipelines (dataService, themeService, chartUtils).
-// ABOUTME: Only D3, Apex, and NavigationMixin are mocked; time series processing and color logic run for real.
+// ABOUTME: Integration tests for d3BandChartGraphql verifying the real bundle-local pipelines (data, theme, utils).
+// ABOUTME: Only D3 and NavigationMixin are mocked; time series processing and color logic run for real.
 
 import { createElement } from "lwc";
 import D3BandChartGraphql from "c/d3BandChartGraphql";
-import { loadD3 } from "c/d3Lib";
-import executeQuery from "@salesforce/apex/D3ChartController.executeQuery";
+import { loadD3 } from "../d3Loader";
 
-jest.mock("c/d3Lib", () => ({
+jest.mock("../d3Loader", () => ({
   loadD3: jest.fn()
 }));
-
-jest.mock(
-  "@salesforce/apex/D3ChartController.executeQuery",
-  () => ({ default: jest.fn() }),
-  { virtual: true }
-);
 
 const mockNavigate = jest.fn();
 jest.mock(
@@ -119,7 +112,6 @@ describe("c-d3-band-chart-graphql integration", () => {
 
     mockD3 = createMockD3();
     loadD3.mockResolvedValue(mockD3);
-    executeQuery.mockResolvedValue(SAMPLE_DATA);
 
     consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
 
@@ -148,7 +140,9 @@ describe("c-d3-band-chart-graphql integration", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-band-chart-graphql", { is: D3BandChartGraphql });
+    element = createElement("c-d3-band-chart-graphql", {
+      is: D3BandChartGraphql
+    });
 
     Object.assign(element, {
       dateField: "CloseDate",

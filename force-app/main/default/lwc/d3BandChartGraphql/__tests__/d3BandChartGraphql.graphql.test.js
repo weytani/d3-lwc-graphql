@@ -1,13 +1,13 @@
-// ABOUTME: Tests the additive GraphQL self-fetch path on d3BandChartGraphql (Approach A, CT-REC).
-// ABOUTME: Band has no server-side aggregate — the graphql path always fetches raw
+// ABOUTME: Tests the GraphQL-only self-fetch path on d3BandChartGraphql.
+// ABOUTME: Band has no server-side aggregate — the wire always fetches raw
 // ABOUTME: dateField/lowerField/upperField(/valueField) records and feeds the existing
-// ABOUTME: processBandData path, same as recordCollection/soqlQuery.
+// ABOUTME: processBandData path, same as recordCollection. Also covers the free-text override.
 import { createElement } from "lwc";
 import D3BandChartGraphql from "c/d3BandChartGraphql";
 import { graphql, gql } from "lightning/graphql";
-import { loadD3 } from "c/d3Lib";
+import { loadD3 } from "../d3Loader";
 
-jest.mock("c/d3Lib", () => ({ loadD3: jest.fn() }));
+jest.mock("../d3Loader", () => ({ loadD3: jest.fn() }));
 
 // Value-axis chart: renderChart calls d3.max/min/extent to build scales, so the
 // stub must compute those for real (a naive always-chain stub crashes the jest
@@ -59,11 +59,65 @@ const RECORD_RESPONSE = {
   }
 };
 
+// A free-text document may target any UI-API-queryable object with any field
+// names; normalizeRecordsGeneric auto-detects the object key, so objectApiName
+// can be left blank and the component's own field mappings do the shaping.
+const FREE_TEXT_QUERY = `query {
+  uiapi {
+    query {
+      Forecast__c(first: 50) {
+        edges { node { PeriodStart__c { value } LowBound__c { value } HighBound__c { value } } }
+      }
+    }
+  }
+}`;
+
+const FREE_TEXT_RESPONSE = {
+  uiapi: {
+    query: {
+      Forecast__c: {
+        edges: [
+          {
+            node: {
+              PeriodStart__c: { value: "2024-03-01" },
+              LowBound__c: { value: 400 },
+              HighBound__c: { value: 900 }
+            }
+          },
+          {
+            node: {
+              PeriodStart__c: { value: "2024-04-01" },
+              LowBound__c: { value: 500 },
+              HighBound__c: { value: 1100 }
+            }
+          }
+        ]
+      }
+    }
+  }
+};
+
+const EMPTY_FREE_TEXT_RESPONSE = { uiapi: { query: {} } };
+
+const SAMPLE_DATA = [
+  { CloseDate: "2024-01-01", Amount: 10, ExpectedRevenue: 20 },
+  { CloseDate: "2024-02-01", Amount: 30, ExpectedRevenue: 40 }
+];
+
 async function flushPromises() {
   return Promise.resolve();
 }
 
-describe("d3BandChartGraphql GraphQL path (Approach A, CT-REC)", () => {
+function makeElement(props = {}) {
+  const element = createElement("c-d3-band-chart-graphql", {
+    is: D3BandChartGraphql
+  });
+  Object.assign(element, props);
+  document.body.appendChild(element);
+  return element;
+}
+
+describe("d3BandChartGraphql GraphQL self-fetch", () => {
   let d3Calls;
 
   beforeEach(() => {
@@ -93,99 +147,258 @@ describe("d3BandChartGraphql GraphQL path (Approach A, CT-REC)", () => {
     jest.clearAllMocks();
   });
 
-  it("renders the chart container and actually draws the band when GraphQL record data arrives", async () => {
-    const element = createElement("c-d3-band-chart-graphql", { is: D3BandChartGraphql });
-    element.fetchMode = "graphql";
-    element.objectApiName = "Opportunity";
-    element.dateField = "CloseDate";
-    element.lowerField = "Amount";
-    element.upperField = "ExpectedRevenue";
-    document.body.appendChild(element);
+  describe("structured record query", () => {
+    it("renders the chart container and actually draws the band when GraphQL record data arrives", async () => {
+      const element = makeElement({
+        objectApiName: "Opportunity",
+        dateField: "CloseDate",
+        lowerField: "Amount",
+        upperField: "ExpectedRevenue"
+      });
 
-    await flushPromises(); // connectedCallback (loadD3 + loadData early-return)
-    graphql.emit(RECORD_RESPONSE);
-    await flushPromises();
-    await flushPromises();
+      await flushPromises(); // connectedCallback (loadD3 + loadData no-op)
+      graphql.emit(RECORD_RESPONSE);
+      await flushPromises();
+      await flushPromises();
 
-    expect(element.shadowRoot.querySelector(".chart-container")).not.toBeNull();
-    expect(
-      element.shadowRoot.querySelector(".slds-text-color_error")
-    ).toBeNull();
+      expect(
+        element.shadowRoot.querySelector(".chart-container")
+      ).not.toBeNull();
+      expect(
+        element.shadowRoot.querySelector(".slds-text-color_error")
+      ).toBeNull();
 
-    // Prove renderChart actually ran (not just that the wire populated data):
-    // a "band-area" path must have been appended with a "d" attribute.
-    expect(
-      d3Calls.some(
-        (c) => c[0] === "attr" && c[1] === "class" && c[2] === "band-area"
-      )
-    ).toBe(true);
+      // Prove renderChart actually ran (not just that the wire populated data):
+      // a "band-area" path must have been appended with a "d" attribute.
+      expect(
+        d3Calls.some(
+          (c) => c[0] === "attr" && c[1] === "class" && c[2] === "band-area"
+        )
+      ).toBe(true);
+    });
+
+    it("shows an error when the GraphQL wire emits errors", async () => {
+      const element = makeElement({
+        objectApiName: "Opportunity",
+        dateField: "CloseDate",
+        lowerField: "Amount",
+        upperField: "ExpectedRevenue"
+      });
+
+      await flushPromises();
+      graphql.emitErrors([{ message: "boom" }]);
+      await flushPromises();
+
+      expect(
+        element.shadowRoot.querySelector(".slds-text-color_error")
+      ).not.toBeNull();
+    });
+
+    it("bounds the query with first: 2000 by default", async () => {
+      makeElement({
+        objectApiName: "Opportunity",
+        dateField: "CloseDate",
+        lowerField: "Amount",
+        upperField: "ExpectedRevenue"
+      });
+
+      await flushPromises();
+
+      const queryStrings = gql.mock.results.map((r) => r.value);
+      expect(queryStrings.some((q) => q.includes("first: 2000"))).toBe(true);
+    });
+
+    it("requests dateField, lowerField, upperField, and valueField, deduped", async () => {
+      makeElement({
+        objectApiName: "Opportunity",
+        dateField: "CloseDate",
+        lowerField: "Amount",
+        upperField: "ExpectedRevenue",
+        // valueField repeats dateField on purpose to prove deduping.
+        valueField: "CloseDate"
+      });
+
+      await flushPromises();
+
+      const queryStrings = gql.mock.results.map((r) => r.value);
+      const query = queryStrings[queryStrings.length - 1];
+      expect(query).toContain("CloseDate {");
+      expect(query).toContain("Amount {");
+      expect(query).toContain("ExpectedRevenue {");
+      expect(query.match(/CloseDate \{/g).length).toBe(1);
+    });
+
+    it("does not provision the wire when upperField is missing", async () => {
+      makeElement({
+        objectApiName: "Opportunity",
+        dateField: "CloseDate",
+        lowerField: "Amount",
+        upperField: ""
+      });
+
+      await flushPromises();
+
+      expect(gql).not.toHaveBeenCalled();
+    });
   });
 
-  it("shows an error when the GraphQL wire emits errors", async () => {
-    const element = createElement("c-d3-band-chart-graphql", { is: D3BandChartGraphql });
-    element.fetchMode = "graphql";
-    element.objectApiName = "Opportunity";
-    element.dateField = "CloseDate";
-    element.lowerField = "Amount";
-    element.upperField = "ExpectedRevenue";
-    document.body.appendChild(element);
+  describe("free-text graphqlQuery override", () => {
+    it("passes a non-blank graphqlQuery to the wire verbatim and charts the returned rows", async () => {
+      const element = makeElement({
+        // objectApiName deliberately blank: the normalizer auto-detects the
+        // object key, so a free-text query against any object is accepted.
+        graphqlQuery: FREE_TEXT_QUERY,
+        dateField: "PeriodStart__c",
+        lowerField: "LowBound__c",
+        upperField: "HighBound__c"
+      });
 
-    await flushPromises();
-    graphql.emitErrors([{ message: "boom" }]);
-    await flushPromises();
+      await flushPromises();
 
-    expect(
-      element.shadowRoot.querySelector(".slds-text-color_error")
-    ).not.toBeNull();
+      const queryStrings = gql.mock.results.map((r) => r.value);
+      expect(queryStrings.some((q) => q.includes(FREE_TEXT_QUERY))).toBe(true);
+      // The structured builder must not have run.
+      expect(queryStrings.some((q) => q.includes("first: 2000"))).toBe(false);
+
+      graphql.emit(FREE_TEXT_RESPONSE);
+      await flushPromises();
+      await flushPromises();
+
+      expect(
+        element.shadowRoot.querySelector(".slds-text-color_error")
+      ).toBeNull();
+      expect(
+        d3Calls.some(
+          (c) => c[0] === "attr" && c[1] === "class" && c[2] === "band-area"
+        )
+      ).toBe(true);
+    });
+
+    it("surfaces wire errors raised by a free-text query", async () => {
+      const element = makeElement({
+        graphqlQuery: FREE_TEXT_QUERY,
+        dateField: "PeriodStart__c",
+        lowerField: "LowBound__c",
+        upperField: "HighBound__c"
+      });
+
+      await flushPromises();
+      graphql.emitErrors([{ message: "Invalid field LowBound__c" }]);
+      await flushPromises();
+
+      const errorEl = element.shadowRoot.querySelector(
+        ".slds-text-color_error"
+      );
+      expect(errorEl).not.toBeNull();
+      expect(errorEl.textContent).toContain("Invalid field LowBound__c");
+    });
+
+    it("hints the record-query contract when a free-text query normalizes to no rows", async () => {
+      const element = makeElement({
+        graphqlQuery: FREE_TEXT_QUERY,
+        dateField: "PeriodStart__c",
+        lowerField: "LowBound__c",
+        upperField: "HighBound__c"
+      });
+
+      await flushPromises();
+      graphql.emit(EMPTY_FREE_TEXT_RESPONSE);
+      await flushPromises();
+
+      const errorEl = element.shadowRoot.querySelector(
+        ".slds-text-color_error"
+      );
+      expect(errorEl).not.toBeNull();
+      expect(errorEl.textContent).toContain("uiapi.query");
+    });
+
+    it("falls through to the structured builder when graphqlQuery is only whitespace", async () => {
+      makeElement({
+        graphqlQuery: "   \n  ",
+        objectApiName: "Opportunity",
+        dateField: "CloseDate",
+        lowerField: "Amount",
+        upperField: "ExpectedRevenue"
+      });
+
+      await flushPromises();
+
+      const queryStrings = gql.mock.results.map((r) => r.value);
+      expect(queryStrings.some((q) => q.includes("first: 2000"))).toBe(true);
+      expect(queryStrings.some((q) => q.includes("Opportunity"))).toBe(true);
+    });
+
+    it("lets recordCollection win over a set graphqlQuery, leaving the wire un-provisioned", async () => {
+      const element = makeElement({
+        graphqlQuery: FREE_TEXT_QUERY,
+        recordCollection: SAMPLE_DATA,
+        dateField: "CloseDate",
+        lowerField: "Amount",
+        upperField: "ExpectedRevenue"
+      });
+
+      await flushPromises();
+      await flushPromises();
+
+      expect(gql).not.toHaveBeenCalled();
+      expect(
+        element.shadowRoot.querySelector(".slds-text-color_error")
+      ).toBeNull();
+      expect(
+        d3Calls.some(
+          (c) => c[0] === "attr" && c[1] === "class" && c[2] === "band-area"
+        )
+      ).toBe(true);
+    });
   });
 
-  it("bounds the query with the same first: value as other CT-REC charts", async () => {
-    const element = createElement("c-d3-band-chart-graphql", { is: D3BandChartGraphql });
-    element.fetchMode = "graphql";
-    element.objectApiName = "Opportunity";
-    element.dateField = "CloseDate";
-    element.lowerField = "Amount";
-    element.upperField = "ExpectedRevenue";
-    document.body.appendChild(element);
+  describe("loading state", () => {
+    it("keeps the spinner up while a provisioned wire has not emitted yet", async () => {
+      const element = makeElement({
+        objectApiName: "Opportunity",
+        dateField: "CloseDate",
+        lowerField: "Amount",
+        upperField: "ExpectedRevenue"
+      });
 
-    await flushPromises();
+      await flushPromises();
+      await flushPromises();
 
-    const queryStrings = gql.mock.results.map((r) => r.value);
-    expect(queryStrings.some((q) => q.includes("first: 2000"))).toBe(true);
-  });
+      expect(
+        element.shadowRoot.querySelector("lightning-spinner")
+      ).not.toBeNull();
+      expect(
+        element.shadowRoot.querySelector(".slds-text-color_error")
+      ).toBeNull();
+    });
 
-  it("requests dateField, lowerField, upperField, and valueField, deduped", async () => {
-    const element = createElement("c-d3-band-chart-graphql", { is: D3BandChartGraphql });
-    element.fetchMode = "graphql";
-    element.objectApiName = "Opportunity";
-    element.dateField = "CloseDate";
-    element.lowerField = "Amount";
-    element.upperField = "ExpectedRevenue";
-    // valueField repeats dateField on purpose to prove deduping.
-    element.valueField = "CloseDate";
-    document.body.appendChild(element);
+    it("clears the spinner on the first wire emission", async () => {
+      const element = makeElement({
+        objectApiName: "Opportunity",
+        dateField: "CloseDate",
+        lowerField: "Amount",
+        upperField: "ExpectedRevenue"
+      });
 
-    await flushPromises();
+      await flushPromises();
+      graphql.emit(RECORD_RESPONSE);
+      await flushPromises();
+      await flushPromises();
 
-    const queryStrings = gql.mock.results.map((r) => r.value);
-    const query = queryStrings[queryStrings.length - 1];
-    expect(query).toContain("CloseDate {");
-    expect(query).toContain("Amount {");
-    expect(query).toContain("ExpectedRevenue {");
-    expect(query.match(/CloseDate \{/g).length).toBe(1);
-  });
+      expect(element.shadowRoot.querySelector("lightning-spinner")).toBeNull();
+    });
 
-  it("does not provision the wire when upperField is missing", async () => {
-    const element = createElement("c-d3-band-chart-graphql", { is: D3BandChartGraphql });
-    element.fetchMode = "graphql";
-    element.objectApiName = "Opportunity";
-    element.dateField = "CloseDate";
-    element.lowerField = "Amount";
-    element.upperField = "";
-    document.body.appendChild(element);
+    it("clears the spinner immediately when no wire is provisioned", async () => {
+      const element = makeElement({
+        dateField: "CloseDate",
+        lowerField: "Amount",
+        upperField: "ExpectedRevenue"
+      });
 
-    await flushPromises();
+      await flushPromises();
+      await flushPromises();
 
-    expect(gql).not.toHaveBeenCalled();
+      expect(element.shadowRoot.querySelector("lightning-spinner")).toBeNull();
+    });
   });
 });
