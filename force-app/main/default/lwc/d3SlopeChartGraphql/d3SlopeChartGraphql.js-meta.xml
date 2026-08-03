@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>D3 Slope Chart (GraphQL)</masterLabel>
+    <description
+  >Interactive slope chart powered by D3.js, comparing a before/after value per entity with drill-down support.</description>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig
+      targets="lightning__AppPage,lightning__RecordPage,lightning__HomePage"
+    >
+            <!-- Field Mapping -->
+            <property
+        name="groupByField"
+        type="String"
+        label="Entity Field"
+        default="Name"
+        description="API name of the field identifying each entity (one connecting line per distinct value)"
+        placeholder="Name"
+      />
+            <property
+        name="startValueField"
+        type="String"
+        label="Start (Before) Value Field"
+        default="Amount"
+        description="API name of the numeric field holding the 'before' value"
+        placeholder="Amount"
+      />
+            <property
+        name="endValueField"
+        type="String"
+        label="End (After) Value Field"
+        default="ExpectedRevenue"
+        description="API name of the numeric field holding the 'after' value"
+        placeholder="ExpectedRevenue"
+      />
+
+            <!-- Appearance -->
+            <property
+        name="height"
+        type="Integer"
+        label="Height (px)"
+        default="300"
+        description="Chart height in pixels"
+        min="150"
+        max="800"
+      />
+            <property
+        name="theme"
+        type="String"
+        label="Color Theme"
+        default="Salesforce Standard"
+        datasource="Salesforce Standard,Warm,Cool,Vibrant"
+        description="Color theme; drives the increase/decrease line colors"
+      />
+
+            <!-- Object / Drill-Down -->
+            <property
+        name="objectApiName"
+        type="String"
+        label="Object API Name"
+        description="Object to query. When set (and no records are passed in), the chart self-fetches this object's raw records via GraphQL. Also used for drill-down navigation on line click."
+        placeholder="Opportunity"
+      />
+            <property
+        name="filterField"
+        type="String"
+        label="Filter Field"
+        description="Field to filter by on drill-down (defaults to Entity Field)"
+      />
+
+            <property
+        name="recordLimit"
+        type="Integer"
+        label="Record Limit"
+        description="Maximum records to process. Leave empty for default."
+        min="1"
+        max="2000"
+      />
+
+            <!-- GraphQL Query Override -->
+            <property
+        name="graphqlQuery"
+        type="String"
+        label="GraphQL Query"
+        description="Optional override of the built query. Must be a UI API record query (uiapi.query) whose node selects the Entity Field, Start Value Field, and End Value Field as top-level fields; the returned rows are shaped client-side into one connecting line per row. UI-API-queryable objects only; at most 2,000 records; GraphQL syntax. Footgun: rows missing any of those three fields are dropped silently, so a query that omits one renders fewer lines than expected (or reports no data if every row is dropped). Leave blank to build the query automatically."
+      />
+
+            <!-- Advanced -->
+            <property
+        name="advancedConfig"
+        type="String"
+        label="Advanced Config (JSON)"
+        description='{"showLabels": true}'
+      />
+        </targetConfig>
+
+        <!-- Flow Screen Configuration -->
+        <targetConfig targets="lightning__FlowScreen">
+            <propertyType
+        name="T"
+        extends="SObject"
+        label="Record Type"
+        description="SObject type for the record collection"
+      />
+            <property
+        name="recordCollection"
+        type="{T[]}"
+        label="Record Collection"
+        role="inputOnly"
+        description="Collection of records from Flow"
+      />
+            <property
+        name="groupByField"
+        type="String"
+        label="Entity Field"
+        required="true"
+        description="API name of the field identifying each entity"
+      />
+            <property
+        name="startValueField"
+        type="String"
+        label="Start (Before) Value Field"
+        required="true"
+        description="API name of the numeric field holding the 'before' value"
+      />
+            <property
+        name="endValueField"
+        type="String"
+        label="End (After) Value Field"
+        required="true"
+        description="API name of the numeric field holding the 'after' value"
+      />
+            <property
+        name="height"
+        type="Integer"
+        label="Height (px)"
+        default="300"
+        description="Chart height in pixels"
+      />
+            <property
+        name="theme"
+        type="String"
+        label="Color Theme"
+        default="Salesforce Standard"
+        datasource="Salesforce Standard,Warm,Cool,Vibrant"
+        description="Color theme; drives the increase/decrease line colors"
+      />
+            <property
+        name="advancedConfig"
+        type="String"
+        label="Advanced Config (JSON)"
+        description='{"showLabels": true}'
+      />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>
