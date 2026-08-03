@@ -2,7 +2,7 @@
 // ABOUTME: Covers initialization, data sources, aggregation, themes, config, cell allocation, events, tooltips, and responsive behavior.
 
 import { createElement } from "lwc";
-import D3WaffleChart from "c/d3WaffleChart";
+import D3WaffleChartGraphql from "c/d3WaffleChartGraphql";
 import { loadD3 } from "../d3Loader";
 
 jest.mock("../d3Loader", () => ({
@@ -60,7 +60,7 @@ const SAMPLE_DATA = [
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-waffle-chart", () => {
+describe("c-d3-waffle-chart-graphql", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -100,8 +100,8 @@ describe("c-d3-waffle-chart", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-waffle-chart", {
-      is: D3WaffleChart
+    element = createElement("c-d3-waffle-chart-graphql", {
+      is: D3WaffleChartGraphql
     });
 
     Object.assign(element, {
@@ -124,8 +124,8 @@ describe("c-d3-waffle-chart", () => {
 
   describe("initialization", () => {
     it("shows loading spinner initially", () => {
-      element = createElement("c-d3-waffle-chart", {
-        is: D3WaffleChart
+      element = createElement("c-d3-waffle-chart-graphql", {
+        is: D3WaffleChartGraphql
       });
       element.groupByField = "StageName";
       element.recordCollection = SAMPLE_DATA;

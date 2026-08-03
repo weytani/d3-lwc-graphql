@@ -1,8 +1,8 @@
-// ABOUTME: Integration tests for d3WaffleChart verifying real bundle-local pipelines (data, theme, utils, graphql).
+// ABOUTME: Integration tests for d3WaffleChartGraphql verifying real bundle-local pipelines (data, theme, utils, graphql).
 // ABOUTME: Only D3, GraphQL, and NavigationMixin are mocked; aggregation, color, contrast, and self-fetch logic run for real.
 
 import { createElement } from "lwc";
-import D3WaffleChart from "c/d3WaffleChart";
+import D3WaffleChartGraphql from "c/d3WaffleChartGraphql";
 import { loadD3 } from "../d3Loader";
 
 // ═══════════════════════════════════════════════════════════════
@@ -79,8 +79,8 @@ const SAMPLE_DATA = [
 const flushPromises = () => new Promise(process.nextTick);
 
 async function createChart(props = {}) {
-  const element = createElement("c-d3-waffle-chart", {
-    is: D3WaffleChart
+  const element = createElement("c-d3-waffle-chart-graphql", {
+    is: D3WaffleChartGraphql
   });
 
   Object.assign(element, {
@@ -104,7 +104,7 @@ async function createChart(props = {}) {
 // TEST SUITE
 // ═══════════════════════════════════════════════════════════════
 
-describe("c-d3-waffle-chart integration", () => {
+describe("c-d3-waffle-chart-graphql integration", () => {
   let mockD3;
   let consoleErrorSpy;
   let consoleWarnSpy;
@@ -274,8 +274,8 @@ describe("c-d3-waffle-chart integration", () => {
     it("aggregates a GraphQL Count record set through the real pipeline", async () => {
       const { graphql } = require("lightning/graphql");
 
-      const element = createElement("c-d3-waffle-chart", {
-        is: D3WaffleChart
+      const element = createElement("c-d3-waffle-chart-graphql", {
+        is: D3WaffleChartGraphql
       });
       Object.assign(element, {
         objectApiName: "Opportunity",
@@ -323,8 +323,8 @@ describe("c-d3-waffle-chart integration", () => {
     it("free-text graphqlQuery Sum aggregates the wire rows to the correct values", async () => {
       const { graphql } = require("lightning/graphql");
 
-      const element = createElement("c-d3-waffle-chart", {
-        is: D3WaffleChart
+      const element = createElement("c-d3-waffle-chart-graphql", {
+        is: D3WaffleChartGraphql
       });
       Object.assign(element, {
         graphqlQuery:

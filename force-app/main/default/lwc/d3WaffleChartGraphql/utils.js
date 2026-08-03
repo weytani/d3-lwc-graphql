@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local chart utilities for the d3WaffleChart standalone bundle.
+// ABOUTME: Bundle-local chart utilities for the d3WaffleChartGraphql standalone bundle.
 // ABOUTME: Number/percent formatting, tooltip, resize observer, color contrast, and SVG a11y helpers.
 
 // ===== NUMBER FORMATTERS =====

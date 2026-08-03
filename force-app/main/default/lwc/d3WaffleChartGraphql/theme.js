@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local color palettes and helpers for the d3WaffleChart standalone bundle.
+// ABOUTME: Bundle-local color palettes and helpers for the d3WaffleChartGraphql standalone bundle.
 // ABOUTME: Provides the SLDS-aligned palettes and createColorScale used to color the waffle cells.
 
 /**

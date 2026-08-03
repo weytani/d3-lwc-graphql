@@ -2,7 +2,7 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>D3 Waffle Chart</masterLabel>
+    <masterLabel>D3 Waffle Chart (GraphQL)</masterLabel>
     <description
   >Interactive 10x10 waffle chart powered by D3.js — shows part-to-whole proportions as filled grid cells with aggregation and drill-down support.</description>
     <targets>

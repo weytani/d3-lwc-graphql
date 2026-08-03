@@ -1,7 +1,7 @@
-// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3WaffleChart bundle.
+// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3WaffleChartGraphql bundle.
 // ABOUTME: Covers the structured builders (Count is this chart's PRIMARY graphql path) and the free-text graphqlQuery admin override.
 import { createElement } from "lwc";
-import D3WaffleChart from "c/d3WaffleChart";
+import D3WaffleChartGraphql from "c/d3WaffleChartGraphql";
 import { graphql, gql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
@@ -96,7 +96,7 @@ async function flushPromises() {
   return Promise.resolve();
 }
 
-describe("d3WaffleChart GraphQL path", () => {
+describe("d3WaffleChartGraphql GraphQL path", () => {
   beforeEach(() => {
     loadD3.mockResolvedValue(makeD3Stub());
 
@@ -125,8 +125,8 @@ describe("d3WaffleChart GraphQL path", () => {
   });
 
   it("falls back to a raw record query and counts client-side for the default Count operation", async () => {
-    const element = createElement("c-d3-waffle-chart", {
-      is: D3WaffleChart
+    const element = createElement("c-d3-waffle-chart-graphql", {
+      is: D3WaffleChartGraphql
     });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -145,8 +145,8 @@ describe("d3WaffleChart GraphQL path", () => {
   });
 
   it("bounds the Count-path query with the same first: value as the aggregate path", async () => {
-    const element = createElement("c-d3-waffle-chart", {
-      is: D3WaffleChart
+    const element = createElement("c-d3-waffle-chart-graphql", {
+      is: D3WaffleChartGraphql
     });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -160,8 +160,8 @@ describe("d3WaffleChart GraphQL path", () => {
   });
 
   it("renders the chart container when GraphQL aggregate data arrives for Sum", async () => {
-    const element = createElement("c-d3-waffle-chart", {
-      is: D3WaffleChart
+    const element = createElement("c-d3-waffle-chart-graphql", {
+      is: D3WaffleChartGraphql
     });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -181,8 +181,8 @@ describe("d3WaffleChart GraphQL path", () => {
   });
 
   it("keeps the loading spinner up while the wire is provisioned and awaiting its first emission", async () => {
-    const element = createElement("c-d3-waffle-chart", {
-      is: D3WaffleChart
+    const element = createElement("c-d3-waffle-chart-graphql", {
+      is: D3WaffleChartGraphql
     });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -209,8 +209,8 @@ describe("d3WaffleChart GraphQL path", () => {
   });
 
   it("shows an error when the GraphQL wire emits errors", async () => {
-    const element = createElement("c-d3-waffle-chart", {
-      is: D3WaffleChart
+    const element = createElement("c-d3-waffle-chart-graphql", {
+      is: D3WaffleChartGraphql
     });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -227,8 +227,8 @@ describe("d3WaffleChart GraphQL path", () => {
   });
 
   it("uses a free-text graphqlQuery verbatim and aggregates the rows client-side", async () => {
-    const element = createElement("c-d3-waffle-chart", {
-      is: D3WaffleChart
+    const element = createElement("c-d3-waffle-chart-graphql", {
+      is: D3WaffleChartGraphql
     });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
@@ -255,8 +255,8 @@ describe("d3WaffleChart GraphQL path", () => {
   });
 
   it("surfaces wire errors from a free-text graphqlQuery in the error state", async () => {
-    const element = createElement("c-d3-waffle-chart", {
-      is: D3WaffleChart
+    const element = createElement("c-d3-waffle-chart-graphql", {
+      is: D3WaffleChartGraphql
     });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
@@ -283,8 +283,8 @@ describe("d3WaffleChart GraphQL path", () => {
     // groupByField guard) surfaces instead of naming the real problem.
     // Dropping the blank entry from the projection lets validateFields catch
     // it directly and name the missing field.
-    const element = createElement("c-d3-waffle-chart", {
-      is: D3WaffleChart
+    const element = createElement("c-d3-waffle-chart-graphql", {
+      is: D3WaffleChartGraphql
     });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
@@ -307,8 +307,8 @@ describe("d3WaffleChart GraphQL path", () => {
   it("hints record-query-only when a free-text graphqlQuery yields no records", async () => {
     // An aggregate-shaped payload has no uiapi.query, so the record normalizer
     // finds nothing — the error should point the admin at the record-query contract.
-    const element = createElement("c-d3-waffle-chart", {
-      is: D3WaffleChart
+    const element = createElement("c-d3-waffle-chart-graphql", {
+      is: D3WaffleChartGraphql
     });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
@@ -327,8 +327,8 @@ describe("d3WaffleChart GraphQL path", () => {
   });
 
   it("ignores a blank graphqlQuery and falls through to the structured builder", async () => {
-    const element = createElement("c-d3-waffle-chart", {
-      is: D3WaffleChart
+    const element = createElement("c-d3-waffle-chart-graphql", {
+      is: D3WaffleChartGraphql
     });
     element.graphqlQuery = "   ";
     element.objectApiName = "Opportunity";

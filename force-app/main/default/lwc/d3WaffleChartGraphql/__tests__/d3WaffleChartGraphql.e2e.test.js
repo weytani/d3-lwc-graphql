@@ -2,7 +2,7 @@
 // ABOUTME: Verifies full render pipeline, 100-cell allocation, GraphQL self-fetch, multi-instance isolation, and error recovery using real bundle-local modules with mocked D3.
 
 import { createElement } from "lwc";
-import D3WaffleChart from "c/d3WaffleChart";
+import D3WaffleChartGraphql from "c/d3WaffleChartGraphql";
 import { loadD3 } from "../d3Loader";
 import { graphql } from "lightning/graphql";
 
@@ -91,8 +91,8 @@ const SAMPLE_DATA = [
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 async function createChart(props = {}) {
-  const element = createElement("c-d3-waffle-chart", {
-    is: D3WaffleChart
+  const element = createElement("c-d3-waffle-chart-graphql", {
+    is: D3WaffleChartGraphql
   });
 
   Object.assign(element, {
@@ -113,7 +113,7 @@ async function createChart(props = {}) {
 // TEST SUITE
 // ═══════════════════════════════════════════════════════════════
 
-describe("c-d3-waffle-chart e2e", () => {
+describe("c-d3-waffle-chart-graphql e2e", () => {
   let consoleErrorSpy;
   let consoleWarnSpy;
 
@@ -194,8 +194,8 @@ describe("c-d3-waffle-chart e2e", () => {
       const mockD3 = createMockD3();
       loadD3.mockResolvedValue(mockD3);
 
-      const element = createElement("c-d3-waffle-chart", {
-        is: D3WaffleChart
+      const element = createElement("c-d3-waffle-chart-graphql", {
+        is: D3WaffleChartGraphql
       });
       Object.assign(element, {
         groupByField: "StageName",
