@@ -6,26 +6,28 @@ standalone, GraphQL-only bundle for waves 1–N. It is written from what the bar
 conversion actually required, not from what the design predicted. Read the
 approved design first: `docs/superpowers/specs/2026-07-11-graphql-standalone-design.md`.
 
-The end state per chart: the bundle folder + the `d3` static resource is
-everything. No `c/d3Lib`, `c/dataService`, `c/themeService`, `c/chartUtils`,
-`c/graphqlService` imports; no `@salesforce/apex/*` imports; no `soqlQuery` or
-`fetchMode`; a new `graphqlQuery` free-text admin override.
+The end state per chart: the suffixed `d3XxxGraphql` bundle folder (§1.1) + the
+`d3` static resource is everything. No `c/d3Lib`, `c/dataService`,
+`c/themeService`, `c/chartUtils`, `c/graphqlService` imports; no
+`@salesforce/apex/*` imports; no `soqlQuery` or `fetchMode`; a new
+`graphqlQuery` free-text admin override.
 
-> **Amendment pending fold-in (waves 4–8):** the v1.0.0 consolidation gate added a
-> per-line suffix convention on top of this recipe — folder/class `d3XxxGraphql`,
-> tag `c-d3-xxx-graphql`, `masterLabel` gains ` (GraphQL)` — with a
-> rename-completeness grep gate. This recipe predates that amendment and does not
-> yet document the suffix step; until it's folded in, apply the suffix mechanics
-> from `docs/superpowers/plans/2026-08-02-v1-consolidation-gate.md` (Task 1) on
-> top of every step below.
+> **Suffix amendment (v1.0.0) — folded in:** every conversion starts by renaming
+> the chart to its `*Graphql` suffixed identity (commit 0, §1.1) — folder/class
+> `d3XxxGraphql`, tag `c-d3-xxx-graphql`, `masterLabel` gains ` (GraphQL)` —
+> closed by a rename-completeness grep gate. Suffixed bundles are **new
+> components** org-side, so the legacy detach → deploy → reattach dance does not
+> apply to conversions (release-step consequences in §7).
 
 ---
 
 ## 0. Prerequisites
 
-- A worktree + branch off the v3 integration branch (do **not** work in the main
-  checkout). Example used in Wave 0:
-  `git worktree add ../d3-lwc.worktrees/<chart> v3/<chart>-standalone`
+- A worktree + branch off `main` (do **not** work in the main checkout when
+  implementers run in parallel). Waves 4–8 shape:
+  `git worktree add ../d3-lwc-graphql.worktrees/<chart> -b wave<N>/<chart>-graphql main`
+  — then symlink `node_modules` from the main checkout into the worktree so jest
+  runs (`ln -s ~/code/d3-lwc-graphql/node_modules <worktree>/node_modules`).
 - `node -v` → v20 (jest ran under Node 26 here fine, but SF CLI needs 20).
 - `npx jest --silent` green from the start (full suite; ~2.4s / 3,377 tests). The
   suite always runs whole — there is **no per-component narrowing flag**
@@ -38,9 +40,14 @@ everything. No `c/d3Lib`, `c/dataService`, `c/themeService`, `c/chartUtils`,
 ## 1. Commit shape (what worked)
 
 Wave 1 produced three divergent-but-green interpretations of this split; the
-shape below is the **one blessed shape**. Two code commits + one docs commit, in
-this order:
+shape below is the **one blessed shape**. One mechanical rename commit + two
+code commits + one docs commit, in this order:
 
+0. `refactor(<oldName>): rename to <newName> per suffix amendment`
+   — the §1.1 suffix rename, purely mechanical, BEFORE any conversion work: the
+   bundle keeps its shared-module architecture and the suite stays green. All
+   later commits work under the final `*Graphql` identity, so nothing gets
+   renamed twice.
 1. `refactor(<chart>): inline shared-module subsets as bundle-local files`
    — **purely ADDITIVE: create the bundle-local module files only.** No component
    edits, no import swaps, no test changes. Nothing references the new files yet,
@@ -53,6 +60,70 @@ this order:
    - `soqlQuery` + `fetchMode`, add `graphqlQuery`), and the `.js-meta.xml` edit
      (§5). GREEN at the end.
 3. `docs(...)` — recipe/CHANGELOG updates as needed.
+
+### 1.1 Suffix rename mechanics (commit 0)
+
+Rename the chart to its per-line suffixed identity — folder + exported class
+`d3XxxGraphql`, tag `c-d3-xxx-graphql`, `<masterLabel>` gains ` (GraphQL)`
+(e.g. `Bar Chart (GraphQL)`), so App Builder/Flow pickers disambiguate it from
+the org's unsuffixed legacy instance and from the sibling soql line. Shown for
+d3BarChart — substitute your chart:
+
+```bash
+cd force-app/main/default/lwc
+git mv d3BarChart d3BarChartGraphql
+cd d3BarChartGraphql
+for f in d3BarChart.js d3BarChart.html d3BarChart.css d3BarChart.js-meta.xml; do [ -f "$f" ] && git mv "$f" "${f/d3BarChart/d3BarChartGraphql}"; done
+cd __tests__
+for f in d3BarChart.*; do git mv "$f" "${f/d3BarChart/d3BarChartGraphql}"; done
+```
+
+The `.css` file rides in the loop behind an existence guard — several bundles
+ship one, and a rename that leaves it behind orphans the stylesheet (soql-sweep
+finding). The `${f/old/new}` bash replace is plain substring substitution, not
+word-anchored — safe only because you `cd` into the one bundle first; never run
+it from a broader directory.
+
+Then edit:
+
+1. Component .js: `export default class D3BarChart` → `D3BarChartGraphql`, plus
+   every bundle-local self-referential name string (ABOUTME lines,
+   `console.error` prefixes) — these carry the old name and the completeness
+   gate below never zeroes until they're updated.
+2. `.js-meta.xml`: `<masterLabel>` gains ` (GraphQL)`; nothing else changes in
+   commit 0.
+3. Every test file: module import `c/d3BarChart` → `c/d3BarChartGraphql`;
+   `createElement("c-d3-bar-chart"…)` → `c-d3-bar-chart-graphql`; describe/it
+   strings that name the chart updated. Bundle-local module files
+   (`d3Loader.js`, `data.js`, etc.) don't exist yet at commit 0 — they arrive
+   already-suffix-neutral in commit 1.
+
+**Staging-sanity step (MANDATORY — soql-sweep pilot finding).** `git mv` on a
+file that carries unstaged edits stages the OLD committed blob at the new path
+while the working tree holds your edit — `git status` shows it only as a
+second-column `M` on the `RM` line, easy to miss. After ALL renames and edits:
+run `git add -A` from the repo root, then confirm `git diff` (unstaged) is
+EMPTY before committing.
+
+**Rename-completeness gate (record both greps in your report):**
+
+```bash
+grep -rhn "<oldName>" force-app/main/default/lwc/<newName>/ | grep -v "<newName>"          # → 0 hits
+grep -rhn "<old-kebab-tag>" force-app/main/default/lwc/<newName>/ | grep -v "<new-kebab-tag>"  # → 0 hits
+```
+
+The `-h` flag is load-bearing (soql-sweep Wave-C finding): without it every
+output line carries the file PATH, which contains `<newName>`, so the `grep -v`
+filter silently deletes true positives and the gate false-passes.
+
+Close commit 0 with `npx jest force-app/main/default/lwc/<newName>` green;
+lint-staged runs the related tests on commit.
+
+**Why this matters more now:** the whole reason conversions no longer fight the
+property-removal deploy block is that the suffixed bundle is a NEW component. A
+half-renamed bundle (old tag in a test, old class in an ABOUTME) silently
+forfeits that guarantee's audit trail — the gate is what proves the new
+identity is complete.
 
 **Why the import swap cannot ride in commit 1.** The inlined `utils.js` omits
 `createLayoutRetry` (§2.2 — it carries the §4.3 render-orchestration defect). The
@@ -529,7 +600,9 @@ the suite — verify it at deploy time in the release step.
 ## 6. Chart-clone hygiene scan (run before reporting DONE)
 
 Donor here is the **pre-conversion** chart; the leak is Apex/SOQL/fetchMode
-strings. Run and report all four:
+strings. `<chart>` below means the SUFFIXED bundle name — the §1.1 rename
+happened in commit 0, so every filename carries `Graphql`. Run and report all
+four:
 
 ```bash
 # 1. Stale donor strings (source + tests). Expect zero, or an intentional survivor.
@@ -559,9 +632,13 @@ npx prettier --write <only files you touched>       # never `npm run prettier` (
 ```
 
 Commit; the husky + lint-staged pre-commit hook re-runs prettier/eslint/related
-jest on staged files. Never `--no-verify`. Live-org render verification + the
-detach/reattach deploy sequencing belong to the **release** step, not the
-conversion (SCOPE excludes deploys here).
+jest on staged files. Never `--no-verify`. Live-org render verification belongs
+to the **release** step, not the conversion (SCOPE excludes deploys here). The
+release step for a suffixed bundle: deploy the NEW component
+(`-m "LightningComponentBundle:<newName>"` — never wholesale), add its instance
+to the wave's `d3_graphql_showcase_*` page, extend the Playwright manifest +
+eyeballed baseline, run the live sweep. The legacy detach → deploy → reattach
+dance does not apply — nothing is edited in place on a live page.
 
 ---
 
