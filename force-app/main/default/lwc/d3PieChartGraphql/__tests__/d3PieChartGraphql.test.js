@@ -2,7 +2,7 @@
 // ABOUTME: Covers initialization, data sources, aggregation, themes, config, legend, events, tooltips, responsive behavior, and render-orchestration hardening.
 
 import { createElement } from "lwc";
-import D3PieChart from "c/d3PieChart";
+import D3PieChartGraphql from "c/d3PieChartGraphql";
 import { loadD3 } from "../d3Loader";
 
 // Mock the bundle-local D3 loader
@@ -81,7 +81,7 @@ const SAMPLE_DATA = [
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-pie-chart", () => {
+describe("c-d3-pie-chart-graphql", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -121,8 +121,8 @@ describe("c-d3-pie-chart", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-pie-chart", {
-      is: D3PieChart
+    element = createElement("c-d3-pie-chart-graphql", {
+      is: D3PieChartGraphql
     });
 
     Object.assign(element, {
@@ -144,8 +144,8 @@ describe("c-d3-pie-chart", () => {
 
   describe("initialization", () => {
     it("shows loading spinner initially", () => {
-      element = createElement("c-d3-pie-chart", {
-        is: D3PieChart
+      element = createElement("c-d3-pie-chart-graphql", {
+        is: D3PieChartGraphql
       });
       element.groupByField = "StageName";
       element.recordCollection = SAMPLE_DATA;

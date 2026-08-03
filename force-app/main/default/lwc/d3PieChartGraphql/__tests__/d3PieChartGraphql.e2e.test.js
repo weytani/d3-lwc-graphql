@@ -2,7 +2,7 @@
 // ABOUTME: Verifies full render pipeline, legend behavior, GraphQL self-fetch, multi-instance isolation, and error recovery using real bundle-local modules with mocked D3.
 
 import { createElement } from "lwc";
-import D3PieChart from "c/d3PieChart";
+import D3PieChartGraphql from "c/d3PieChartGraphql";
 import { loadD3 } from "../d3Loader";
 import { graphql } from "lightning/graphql";
 
@@ -115,8 +115,8 @@ const SAMPLE_DATA = [
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 async function createChart(props = {}) {
-  const element = createElement("c-d3-pie-chart", {
-    is: D3PieChart
+  const element = createElement("c-d3-pie-chart-graphql", {
+    is: D3PieChartGraphql
   });
 
   Object.assign(element, {
@@ -137,7 +137,7 @@ async function createChart(props = {}) {
 // TEST SUITE
 // ═══════════════════════════════════════════════════════════════
 
-describe("c-d3-pie-chart e2e", () => {
+describe("c-d3-pie-chart-graphql e2e", () => {
   let consoleErrorSpy;
   let consoleWarnSpy;
 
@@ -212,7 +212,8 @@ describe("c-d3-pie-chart e2e", () => {
 
       // No console errors during the full lifecycle
       const realErrors = consoleErrorSpy.mock.calls.filter(
-        (call) => !String(call[0]).includes("D3PieChart initialization error")
+        (call) =>
+          !String(call[0]).includes("D3PieChartGraphql initialization error")
       );
       expect(realErrors.length).toBe(0);
     });
@@ -221,7 +222,9 @@ describe("c-d3-pie-chart e2e", () => {
       const mockD3 = createMockD3();
       loadD3.mockResolvedValue(mockD3);
 
-      const element = createElement("c-d3-pie-chart", { is: D3PieChart });
+      const element = createElement("c-d3-pie-chart-graphql", {
+        is: D3PieChartGraphql
+      });
       Object.assign(element, {
         groupByField: "StageName",
         valueField: "Amount",
@@ -351,7 +354,8 @@ describe("c-d3-pie-chart e2e", () => {
 
       // No console errors across both lifecycles
       const realErrors = consoleErrorSpy.mock.calls.filter(
-        (call) => !String(call[0]).includes("D3PieChart initialization error")
+        (call) =>
+          !String(call[0]).includes("D3PieChartGraphql initialization error")
       );
       expect(realErrors.length).toBe(0);
     });

@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local chart utilities for the d3PieChart standalone bundle.
+// ABOUTME: Bundle-local chart utilities for the d3PieChartGraphql standalone bundle.
 // ABOUTME: Number/percent formatting, tooltip, resize observer, and SVG a11y helpers.
 
 // ===== NUMBER FORMATTERS =====

@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local color palettes and helpers for the d3PieChart standalone bundle.
+// ABOUTME: Bundle-local color palettes and helpers for the d3PieChartGraphql standalone bundle.
 // ABOUTME: Provides the SLDS-aligned palettes and getColors used to color the slices.
 
 /**

@@ -1,7 +1,7 @@
-// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3PieChart bundle.
+// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3PieChartGraphql bundle.
 // ABOUTME: Covers the structured builders, the free-text graphqlQuery admin override, and empty-result handling.
 import { createElement } from "lwc";
-import D3PieChart from "c/d3PieChart";
+import D3PieChartGraphql from "c/d3PieChartGraphql";
 import { graphql, gql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
@@ -96,7 +96,7 @@ async function flushPromises() {
   return Promise.resolve();
 }
 
-describe("d3PieChart GraphQL path", () => {
+describe("d3PieChartGraphql GraphQL path", () => {
   beforeEach(() => {
     loadD3.mockResolvedValue(makeD3Stub());
 
@@ -125,7 +125,9 @@ describe("d3PieChart GraphQL path", () => {
   });
 
   it("renders the chart container when GraphQL aggregate data arrives", async () => {
-    const element = createElement("c-d3-pie-chart", { is: D3PieChart });
+    const element = createElement("c-d3-pie-chart-graphql", {
+      is: D3PieChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
     element.valueField = "Amount";
@@ -144,7 +146,9 @@ describe("d3PieChart GraphQL path", () => {
   });
 
   it("keeps the loading spinner up while the wire is provisioned and awaiting its first emission", async () => {
-    const element = createElement("c-d3-pie-chart", { is: D3PieChart });
+    const element = createElement("c-d3-pie-chart-graphql", {
+      is: D3PieChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
     element.valueField = "Amount";
@@ -171,7 +175,9 @@ describe("d3PieChart GraphQL path", () => {
   });
 
   it("shows an error when the GraphQL wire emits errors", async () => {
-    const element = createElement("c-d3-pie-chart", { is: D3PieChart });
+    const element = createElement("c-d3-pie-chart-graphql", {
+      is: D3PieChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
     element.valueField = "Amount";
@@ -188,7 +194,9 @@ describe("d3PieChart GraphQL path", () => {
   });
 
   it("falls back to a raw record query and counts client-side for Count operation", async () => {
-    const element = createElement("c-d3-pie-chart", { is: D3PieChart });
+    const element = createElement("c-d3-pie-chart-graphql", {
+      is: D3PieChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
     element.operation = "Count";
@@ -206,7 +214,9 @@ describe("d3PieChart GraphQL path", () => {
   });
 
   it("bounds the Count-path query with the same first: value as the aggregate path", async () => {
-    const element = createElement("c-d3-pie-chart", { is: D3PieChart });
+    const element = createElement("c-d3-pie-chart-graphql", {
+      is: D3PieChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
     element.operation = "Count";
@@ -219,7 +229,9 @@ describe("d3PieChart GraphQL path", () => {
   });
 
   it("uses a free-text graphqlQuery verbatim and aggregates the rows client-side", async () => {
-    const element = createElement("c-d3-pie-chart", { is: D3PieChart });
+    const element = createElement("c-d3-pie-chart-graphql", {
+      is: D3PieChartGraphql
+    });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -245,7 +257,9 @@ describe("d3PieChart GraphQL path", () => {
   });
 
   it("surfaces wire errors from a free-text graphqlQuery in the error state", async () => {
-    const element = createElement("c-d3-pie-chart", { is: D3PieChart });
+    const element = createElement("c-d3-pie-chart-graphql", {
+      is: D3PieChartGraphql
+    });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -265,7 +279,9 @@ describe("d3PieChart GraphQL path", () => {
   it("hints record-query-only when a free-text graphqlQuery yields no records", async () => {
     // An aggregate-shaped payload has no uiapi.query, so the record normalizer
     // finds nothing — the error should point the admin at the record-query contract.
-    const element = createElement("c-d3-pie-chart", { is: D3PieChart });
+    const element = createElement("c-d3-pie-chart-graphql", {
+      is: D3PieChartGraphql
+    });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -288,7 +304,9 @@ describe("d3PieChart GraphQL path", () => {
     // objectApiName/groupByField/operation check). Without deduping the bare
     // field-projection array, an empty string field name would silently
     // normalize into a single "Null" bucket instead of surfacing an error.
-    const element = createElement("c-d3-pie-chart", { is: D3PieChart });
+    const element = createElement("c-d3-pie-chart-graphql", {
+      is: D3PieChartGraphql
+    });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
     element.groupByField = "";
@@ -305,7 +323,9 @@ describe("d3PieChart GraphQL path", () => {
   });
 
   it("ignores a blank graphqlQuery and falls through to the structured builder", async () => {
-    const element = createElement("c-d3-pie-chart", { is: D3PieChart });
+    const element = createElement("c-d3-pie-chart-graphql", {
+      is: D3PieChartGraphql
+    });
     element.graphqlQuery = "   ";
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
