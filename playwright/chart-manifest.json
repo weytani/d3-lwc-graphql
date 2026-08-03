@@ -102,6 +102,11 @@
           "element": "c-d3-dot-plot-graphql",
           "name": "d3DotPlotGraphql",
           "minSvgDescendants": 10
+        },
+        {
+          "element": "c-d3-slope-chart-graphql",
+          "name": "d3SlopeChartGraphql",
+          "minSvgDescendants": 10
         }
       ]
     }

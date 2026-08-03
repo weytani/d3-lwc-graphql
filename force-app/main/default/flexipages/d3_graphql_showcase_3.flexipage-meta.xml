@@ -77,6 +77,46 @@
                 <identifier>c_d3DotPlotGraphql</identifier>
             </componentInstance>
         </itemInstances>
+        <itemInstances>
+            <!-- Slope Chart: Amount to ExpectedRevenue by Name (Wave 4). Free-text GraphQL record query scopes the page to [D3DEMO] seeded Opportunities. Slope draws one line per RECORD (no client-side grouping), so the query's own `first` is the only bound on line count — recordLimit is not applied on the free-text path — and `orderBy` pins which records are selected so the committed baseline stays stable. -->
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>graphqlQuery</name>
+                    <value
+          >query D3DemoAmountToExpectedRevenue { uiapi { query { Opportunity(first: 12, orderBy: { Amount: { order: DESC } }, where: { and: [{ Name: { like: "[D3DEMO]%" } }, { Amount: { ne: null } }, { ExpectedRevenue: { ne: null } }] }) { edges { node { Name { value } Amount { value } ExpectedRevenue { value } } } } } } }</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>objectApiName</name>
+                    <value>Opportunity</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>groupByField</name>
+                    <value>Name</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>startValueField</name>
+                    <value>Amount</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>endValueField</name>
+                    <value>ExpectedRevenue</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>height</name>
+                    <value>450</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>theme</name>
+                    <value>Vibrant</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>advancedConfig</name>
+                    <value>{}</value>
+                </componentInstanceProperties>
+                <componentName>d3SlopeChartGraphql</componentName>
+                <identifier>c_d3SlopeChartGraphql</identifier>
+            </componentInstance>
+        </itemInstances>
         <name>main</name>
         <type>Region</type>
     </flexiPageRegions>

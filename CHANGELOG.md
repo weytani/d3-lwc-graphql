@@ -5,6 +5,57 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-08-03
+
+Wave 4 reaches its first raw-record chart: the slope chart, which joins the diverging bar chart
+and the dot plot on showcase page 3.
+
+### Changed
+
+- **BREAKING: `d3SlopeChartGraphql` is now a standalone GraphQL-only bundle**, converted per
+  `docs/conversion-recipe.md` and renamed from `d3SlopeChart` to its `*Graphql` suffixed identity
+  (tag `c-d3-slope-chart-graphql`, masterLabel "D3 Slope Chart (GraphQL)"): GraphQL wire
+  self-fetch only, bundle-local support modules (`d3Loader.js`, `theme.js`, `data.js`, `utils.js`,
+  `graphql.js`), no shared `c/` imports, no Apex. `soqlQuery` and `fetchMode` removed;
+  `graphqlQuery` free-text record queries and the `lightning__FlowScreen` target added. Unlike the
+  wave's aggregate charts it has **no server-side aggregate path** (recipe §9.2): both the
+  structured builder and the free-text override fetch raw records projecting the Entity, Start
+  Value, and End Value fields, then shape one connecting line per record — the same path
+  `recordCollection` already took. Ships with the full unit + integration + graphql + e2e test
+  tiers. Live-verified on-org via the Playwright sweep (12 `[D3DEMO]` opportunities sloping
+  `Amount` → `ExpectedRevenue`).
+
+### Fixed
+
+- **`d3SlopeChartGraphql`: container-rebind hardening (recipe §4.3).** The template's if/elseif
+  chain destroys the `.chart-container` on every pass through loading/error/no-data, so the
+  previous existence-only guards left the tooltip writing into a detached node and the
+  ResizeObserver watching a dead element after a data → error → data cycle. `initializeChart` now
+  tracks the container generation it is bound to and cleans up and re-creates both when the
+  container identity changes. Third bundle to ship the fix, after `d3DivergingBarChartGraphql` and
+  `d3DotPlotGraphql`; the 16 v1.0.0 bundles still carry the defect (issue #2).
+- **`d3SlopeChartGraphql`: `recordLimit` meta max capped at 2,000**, the UI API record-query
+  ceiling (recipe §5). The previous 10,000 advertised a bound the only remaining fetch path
+  rejects.
+- **`d3SlopeChartGraphql`: `graphqlQuery` footgun wording corrected for raw-record semantics.**
+  The aggregate charts warn that a missing value field makes marks aggregate to zero; that is the
+  wrong failure mode here. A slope row missing its entity, start, or end value is dropped before
+  numeric coercion, so an under-projected query renders _fewer lines_ than expected — or reports
+  no data if every row is dropped — rather than drawing a false slope to zero. The property
+  description now says so.
+- **`d3SlopeChartGraphql`: FlowScreen `theme` gains the picklist datasource** the App Builder
+  config already carried, so both targets offer the same four themes instead of a free-text box.
+
+### Added
+
+- **Showcase page 3 gains the slope chart** — `Amount` → `ExpectedRevenue` per opportunity. Its
+  component instance uses the same free-text `graphqlQuery` `where` idiom the page was established
+  with, so it reads only `[D3DEMO]` seeded Opportunities and the committed Playwright baseline
+  contains only synthetic demo data. Because this chart draws one line per record rather than one
+  mark per group, the instance also pins `first: 12` and an explicit `orderBy` in the query: the
+  `first` argument is what bounds the line count, and the ordering keeps the selected records —
+  and therefore the committed baseline — stable across runs.
+
 ## [1.2.0] - 2026-08-03
 
 Wave 4 continues through the categorical/comparison family with the Cleveland dot plot, which
