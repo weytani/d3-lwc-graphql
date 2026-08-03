@@ -1,8 +1,8 @@
-// ABOUTME: Unit tests for the d3StackedHorizontalBar Lightning Web Component.
+// ABOUTME: Unit tests for the d3StackedHorizontalBarGraphql Lightning Web Component.
 // ABOUTME: Tests initialization, data handling, stacked/normalized modes, legend, click events, render orchestration, and error recovery.
 
 import { createElement } from "lwc";
-import D3StackedHorizontalBar from "c/d3StackedHorizontalBar";
+import D3StackedHorizontalBarGraphql from "c/d3StackedHorizontalBarGraphql";
 import { loadD3 } from "../d3Loader";
 
 jest.mock("../d3Loader", () => ({
@@ -96,7 +96,7 @@ const NO_SERIES_DATA = [
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-stacked-horizontal-bar", () => {
+describe("c-d3-stacked-horizontal-bar-graphql", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -136,8 +136,8 @@ describe("c-d3-stacked-horizontal-bar", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-stacked-horizontal-bar", {
-      is: D3StackedHorizontalBar
+    element = createElement("c-d3-stacked-horizontal-bar-graphql", {
+      is: D3StackedHorizontalBarGraphql
     });
 
     Object.assign(element, {
@@ -163,8 +163,8 @@ describe("c-d3-stacked-horizontal-bar", () => {
 
   describe("initialization", () => {
     it("shows loading state initially", async () => {
-      element = createElement("c-d3-stacked-horizontal-bar", {
-        is: D3StackedHorizontalBar
+      element = createElement("c-d3-stacked-horizontal-bar-graphql", {
+        is: D3StackedHorizontalBarGraphql
       });
       element.groupByField = "StageName";
       element.seriesField = "Type";

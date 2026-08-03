@@ -1,8 +1,8 @@
-// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3StackedHorizontalBar bundle.
+// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3StackedHorizontalBarGraphql bundle.
 // ABOUTME: Covers the structured multi-group / aggregate / Count builders and the free-text
 // ABOUTME: graphqlQuery admin override, including the matrix pivot+sum and 100%-normalized parity.
 import { createElement } from "lwc";
-import D3StackedHorizontalBar from "c/d3StackedHorizontalBar";
+import D3StackedHorizontalBarGraphql from "c/d3StackedHorizontalBarGraphql";
 import { graphql, gql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
@@ -236,8 +236,8 @@ async function flushPromises() {
 }
 
 function appendConfigured(props) {
-  const element = createElement("c-d3-stacked-horizontal-bar", {
-    is: D3StackedHorizontalBar
+  const element = createElement("c-d3-stacked-horizontal-bar-graphql", {
+    is: D3StackedHorizontalBarGraphql
   });
   Object.assign(element, {
     objectApiName: "Opportunity",
@@ -251,7 +251,7 @@ function appendConfigured(props) {
   return element;
 }
 
-describe("d3StackedHorizontalBar GraphQL path", () => {
+describe("d3StackedHorizontalBarGraphql GraphQL path", () => {
   let mockD3;
 
   beforeEach(() => {

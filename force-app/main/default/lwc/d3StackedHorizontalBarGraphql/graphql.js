@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local Salesforce GraphQL (v2) query builders and normalizers for the d3StackedHorizontalBar bundle.
+// ABOUTME: Bundle-local Salesforce GraphQL (v2) query builders and normalizers for the d3StackedHorizontalBarGraphql bundle.
 // ABOUTME: Pure functions only — no @wire, no DOM — so they unit-test in isolation.
 
 const OPERATORS = ["eq", "ne", "gt", "gte", "lt", "lte", "like", "in"];

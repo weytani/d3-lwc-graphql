@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local chart utilities for the d3StackedHorizontalBar standalone bundle.
+// ABOUTME: Bundle-local chart utilities for the d3StackedHorizontalBarGraphql standalone bundle.
 // ABOUTME: Number formatting, label truncation, tooltip, resize, and SVG a11y helpers.
 
 // ===== NUMBER FORMATTERS =====

@@ -1,8 +1,8 @@
-// ABOUTME: Integration tests for d3StackedHorizontalBar verifying the real bundle-local pipelines (data, theme, utils).
+// ABOUTME: Integration tests for d3StackedHorizontalBarGraphql verifying the real bundle-local pipelines (data, theme, utils).
 // ABOUTME: Only D3 and NavigationMixin are mocked; aggregation and color logic run for real.
 
 import { createElement } from "lwc";
-import D3StackedHorizontalBar from "c/d3StackedHorizontalBar";
+import D3StackedHorizontalBarGraphql from "c/d3StackedHorizontalBarGraphql";
 import { loadD3 } from "../d3Loader";
 
 jest.mock("../d3Loader", () => ({
@@ -90,7 +90,7 @@ const SERIES_DATA = [
 
 const flushPromises = () => new Promise(process.nextTick);
 
-describe("c-d3-stacked-horizontal-bar integration", () => {
+describe("c-d3-stacked-horizontal-bar-graphql integration", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -128,8 +128,8 @@ describe("c-d3-stacked-horizontal-bar integration", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-stacked-horizontal-bar", {
-      is: D3StackedHorizontalBar
+    element = createElement("c-d3-stacked-horizontal-bar-graphql", {
+      is: D3StackedHorizontalBarGraphql
     });
 
     Object.assign(element, {

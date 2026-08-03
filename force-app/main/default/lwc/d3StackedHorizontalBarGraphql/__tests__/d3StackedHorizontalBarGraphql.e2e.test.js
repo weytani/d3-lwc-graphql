@@ -1,8 +1,8 @@
-// ABOUTME: End-to-end lifecycle tests for the d3StackedHorizontalBar Lightning Web Component.
+// ABOUTME: End-to-end lifecycle tests for the d3StackedHorizontalBarGraphql Lightning Web Component.
 // ABOUTME: Verifies full pipeline: D3 load, multi-group aggregation, stacked horizontal bar rendering, and cleanup.
 
 import { createElement } from "lwc";
-import D3StackedHorizontalBar from "c/d3StackedHorizontalBar";
+import D3StackedHorizontalBarGraphql from "c/d3StackedHorizontalBarGraphql";
 import { loadD3 } from "../d3Loader";
 import { graphql } from "lightning/graphql";
 
@@ -108,8 +108,8 @@ function flushPromises() {
 let consoleErrorSpy;
 
 async function createChart(props = {}) {
-  const element = createElement("c-d3-stacked-horizontal-bar", {
-    is: D3StackedHorizontalBar
+  const element = createElement("c-d3-stacked-horizontal-bar-graphql", {
+    is: D3StackedHorizontalBarGraphql
   });
 
   Object.assign(element, {
@@ -127,7 +127,7 @@ async function createChart(props = {}) {
   return element;
 }
 
-describe("c-d3-stacked-horizontal-bar e2e", () => {
+describe("c-d3-stacked-horizontal-bar-graphql e2e", () => {
   let mockD3;
 
   beforeEach(() => {
@@ -181,8 +181,8 @@ describe("c-d3-stacked-horizontal-bar e2e", () => {
     });
 
     it("self-fetch: no recordCollection -> GraphQL multi-group emits -> full pipeline", async () => {
-      const element = createElement("c-d3-stacked-horizontal-bar", {
-        is: D3StackedHorizontalBar
+      const element = createElement("c-d3-stacked-horizontal-bar-graphql", {
+        is: D3StackedHorizontalBarGraphql
       });
       Object.assign(element, {
         groupByField: "StageName",
