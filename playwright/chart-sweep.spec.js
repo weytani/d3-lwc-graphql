@@ -34,11 +34,14 @@ for (const pageDef of manifest.pages) {
         await expect(host, `${chart.name} present`).toBeVisible({
           timeout: 30000
         });
-        const svgCount = await host.locator("svg *").count();
-        expect(
-          svgCount,
-          `${chart.name} rendered ${svgCount} svg nodes`
-        ).toBeGreaterThanOrEqual(chart.minSvgDescendants);
+        // Poll rather than read once: a slow first paint after a fresh deploy
+        // otherwise reds a healthy chart on a transient count of 0.
+        await expect
+          .poll(async () => host.locator("svg *").count(), {
+            timeout: 30000,
+            message: `${chart.name} svg descendants (floor ${chart.minSvgDescendants})`
+          })
+          .toBeGreaterThanOrEqual(chart.minSvgDescendants);
         await page.waitForTimeout(1500); // let d3 transitions settle before pixels
         await expect(host).toHaveScreenshot(`${chart.name}-${pageDef.tab}.png`);
       }

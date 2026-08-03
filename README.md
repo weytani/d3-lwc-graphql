@@ -1,9 +1,10 @@
 > **Repo split (2026-08-02):** this is **d3-lwc-graphql** — the standalone GraphQL-only line
 > of the former `weytani/d3-lwc` (archived). Each converted chart is a self-contained LWC
 > bundle whose only dependency is the `d3` static resource. For the shared-module Apex/SOQL
-> line, see [`weytani/d3-lwc-soql`](https://github.com/weytani/d3-lwc-soql). **v1.0.0** closes
-> the consolidation gate: 16/40 charts converted and renamed to their `*Graphql` suffixed
-> identity, live-verified on-org; inherited release tags preserved as `legacy/*`.
+> line, see [`weytani/d3-lwc-soql`](https://github.com/weytani/d3-lwc-soql). **v1.0.0** closed
+> the consolidation gate at 16/40; **wave 4** (v1.1.0–v1.5.0) brings it to **21/40** charts
+> converted and renamed to their `*Graphql` suffixed identity, live-verified on-org; inherited
+> release tags preserved as `legacy/*`.
 
 # d3-lwc-graphql: Standalone GraphQL-Only D3 Charts for Salesforce
 
@@ -15,11 +16,11 @@ no shared `c/` services, no Apex) that self-fetches data straight from Salesforc
 they are for any other UI API read. Drag it onto a page, point it at an object and fields,
 and it renders.
 
-16 of 40 charts are converted as of v1.0.0 (bar, sortedBar, horizontalBar, stackedBar,
+21 of 40 charts are converted as of v1.5.0 (bar, sortedBar, horizontalBar, stackedBar,
 stackedHorizontalBar, normalizedBar, line, area, step, variableColorLine, sparklineGrid, pie,
-donut, lollipop, funnel, waffle). The remaining 24 still ship in this repo on the earlier
-Apex/SOQL-backed architecture (see `docs/ARCHITECTURE.md`) until their conversion wave lands
-— see "Status & Roadmap" below.
+donut, lollipop, funnel, waffle, divergingBar, dotPlot, slope, band, difference). The
+remaining 19 still ship in this repo on the earlier Apex/SOQL-backed architecture (see
+`docs/ARCHITECTURE.md`) until their conversion wave lands — see "Status & Roadmap" below.
 
 ## ✨ What a converted chart gives you
 
@@ -56,7 +57,7 @@ npm install
 
 Deploys always name the exact components with `-m` — never
 `--source-dir force-app/main/default/lwc` wholesale, which would also try to deploy the
-Apex/shared-module code the 24 unconverted charts still carry.
+Apex/shared-module code the 19 unconverted charts still carry.
 
 ```bash
 export PATH="/opt/homebrew/opt/node@20/bin:$PATH"   # Node 20 required for every sf command
@@ -67,7 +68,7 @@ sf project deploy start -o <org-alias> \
   -m "LightningComponentBundle:d3BarChartGraphql"
 ```
 
-The full 16-bundle deploy command (plus the showcase pages/tabs and permission set) is in
+The full 21-bundle deploy command (plus the showcase pages/tabs and permission set) is in
 `CLAUDE.md`.
 
 ### Running Tests
@@ -142,7 +143,7 @@ records in from a Flow instead.
 
 ### Charts not yet converted
 
-The 24 charts still on the pre-conversion architecture keep their unsuffixed tags
+The 19 charts still on the pre-conversion architecture keep their unsuffixed tags
 (`c-d3-scatter-plot`, `c-d3-choropleth`, etc.) and their `recordCollection` /
 `soqlQuery`-via-Apex data path. See `docs/ADMIN-GUIDE.md` for the full, per-family property
 reference sourced from the actual component metadata, and `docs/ARCHITECTURE.md` for that
@@ -150,31 +151,31 @@ data flow.
 
 ## 📈 Status & Roadmap
 
-### Converted — standalone GraphQL-only (v1.0.0, 16/40)
+### Converted — standalone GraphQL-only (21/40, through v1.5.0)
 
-| Family             | Charts                                                                                                                                                               |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Bar                | `d3BarChartGraphql`, `d3SortedBarChartGraphql`, `d3HorizontalBarChartGraphql`, `d3StackedBarChartGraphql`, `d3StackedHorizontalBarGraphql`, `d3NormalizedBarGraphql` |
-| Line / time series | `d3LineChartGraphql`, `d3AreaChartGraphql`, `d3StepChartGraphql`, `d3VariableColorLineGraphql`, `d3SparklineGridGraphql`                                             |
-| Part-to-whole      | `d3PieChartGraphql`, `d3DonutChartGraphql`, `d3LollipopChartGraphql`, `d3FunnelChartGraphql`, `d3WaffleChartGraphql`                                                 |
+| Family                   | Charts                                                                                                                                                               | Release         |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
+| Bar                      | `d3BarChartGraphql`, `d3SortedBarChartGraphql`, `d3HorizontalBarChartGraphql`, `d3StackedBarChartGraphql`, `d3StackedHorizontalBarGraphql`, `d3NormalizedBarGraphql` | v1.0.0          |
+| Line / time series       | `d3LineChartGraphql`, `d3AreaChartGraphql`, `d3StepChartGraphql`, `d3VariableColorLineGraphql`, `d3SparklineGridGraphql`                                             | v1.0.0          |
+| Part-to-whole            | `d3PieChartGraphql`, `d3DonutChartGraphql`, `d3LollipopChartGraphql`, `d3FunnelChartGraphql`, `d3WaffleChartGraphql`                                                 | v1.0.0          |
+| Categorical / comparison | `d3DivergingBarChartGraphql`, `d3DotPlotGraphql`, `d3SlopeChartGraphql`, `d3BandChartGraphql`, `d3DifferenceChartGraphql`                                            | v1.1.0 – v1.5.0 |
 
-Each is live on the `D3 GraphQL Showcase 1`/`2` Lightning app pages (AGENT), verified by the
-Playwright sweep below.
+Each is live on the `D3 GraphQL Showcase 1`/`2`/`3` Lightning app pages (AGENT), verified by
+the Playwright sweep below.
 
-### Not yet converted — waves 4–8 (24)
+### Not yet converted — waves 5–8 (19)
 
-| Wave | Family                     | Charts                                                |
-| ---- | -------------------------- | ----------------------------------------------------- |
-| 4    | Categorical / comparison   | divergingBar, dotPlot, slope, band, difference        |
-| 5    | Distribution / statistical | histogram, boxPlot, heatmap, calendarHeatmap, scatter |
-| 6    | KPI / single-value         | progressBar, gauge, bullet, iconArray, waterfall      |
-| 7    | Hierarchy / flow           | treemap, sunburst, sankey, chord, choropleth          |
-| 8    | Relational / specialized   | forceGraph, gantt, radar, bubble                      |
+| Wave | Family                     | Charts                                                | Status                |
+| ---- | -------------------------- | ----------------------------------------------------- | --------------------- |
+| 4    | Categorical / comparison   | divergingBar, dotPlot, slope, band, difference        | SHIPPED v1.1.0–v1.5.0 |
+| 5    | Distribution / statistical | histogram, boxPlot, heatmap, calendarHeatmap, scatter | next                  |
+| 6    | KPI / single-value         | progressBar, gauge, bullet, iconArray, waterfall      | pending               |
+| 7    | Hierarchy / flow           | treemap, sunburst, sankey, chord, choropleth          | pending               |
+| 8    | Relational / specialized   | forceGraph, gantt, radar, bubble                      | pending               |
 
-One minor release per converted chart, following `docs/conversion-recipe.md` (the recipe
-predates the suffix amendment — see the pointer at its top). `gantt` is already GraphQL-only
-(a v2.0.0 legacy release) but not yet standalone/suffixed; its wave-8 conversion is inlining +
-`graphqlQuery` + the suffix rename only.
+One minor release per converted chart, following `docs/conversion-recipe.md`. `gantt` is
+already GraphQL-only (a v2.0.0 legacy release) but not yet standalone/suffixed; its wave-8
+conversion is inlining + `graphqlQuery` + the suffix rename only.
 
 ### After wave 8: the purge
 
@@ -187,15 +188,16 @@ End state: 40 standalone bundles + the `d3` static resource + nothing else.
 Two tiers, per `CLAUDE.md`:
 
 1. **Jest** — unit/integration/e2e tiers per bundle (jsdom, mocked `lightning/graphql` wire),
-   CI-enforced on every push/PR. **142 suites / 3,508 tests**, as of the v1.0.0 gate.
+   CI-enforced on every push/PR. **142 suites / 3,543 tests**, as of v1.5.0.
    ```bash
    npm test              # full suite — no per-component --testPathPattern narrowing exists
    npm test -- --coverage
    ```
 2. **Playwright live-org sweep** (`npm run test:e2e:live`) — local-only release gate, never
-   CI (public repo, no org credentials in GitHub Actions). Walks both
+   CI (public repo, no org credentials in GitHub Actions). Walks all three
    `d3_graphql_showcase_*` pages on AGENT and asserts, per chart: real SVG marks rendered
-   (floor count), zero console errors, and a pixel-diff against a committed baseline PNG
+   (floor count, polled so a slow first paint can't red a healthy chart), zero console errors,
+   and a pixel-diff against a committed baseline PNG — 21 baselines, one per chart
    (`playwright/chart-sweep.spec.js-snapshots/`, `[D3DEMO]`-seeded synthetic data only).
    Requires `export PATH="/opt/homebrew/opt/node@20/bin:$PATH"` so the `sf`-driven frontdoor
    auth in `playwright/global-setup.js` can spawn.
@@ -221,7 +223,7 @@ Record limits, the full per-property reference, and precedence rules live in
 A converted chart has no Apex controller and no shared-module imports at all. Its support
 code — a D3 loader, theme palette, data helpers, formatters, and a GraphQL query builder — is
 inlined bundle-local inside that chart's own folder, and it talks to Salesforce directly over
-the `lightning/graphql` wire. The 24 not-yet-converted charts still run the shared
+the `lightning/graphql` wire. The 19 not-yet-converted charts still run the shared
 Apex-controller + shared-LWC-module architecture documented in `docs/ARCHITECTURE.md`.
 
 ```
@@ -229,14 +231,14 @@ force-app/main/default/
 ├── lwc/
 │   ├── d3BarChartGraphql/          # converted: bundle-local d3Loader.js, theme.js,
 │   │   └── ...                     #   data.js, utils.js, graphql.js — no c/ imports
-│   ├── ...                         # the other 15 converted bundles, same shape
-│   ├── d3Lib/ dataService/         # shared modules — serve ONLY the 24 unconverted
+│   ├── ...                         # the other 20 converted bundles, same shape
+│   ├── d3Lib/ dataService/         # shared modules — serve ONLY the 19 unconverted
 │   │   themeService/ chartUtils/   #   charts below; never deployed by this line
-│   ├── d3ScatterPlot/ d3Choropleth/  # unconverted charts (24) — Apex/SOQL-backed,
+│   ├── d3ScatterPlot/ d3Choropleth/  # unconverted charts (19) — Apex/SOQL-backed,
 │   │   └── ...                       #   see docs/ARCHITECTURE.md
 │   └── ...
 ├── classes/
-│   └── D3ChartController.cls       # serves ONLY the 24 unconverted charts
+│   └── D3ChartController.cls       # serves ONLY the 19 unconverted charts
 └── staticresources/
     └── d3                          # D3.js v7 (full build, no file extension) —
                                      #   the only dependency a converted bundle has
@@ -245,8 +247,8 @@ force-app/main/default/
 ## 📚 References
 
 - [Admin Guide: App Builder & Flow usage](docs/ADMIN-GUIDE.md) — the admin-facing property reference and step-by-step setup
-- [Architecture](docs/ARCHITECTURE.md) — the pre-conversion Apex/SOQL data flow, still accurate for the 24 unconverted charts
-- [v3 conversion recipe](docs/conversion-recipe.md) — the per-chart procedure for converting to the standalone GraphQL architecture (suffix step pending fold-in, see its header pointer)
+- [Architecture](docs/ARCHITECTURE.md) — the pre-conversion Apex/SOQL data flow, still accurate for the 19 unconverted charts
+- [v3 conversion recipe](docs/conversion-recipe.md) — the per-chart procedure for converting to the standalone GraphQL architecture
 - [D3.js Documentation](https://d3js.org/)
 - [Lightning Web Components Guide](https://developer.salesforce.com/docs/component-library/documentation/en/lwc)
 - [SLDS Design Tokens](https://www.lightningdesignsystem.com/design-tokens/)
