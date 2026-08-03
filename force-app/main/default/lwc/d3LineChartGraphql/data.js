@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local data validation, truncation, and per-chart record limit for the d3LineChart bundle.
+// ABOUTME: Bundle-local data validation, truncation, and per-chart record limit for the d3LineChartGraphql bundle.
 // ABOUTME: The recordCollection processing subset — validate/truncate/prepare — used before time-series shaping.
 
 /**

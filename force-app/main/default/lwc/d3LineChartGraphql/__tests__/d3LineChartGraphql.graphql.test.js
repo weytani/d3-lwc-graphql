@@ -1,7 +1,7 @@
-// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3LineChart bundle.
+// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3LineChartGraphql bundle.
 // ABOUTME: Covers the structured record-query builder and the free-text graphqlQuery admin override.
 import { createElement } from "lwc";
-import D3LineChart from "c/d3LineChart";
+import D3LineChartGraphql from "c/d3LineChartGraphql";
 import { graphql, gql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
@@ -77,7 +77,7 @@ async function flushPromises() {
   return Promise.resolve();
 }
 
-describe("d3LineChart GraphQL self-fetch path", () => {
+describe("d3LineChartGraphql GraphQL self-fetch path", () => {
   let d3Calls;
 
   beforeEach(() => {
@@ -109,7 +109,9 @@ describe("d3LineChart GraphQL self-fetch path", () => {
 
   describe("structured record-query path", () => {
     it("renders the chart container and draws the line when GraphQL record data arrives", async () => {
-      const element = createElement("c-d3-line-chart", { is: D3LineChart });
+      const element = createElement("c-d3-line-chart-graphql", {
+        is: D3LineChartGraphql
+      });
       element.objectApiName = "Opportunity";
       element.dateField = "CloseDate";
       element.valueField = "Amount";
@@ -136,7 +138,9 @@ describe("d3LineChart GraphQL self-fetch path", () => {
     });
 
     it("keeps the loading spinner up while the wire is provisioned and awaiting its first emission", async () => {
-      const element = createElement("c-d3-line-chart", { is: D3LineChart });
+      const element = createElement("c-d3-line-chart-graphql", {
+        is: D3LineChartGraphql
+      });
       element.objectApiName = "Opportunity";
       element.dateField = "CloseDate";
       element.valueField = "Amount";
@@ -164,7 +168,9 @@ describe("d3LineChart GraphQL self-fetch path", () => {
     });
 
     it("shows an error when the GraphQL wire emits errors", async () => {
-      const element = createElement("c-d3-line-chart", { is: D3LineChart });
+      const element = createElement("c-d3-line-chart-graphql", {
+        is: D3LineChartGraphql
+      });
       element.objectApiName = "Opportunity";
       element.dateField = "CloseDate";
       element.valueField = "Amount";
@@ -180,7 +186,9 @@ describe("d3LineChart GraphQL self-fetch path", () => {
     });
 
     it("bounds the query with first: 2000", async () => {
-      const element = createElement("c-d3-line-chart", { is: D3LineChart });
+      const element = createElement("c-d3-line-chart-graphql", {
+        is: D3LineChartGraphql
+      });
       element.objectApiName = "Opportunity";
       element.dateField = "CloseDate";
       element.valueField = "Amount";
@@ -193,7 +201,9 @@ describe("d3LineChart GraphQL self-fetch path", () => {
     });
 
     it("requests dateField, valueField, and seriesField, deduped", async () => {
-      const element = createElement("c-d3-line-chart", { is: D3LineChart });
+      const element = createElement("c-d3-line-chart-graphql", {
+        is: D3LineChartGraphql
+      });
       element.objectApiName = "Opportunity";
       element.dateField = "CloseDate";
       element.valueField = "Amount";
@@ -213,7 +223,9 @@ describe("d3LineChart GraphQL self-fetch path", () => {
 
   describe("free-text graphqlQuery override", () => {
     it("uses a free-text graphqlQuery verbatim and shapes the rows client-side", async () => {
-      const element = createElement("c-d3-line-chart", { is: D3LineChart });
+      const element = createElement("c-d3-line-chart-graphql", {
+        is: D3LineChartGraphql
+      });
       element.graphqlQuery = FREE_TEXT_QUERY;
       element.objectApiName = "Opportunity";
       element.dateField = "CloseDate";
@@ -240,7 +252,9 @@ describe("d3LineChart GraphQL self-fetch path", () => {
     });
 
     it("auto-detects the object key when objectApiName is blank (real admin case)", async () => {
-      const element = createElement("c-d3-line-chart", { is: D3LineChart });
+      const element = createElement("c-d3-line-chart-graphql", {
+        is: D3LineChartGraphql
+      });
       element.graphqlQuery = FREE_TEXT_QUERY;
       // objectApiName intentionally left blank — the admin pasted a query.
       element.dateField = "CloseDate";
@@ -266,7 +280,9 @@ describe("d3LineChart GraphQL self-fetch path", () => {
     });
 
     it("surfaces wire errors from a free-text graphqlQuery in the error state", async () => {
-      const element = createElement("c-d3-line-chart", { is: D3LineChart });
+      const element = createElement("c-d3-line-chart-graphql", {
+        is: D3LineChartGraphql
+      });
       element.graphqlQuery = FREE_TEXT_QUERY;
       element.dateField = "CloseDate";
       element.valueField = "Amount";
@@ -284,7 +300,9 @@ describe("d3LineChart GraphQL self-fetch path", () => {
     it("hints record-query-only when a free-text graphqlQuery yields no records", async () => {
       // An aggregate-shaped payload has no uiapi.query, so the record normalizer
       // finds nothing — the error should point the admin at the record-query contract.
-      const element = createElement("c-d3-line-chart", { is: D3LineChart });
+      const element = createElement("c-d3-line-chart-graphql", {
+        is: D3LineChartGraphql
+      });
       element.graphqlQuery = FREE_TEXT_QUERY;
       element.dateField = "CloseDate";
       element.valueField = "Amount";
@@ -300,7 +318,9 @@ describe("d3LineChart GraphQL self-fetch path", () => {
     });
 
     it("ignores a blank graphqlQuery and falls through to the structured builder", async () => {
-      const element = createElement("c-d3-line-chart", { is: D3LineChart });
+      const element = createElement("c-d3-line-chart-graphql", {
+        is: D3LineChartGraphql
+      });
       element.graphqlQuery = "   ";
       element.objectApiName = "Opportunity";
       element.dateField = "CloseDate";
@@ -320,7 +340,9 @@ describe("d3LineChart GraphQL self-fetch path", () => {
     });
 
     it("lets recordCollection beat a set graphqlQuery (wire skipped)", async () => {
-      const element = createElement("c-d3-line-chart", { is: D3LineChart });
+      const element = createElement("c-d3-line-chart-graphql", {
+        is: D3LineChartGraphql
+      });
       element.graphqlQuery = FREE_TEXT_QUERY;
       element.recordCollection = [
         { CloseDate: "2024-01-01", Amount: 100 },

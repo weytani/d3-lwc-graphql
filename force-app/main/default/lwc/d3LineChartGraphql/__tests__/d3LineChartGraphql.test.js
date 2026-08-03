@@ -1,5 +1,5 @@
 import { createElement } from "lwc";
-import D3LineChart from "c/d3LineChart";
+import D3LineChartGraphql from "c/d3LineChartGraphql";
 import { loadD3 } from "../d3Loader";
 
 // Mock the bundle-local D3 loader
@@ -104,7 +104,7 @@ const EU_DATE_DATA = [
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-line-chart", () => {
+describe("c-d3-line-chart-graphql", () => {
   let element;
 
   beforeEach(() => {
@@ -135,8 +135,8 @@ describe("c-d3-line-chart", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-line-chart", {
-      is: D3LineChart
+    element = createElement("c-d3-line-chart-graphql", {
+      is: D3LineChartGraphql
     });
 
     Object.assign(element, {
@@ -157,8 +157,8 @@ describe("c-d3-line-chart", () => {
 
   describe("initialization", () => {
     it("shows loading spinner initially", () => {
-      element = createElement("c-d3-line-chart", {
-        is: D3LineChart
+      element = createElement("c-d3-line-chart-graphql", {
+        is: D3LineChartGraphql
       });
       element.dateField = "CloseDate";
       element.valueField = "Amount";

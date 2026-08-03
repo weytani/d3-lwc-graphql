@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local Salesforce GraphQL (v2) record-query builder and normalizer for the d3LineChart bundle.
+// ABOUTME: Bundle-local Salesforce GraphQL (v2) record-query builder and normalizer for the d3LineChartGraphql bundle.
 // ABOUTME: Pure functions only — no @wire, no DOM — so they unit-test in isolation.
 
 const OPERATORS = ["eq", "ne", "gt", "gte", "lt", "lte", "like", "in"];
