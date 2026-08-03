@@ -2,7 +2,7 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>D3 Normalized Bar Chart</masterLabel>
+    <masterLabel>D3 Normalized Bar Chart (GraphQL)</masterLabel>
     <description
   >100%-composition stacked bar chart powered by D3.js — every category bar is normalized to 100% so series shares can be compared directly, with drill-down support.</description>
     <targets>

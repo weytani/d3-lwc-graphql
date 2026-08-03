@@ -1,8 +1,8 @@
-// ABOUTME: Integration tests for d3NormalizedBar verifying the real bundle-local pipelines (data, theme, utils).
+// ABOUTME: Integration tests for d3NormalizedBarGraphql verifying the real bundle-local pipelines (data, theme, utils).
 // ABOUTME: Only D3 and NavigationMixin are mocked; aggregation and color logic run for real.
 
 import { createElement } from "lwc";
-import D3NormalizedBar from "c/d3NormalizedBar";
+import D3NormalizedBarGraphql from "c/d3NormalizedBarGraphql";
 import { loadD3 } from "../d3Loader";
 
 jest.mock("../d3Loader", () => ({
@@ -87,7 +87,7 @@ const SERIES_DATA = [
 
 const flushPromises = () => new Promise(process.nextTick);
 
-describe("c-d3-normalized-bar integration", () => {
+describe("c-d3-normalized-bar-graphql integration", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -125,8 +125,8 @@ describe("c-d3-normalized-bar integration", () => {
   });
 
   async function createChart(props = {}) {
-    element = createElement("c-d3-normalized-bar", {
-      is: D3NormalizedBar
+    element = createElement("c-d3-normalized-bar-graphql", {
+      is: D3NormalizedBarGraphql
     });
 
     Object.assign(element, {

@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local chart utilities for the d3NormalizedBar standalone bundle.
+// ABOUTME: Bundle-local chart utilities for the d3NormalizedBarGraphql standalone bundle.
 // ABOUTME: Number/percent formatting, label truncation, tooltip, resize, and SVG a11y helpers.
 
 // ===== NUMBER FORMATTERS =====

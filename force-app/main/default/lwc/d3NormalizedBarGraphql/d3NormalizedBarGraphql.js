@@ -26,7 +26,9 @@ import {
   normalizeMultiGroup
 } from "./graphql";
 
-export default class D3NormalizedBar extends NavigationMixin(LightningElement) {
+export default class D3NormalizedBarGraphql extends NavigationMixin(
+  LightningElement
+) {
   // ═══════════════════════════════════════════════════════════════
   // PUBLIC API PROPERTIES
   // ═══════════════════════════════════════════════════════════════
@@ -284,7 +286,7 @@ export default class D3NormalizedBar extends NavigationMixin(LightningElement) {
       // Render will happen in renderedCallback after DOM is ready
     } catch (e) {
       this.error = e.message || "Failed to initialize chart";
-      console.error("D3NormalizedBar initialization error:", e);
+      console.error("D3NormalizedBarGraphql initialization error:", e);
     } finally {
       // Keep the spinner up while a GraphQL query is provisioned but has not yet
       // emitted data or an error — the wire handler clears isLoading on arrival.

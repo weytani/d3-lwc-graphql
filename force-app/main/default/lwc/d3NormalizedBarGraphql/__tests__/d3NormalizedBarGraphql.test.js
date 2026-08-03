@@ -1,8 +1,8 @@
-// ABOUTME: Unit tests for the d3NormalizedBar Lightning Web Component.
+// ABOUTME: Unit tests for the d3NormalizedBarGraphql Lightning Web Component.
 // ABOUTME: Tests initialization, data handling, the always-on 100%-normalized stack, legend, and error recovery.
 
 import { createElement } from "lwc";
-import D3NormalizedBar from "c/d3NormalizedBar";
+import D3NormalizedBarGraphql from "c/d3NormalizedBarGraphql";
 import { graphql, gql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
@@ -134,7 +134,7 @@ const SPECIAL_CHAR_SERIES_DATA = [
 // eslint-disable-next-line @lwc/lwc/no-async-operation
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("c-d3-normalized-bar", () => {
+describe("c-d3-normalized-bar-graphql", () => {
   let element;
   let mockD3;
   let consoleErrorSpy;
@@ -178,8 +178,8 @@ describe("c-d3-normalized-bar", () => {
 
   // Helper to create element with properties
   async function createChart(props = {}) {
-    element = createElement("c-d3-normalized-bar", {
-      is: D3NormalizedBar
+    element = createElement("c-d3-normalized-bar-graphql", {
+      is: D3NormalizedBarGraphql
     });
 
     Object.assign(element, {
@@ -206,8 +206,8 @@ describe("c-d3-normalized-bar", () => {
 
   describe("initialization", () => {
     it("shows loading state initially", async () => {
-      element = createElement("c-d3-normalized-bar", {
-        is: D3NormalizedBar
+      element = createElement("c-d3-normalized-bar-graphql", {
+        is: D3NormalizedBarGraphql
       });
       element.groupByField = "StageName";
       element.seriesField = "Type";
@@ -1041,8 +1041,8 @@ describe("c-d3-normalized-bar", () => {
     });
 
     it("showChart is false when loading", () => {
-      element = createElement("c-d3-normalized-bar", {
-        is: D3NormalizedBar
+      element = createElement("c-d3-normalized-bar-graphql", {
+        is: D3NormalizedBarGraphql
       });
       element.groupByField = "StageName";
       element.seriesField = "Type";

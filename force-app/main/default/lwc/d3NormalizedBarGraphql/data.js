@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local data processing for the d3NormalizedBar standalone bundle.
+// ABOUTME: Bundle-local data processing for the d3NormalizedBarGraphql standalone bundle.
 // ABOUTME: Client-side validation, truncation, and two-field (label + series) aggregation.
 
 /**

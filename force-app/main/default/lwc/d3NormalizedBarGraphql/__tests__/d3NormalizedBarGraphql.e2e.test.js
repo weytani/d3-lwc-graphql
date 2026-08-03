@@ -1,8 +1,8 @@
-// ABOUTME: End-to-end lifecycle tests for the d3NormalizedBar Lightning Web Component.
+// ABOUTME: End-to-end lifecycle tests for the d3NormalizedBarGraphql Lightning Web Component.
 // ABOUTME: Verifies full pipeline: D3 load, multi-group aggregation, always-normalized rendering, and cleanup.
 
 import { createElement } from "lwc";
-import D3NormalizedBar from "c/d3NormalizedBar";
+import D3NormalizedBarGraphql from "c/d3NormalizedBarGraphql";
 import { graphql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
@@ -105,8 +105,8 @@ function flushPromises() {
 let consoleErrorSpy;
 
 async function createChart(props = {}) {
-  const element = createElement("c-d3-normalized-bar", {
-    is: D3NormalizedBar
+  const element = createElement("c-d3-normalized-bar-graphql", {
+    is: D3NormalizedBarGraphql
   });
 
   Object.assign(element, {
@@ -124,7 +124,7 @@ async function createChart(props = {}) {
   return element;
 }
 
-describe("c-d3-normalized-bar e2e", () => {
+describe("c-d3-normalized-bar-graphql e2e", () => {
   let mockD3;
 
   beforeEach(() => {

@@ -1,11 +1,11 @@
-// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3NormalizedBar bundle.
+// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3NormalizedBarGraphql bundle.
 // ABOUTME: Covers the two-field structured builder, the Count raw-record fallback, and the
 // ABOUTME: free-text graphqlQuery admin override. seriesField is REQUIRED — a 100%
 // ABOUTME: composition chart with no composition dimension has nothing to normalize. The
 // ABOUTME: free-text path pivots+sums flat records client-side, matching the pre-summed
 // ABOUTME: structured aggregate path percentage-for-percentage.
 import { createElement } from "lwc";
-import D3NormalizedBar from "c/d3NormalizedBar";
+import D3NormalizedBarGraphql from "c/d3NormalizedBarGraphql";
 import { graphql, gql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
@@ -224,7 +224,7 @@ async function flushPromises() {
   return Promise.resolve();
 }
 
-describe("d3NormalizedBar GraphQL path", () => {
+describe("d3NormalizedBarGraphql GraphQL path", () => {
   let mockD3;
 
   beforeEach(() => {
@@ -255,8 +255,8 @@ describe("d3NormalizedBar GraphQL path", () => {
 
   describe("structured self-fetch", () => {
     it("renders the chart container and draws normalized segments when GraphQL multi-group data arrives", async () => {
-      const element = createElement("c-d3-normalized-bar", {
-        is: D3NormalizedBar
+      const element = createElement("c-d3-normalized-bar-graphql", {
+        is: D3NormalizedBarGraphql
       });
       element.objectApiName = "Opportunity";
       element.groupByField = "StageName";
@@ -290,8 +290,8 @@ describe("d3NormalizedBar GraphQL path", () => {
     });
 
     it("keeps the loading spinner up while the wire is provisioned and awaiting its first emission", async () => {
-      const element = createElement("c-d3-normalized-bar", {
-        is: D3NormalizedBar
+      const element = createElement("c-d3-normalized-bar-graphql", {
+        is: D3NormalizedBarGraphql
       });
       element.objectApiName = "Opportunity";
       element.groupByField = "StageName";
@@ -322,8 +322,8 @@ describe("d3NormalizedBar GraphQL path", () => {
     });
 
     it("shows an error when the GraphQL wire emits errors", async () => {
-      const element = createElement("c-d3-normalized-bar", {
-        is: D3NormalizedBar
+      const element = createElement("c-d3-normalized-bar-graphql", {
+        is: D3NormalizedBarGraphql
       });
       element.objectApiName = "Opportunity";
       element.groupByField = "StageName";
@@ -341,8 +341,8 @@ describe("d3NormalizedBar GraphQL path", () => {
     });
 
     it("bounds the query with first: 2000", async () => {
-      const element = createElement("c-d3-normalized-bar", {
-        is: D3NormalizedBar
+      const element = createElement("c-d3-normalized-bar-graphql", {
+        is: D3NormalizedBarGraphql
       });
       element.objectApiName = "Opportunity";
       element.groupByField = "StageName";
@@ -357,8 +357,8 @@ describe("d3NormalizedBar GraphQL path", () => {
     });
 
     it("builds a groupBy on both groupByField and seriesField", async () => {
-      const element = createElement("c-d3-normalized-bar", {
-        is: D3NormalizedBar
+      const element = createElement("c-d3-normalized-bar-graphql", {
+        is: D3NormalizedBarGraphql
       });
       element.objectApiName = "Opportunity";
       element.groupByField = "StageName";
@@ -374,8 +374,8 @@ describe("d3NormalizedBar GraphQL path", () => {
     });
 
     it("falls back to a bounded raw-record fetch for Count (no server aggregate)", async () => {
-      const element = createElement("c-d3-normalized-bar", {
-        is: D3NormalizedBar
+      const element = createElement("c-d3-normalized-bar-graphql", {
+        is: D3NormalizedBarGraphql
       });
       element.objectApiName = "Opportunity";
       element.groupByField = "StageName";
@@ -408,8 +408,8 @@ describe("d3NormalizedBar GraphQL path", () => {
     });
 
     it("does not provision the wire when seriesField is empty — there is nothing to normalize", async () => {
-      const element = createElement("c-d3-normalized-bar", {
-        is: D3NormalizedBar
+      const element = createElement("c-d3-normalized-bar-graphql", {
+        is: D3NormalizedBarGraphql
       });
       element.objectApiName = "Opportunity";
       element.groupByField = "StageName";
@@ -424,8 +424,8 @@ describe("d3NormalizedBar GraphQL path", () => {
     });
 
     it("does not provision the wire when valueField is missing for Sum", async () => {
-      const element = createElement("c-d3-normalized-bar", {
-        is: D3NormalizedBar
+      const element = createElement("c-d3-normalized-bar-graphql", {
+        is: D3NormalizedBarGraphql
       });
       element.objectApiName = "Opportunity";
       element.groupByField = "StageName";
@@ -442,8 +442,8 @@ describe("d3NormalizedBar GraphQL path", () => {
 
   describe("free-text graphqlQuery override", () => {
     it("uses a free-text graphqlQuery verbatim and pivots+sums the rows client-side", async () => {
-      const element = createElement("c-d3-normalized-bar", {
-        is: D3NormalizedBar
+      const element = createElement("c-d3-normalized-bar-graphql", {
+        is: D3NormalizedBarGraphql
       });
       element.graphqlQuery = FREE_TEXT_QUERY;
       element.objectApiName = "Opportunity";
@@ -479,8 +479,8 @@ describe("d3NormalizedBar GraphQL path", () => {
     });
 
     it("surfaces wire errors from a free-text graphqlQuery in the error state", async () => {
-      const element = createElement("c-d3-normalized-bar", {
-        is: D3NormalizedBar
+      const element = createElement("c-d3-normalized-bar-graphql", {
+        is: D3NormalizedBarGraphql
       });
       element.graphqlQuery = FREE_TEXT_QUERY;
       element.objectApiName = "Opportunity";
@@ -502,8 +502,8 @@ describe("d3NormalizedBar GraphQL path", () => {
     it("hints record-query-only when a free-text graphqlQuery yields no records", async () => {
       // An aggregate-shaped payload has no uiapi.query, so the record normalizer
       // finds nothing — the error should point the admin at the record-query contract.
-      const element = createElement("c-d3-normalized-bar", {
-        is: D3NormalizedBar
+      const element = createElement("c-d3-normalized-bar-graphql", {
+        is: D3NormalizedBarGraphql
       });
       element.graphqlQuery = FREE_TEXT_QUERY;
       element.objectApiName = "Opportunity";
@@ -523,8 +523,8 @@ describe("d3NormalizedBar GraphQL path", () => {
     });
 
     it("ignores a blank graphqlQuery and falls through to the structured builder", async () => {
-      const element = createElement("c-d3-normalized-bar", {
-        is: D3NormalizedBar
+      const element = createElement("c-d3-normalized-bar-graphql", {
+        is: D3NormalizedBarGraphql
       });
       element.graphqlQuery = "   ";
       element.objectApiName = "Opportunity";
@@ -547,8 +547,8 @@ describe("d3NormalizedBar GraphQL path", () => {
     });
 
     it("prefers recordCollection over a set graphqlQuery — the wire is never provisioned", async () => {
-      const element = createElement("c-d3-normalized-bar", {
-        is: D3NormalizedBar
+      const element = createElement("c-d3-normalized-bar-graphql", {
+        is: D3NormalizedBarGraphql
       });
       element.graphqlQuery = FREE_TEXT_QUERY;
       element.recordCollection = [
@@ -574,8 +574,8 @@ describe("d3NormalizedBar GraphQL path", () => {
       // Structured path: pre-summed groupBy aggregate.
       const mockD3Structured = createMockD3();
       loadD3.mockResolvedValue(mockD3Structured);
-      const structured = createElement("c-d3-normalized-bar", {
-        is: D3NormalizedBar
+      const structured = createElement("c-d3-normalized-bar-graphql", {
+        is: D3NormalizedBarGraphql
       });
       structured.objectApiName = "Opportunity";
       structured.groupByField = "StageName";
@@ -593,8 +593,8 @@ describe("d3NormalizedBar GraphQL path", () => {
       // Free-text path: flat, un-summed records (duplicate Prospecting/New rows).
       const mockD3FreeText = createMockD3();
       loadD3.mockResolvedValue(mockD3FreeText);
-      const freeText = createElement("c-d3-normalized-bar", {
-        is: D3NormalizedBar
+      const freeText = createElement("c-d3-normalized-bar-graphql", {
+        is: D3NormalizedBarGraphql
       });
       freeText.graphqlQuery = FREE_TEXT_QUERY;
       freeText.objectApiName = "Opportunity";
