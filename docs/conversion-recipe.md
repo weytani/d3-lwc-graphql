@@ -102,19 +102,34 @@ Then edit:
 file that carries unstaged edits stages the OLD committed blob at the new path
 while the working tree holds your edit — `git status` shows it only as a
 second-column `M` on the `RM` line, easy to miss. After ALL renames and edits:
-run `git add -A` from the repo root, then confirm `git diff` (unstaged) is
-EMPTY before committing.
+run `git add -A -- force-app` from the repo root (NOT bare `git add -A`), then
+confirm `git diff` (unstaged) is EMPTY and `git status --short` shows no
+`node_modules` before committing.
+
+**Why the pathspec (wave-4 finding, hit or dodged by all five implementers):**
+`.gitignore`'s `node_modules/` trailing-slash pattern matches directories only;
+the §0 worktree symlink is a mode-120000 FILE, so it is NOT ignored
+(`git check-ignore node_modules` fails) and bare `git add -A` stages it into a
+public-repo commit. Do NOT "fix" this per-worktree via `.git/info/exclude` —
+in a worktree that file lives in the shared common gitdir, so the exclusion
+would leak to the main checkout and every sibling worktree. The pathspec form
+is the safe one.
 
 **Rename-completeness gate (record both greps in your report):**
 
 ```bash
-grep -rhn "<oldName>" force-app/main/default/lwc/<newName>/ | grep -v "<newName>"          # → 0 hits
-grep -rhn "<old-kebab-tag>" force-app/main/default/lwc/<newName>/ | grep -v "<new-kebab-tag>"  # → 0 hits
+grep -rhin "<oldName>" force-app/main/default/lwc/<newName>/ | grep -vi "<newName>"          # → 0 hits
+grep -rhin "<old-kebab-tag>" force-app/main/default/lwc/<newName>/ | grep -vi "<new-kebab-tag>"  # → 0 hits
 ```
 
 The `-h` flag is load-bearing (soql-sweep Wave-C finding): without it every
 output line carries the file PATH, which contains `<newName>`, so the `grep -v`
-filter silently deletes true positives and the gate false-passes.
+filter silently deletes true positives and the gate false-passes. The `-i` is
+equally load-bearing (wave-4 band finding): the exported CLASS form `D3XxxChart`
+differs from the folder form only by case, so a case-sensitive gate is blind to
+it — 16 of band's 38 old-name occurrences were the class form. If a hook blocks
+`grep -r`, run the non-recursive equivalent from inside the bundle, preserving
+BOTH flags: `grep -hin "<oldName>" *.* __tests__/* | grep -vi "<newName>"`.
 
 Close commit 0 with `npx jest force-app/main/default/lwc/<newName>` green;
 lint-staged runs the related tests on commit.
@@ -270,7 +285,10 @@ Per tier:
 - Add override coverage to the `.graphql.test.js` tier: (a) free-text
   `graphqlQuery` used verbatim + aggregated client-side, (b) free-text wire
   errors surface, (c) a blank/whitespace `graphqlQuery` falls through to the
-  structured builder, (d) `recordCollection` beats a set `graphqlQuery`.
+  structured builder, (d) `recordCollection` beats a set `graphqlQuery`. All
+  four live in the `.graphql.test.js` tier (settled in wave 4 — the bar
+  reference predates this rule and keeps case (d) in its unit tier; historical
+  variance, do not copy).
 - **Precondition — confirm the chart ships `.e2e`/`.integration` tiers.** The
   happy-path conversion below has nowhere obvious to live in a chart that only ships
   two tiers (`.test.js` + `.graphql.test.js`). If the base bundle lacks the
@@ -450,14 +468,23 @@ no error). Two silent failure modes cause it:
 
 **Fix — bundle-local `utils.js` + component; do NOT touch shared chartUtils:**
 
-- **Delete the inlined `createLayoutRetry`.** Install a **single lifetime**
-  `createResizeHandler` observer in `initializeChart` (guarded by
-  `if (!this.resizeHandler)`), which draws on the first measurable width and
-  re-draws on every resize — **no give-up window**. Keep the immediate
-  `getBoundingClientRect` draw only as a warm-path fast path. Create the tooltip
-  once (`if (!this.tooltip)`). `disconnectedCallback` just calls `cleanup()`
-  (which disconnects the observer); drop the `_layoutRetry` field + cancel and
-  the `createLayoutRetry` import.
+- **Delete the inlined `createLayoutRetry`.** Install ONE `createResizeHandler`
+  observer per **container generation** in `initializeChart`, which draws on the
+  first measurable width and re-draws on every resize — **no give-up window**.
+  The guard is **container identity, not mere existence**: the template's
+  if/elseif chain destroys `.chart-container` on every pass through
+  loading/error/no-data, so a bare `if (!this.resizeHandler)` guard strands the
+  tooltip in a detached node and leaves the observer watching a dead element
+  after an error→recovery cycle — silently dead tooltips, dead resize
+  responsiveness, and a recovery container that boots unmeasurable never renders
+  (the §4.3 empty shell on the recovery path). Found by three independent wave-4
+  reviewers; the 16 v1.0.0 bundles ship the old existence-guard and carry this
+  defect (hardening backlog). Track `this._observedContainer`; when the
+  container changes, `cleanup()` (which disconnects the observer and nulls both
+  refs) then re-create both against the new container. Keep the immediate
+  `getBoundingClientRect` draw only as a warm-path fast path.
+  `disconnectedCallback` just calls `cleanup()`; drop the `_layoutRetry` field +
+  cancel and the `createLayoutRetry` import.
 - **Wrap every render in `_safeRenderChart`** (try/catch) so an exception thrown
   mid-render surfaces to the component error state (same UX as wire errors),
   never a silent partial render.
@@ -466,6 +493,12 @@ no error). Two silent failure modes cause it:
 initializeChart() {
   const container = this.template.querySelector(".chart-container");
   if (!container) return false;
+  if (this._observedContainer && this._observedContainer !== container) {
+    // The template destroyed the old container (loading/error/no-data pass):
+    // rebind, or the tooltip writes into a detached node and the observer
+    // watches a dead element.
+    this.cleanup();
+  }
   if (!this.tooltip) this.tooltip = createTooltip(container);
   if (!this.resizeHandler) {
     this.resizeHandler = createResizeHandler(container, ({ width }) => {
@@ -473,6 +506,7 @@ initializeChart() {
     });
     this.resizeHandler.observe();
   }
+  this._observedContainer = container;
   const { width } = container.getBoundingClientRect();
   if (width > 0) this._safeRenderChart(width);
   return true;
@@ -489,17 +523,25 @@ _safeRenderChart(containerWidth) {
 ```
 
 Tests (unit tier): (a) container 0-width, capture the RO callback, fire it with a
-measurable width → chart renders (**RED** against old code, which installs no
-observer at width 0); (b) a render exception → error state visible (see §8's
-mockD3-leak trap — a **module-level shared-const `mockD3`** used to force the throw
-must be restored in a `finally`, or the mutation reddens later describes); (c)
-disconnect disconnects the observer; (d) exactly one observer across the lifecycle.
-The sub-margin fixture width in (a)/(b) is **chart-specific** — feed a width below
-the chart's own `left + right` margin sum (bar ~80px so 40px works;
-`d3HorizontalBarChart` needs a width under 190px; the line-family's is 90px so use
-50–80; sparklineGrid bails on **grid chrome** at 240px, so go under that). Copying
-bar's "40px" onto a wide-margin chart silently tests nothing, because 40px already
-clears that chart's zero-width gate the old way.
+measurable width → chart renders (**this is the ONLY genuinely-RED case** against
+old code, which installs no observer at width 0 — the sub-margin case is a
+characterization/regression guard, because a hand-fired RO callback drives the
+old code too; report it as such, not as RED); (b) a render exception → error
+state visible (see §8's mockD3-leak trap — a **module-level shared-const
+`mockD3`** used to force the throw must be restored in a `finally`, or the
+mutation reddens later describes); (c) disconnect disconnects the observer; (d)
+exactly one observer per container generation; (e) **error→recovery rebind**:
+render with data, drive the wire into an error (the template destroys the
+container), emit good data again → tooltip and observer are re-created against
+the NEW container (assert tooltip creation ran twice and that firing the newly
+captured RO callback renders).
+The sub-margin fixture width in (a)/(b) is **chart-specific** — feed a width
+strictly between 0 and the chart's own `left + right` margin sum (bar ~80px so
+40px works; `d3HorizontalBarChart` needs a width under 190px; the line-family's
+is 90px so use 50–80; sparklineGrid bails on **grid chrome** at 240px, so go
+under that). The hazard runs HIGH, not low: a fixture at or above the chart's
+margin sum renders successfully and the test silently proves nothing — any
+non-zero width under the sum exercises the bail.
 
 **Why this matters more now:** with `recordCollection` the parent usually sizes
 the container before data arrives; with GraphQL-by-default the chart boots and
@@ -540,6 +582,10 @@ often. Every converted chart needs the fix in its inlined `utils.js`.
   drill-down, just label it "Object API Name" and describe it as the query object
   — do not imply navigation.
 - Keep `apiVersion` at **65.0** (floor for dynamic `gql` string interpolation).
+- **Set `recordLimit`'s meta `max` to `2000`.** The UI API record query caps
+  `first:` at 2,000; the legacy meta's `max="10000"` advertises a ceiling the
+  only remaining fetch path rejects (wave-4 finding — the wave-1/2 bundles still
+  carry `max="10000"`; hardening backlog).
 - Update `<description>` only if it names SOQL/Apex (bar's did not).
 
 ### 5.1 Flow screen target (F1 — every converted chart, uniformly)
@@ -611,6 +657,8 @@ grep -niE 'soql|apex|fetchmode|executequery|getaggregateddata|filterclause|D3Cha
   <chart>.js d3Loader.js data.js theme.js utils.js graphql.js <chart>.js-meta.xml <chart>.html <chart>.css __tests__/*.js
 # 2. Stale config keys: confirm every advancedConfig key the tests set is one renderChart reads.
 # 3. Dead surface: every @api property AND every <property> in the meta is read by the component.
+#    (Counting `this.<prop>` reads: the @api declaration line contains no `this.`, so a count of
+#    exactly 1 IS one real read — treating <=1 as dead produces false positives. Wave-4 finding.)
 # 4. Test-name ↔ behavior: each renamed it() asserts what its description claims.
 # Import ban:
 grep -nE 'from "c/(d3Lib|dataService|themeService|chartUtils|graphqlService)"|@salesforce/apex' \
@@ -725,15 +773,22 @@ Skip every "remove Apex / remove soqlQuery / remove fetchMode" step and skip the
 apex-mock deletions in the tests — there are none. Verify with the §6 grep before
 assuming; charts vary.
 
-### 9.1 Aggregation charts (bar family: sortedBar, horizontalBar, lollipop, pie, donut, waffle, funnel, progress, gauge, bullet)
+### 9.1 Aggregation charts (bar family: sortedBar, horizontalBar, lollipop, pie, donut, waffle, funnel, progress, gauge, bullet, dotPlot)
 
 The bar baseline. Structured path: `buildAggregateQuery`/`normalizeAggregate`
 (Sum/Avg) with a `buildRecordQuery` Count fallback. **Free-text:** project
-`[groupByField, valueField]` (or `[groupByField]` for Count) and run the chart's
-existing client-side `aggregateData` (`_aggregateRawData`). Numbers match the
-aggregate path because the client-side group-by sums duplicate keys.
+`[...new Set([groupByField, valueField].filter(Boolean))]` — ONE form for every
+operation, Count included — and run the chart's existing client-side
+`aggregateData` (`_aggregateRawData`). Numbers match the aggregate path because
+the client-side group-by sums duplicate keys. The inert extra `valueField` key a
+Count projection carries is harmless (`aggregateData` never reads it for Count),
+and one uniform projection beats a per-operation branch (settled in wave 4;
+bar's separate `[groupByField]` Count branch is historical variance — do not
+copy it). **dotPlot belongs here, not §9.2** — it is a Cleveland dot plot
+(groupByField/valueField/operation over aggregated categories), confirmed
+against the real component in wave 4.
 
-### 9.2 Raw-record charts, no aggregation — incl. date X-axis (line, area, step, difference, slope, variableColorLine, scatter, bubble, dotPlot, sparklineGrid)
+### 9.2 Raw-record charts, no aggregation — incl. date X-axis (line, area, step, difference, slope, variableColorLine, scatter, bubble, sparklineGrid)
 
 These self-fetch raw records via `buildRecordQuery` + `normalizeRecordsGeneric`,
 **not** `buildAggregateQuery`. Their structured path fetches raw, un-summed rows
