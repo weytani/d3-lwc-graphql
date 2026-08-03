@@ -11,6 +11,12 @@ process.env.TZ = "America/New_York";
 module.exports = {
   ...jestConfig,
   modulePathIgnorePatterns: ["<rootDir>/.localdevserver"],
+  // Exclude the Playwright live-org sweep: its *.spec.js file matches Jest's
+  // default testMatch, but it requires the `playwright test` runner (not jsdom).
+  testPathIgnorePatterns: [
+    ...jestConfig.testPathIgnorePatterns,
+    "<rootDir>/playwright/"
+  ],
   moduleNameMapper: {
     ...jestConfig.moduleNameMapper,
     "^lightning/platformShowToastEvent$":

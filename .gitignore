@@ -54,6 +54,11 @@ sfdmu/*.csv
 sfdmu/.venv/
 sfdmu/__pycache__/
 
+# Playwright live-org sweep (local-only; auth state, run artifacts)
+playwright/.auth/
+test-results/
+playwright-report/
+
 # Python Salesforce Functions
 **/__pycache__/
 **/.venv/

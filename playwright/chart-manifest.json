@@ -1,0 +1,94 @@
+{
+  "pages": [
+    {
+      "tab": "d3_graphql_showcase_1",
+      "charts": [
+        {
+          "element": "c-d3-bar-chart-graphql",
+          "name": "d3BarChartGraphql",
+          "minSvgDescendants": 10
+        },
+        {
+          "element": "c-d3-sorted-bar-chart-graphql",
+          "name": "d3SortedBarChartGraphql",
+          "minSvgDescendants": 10
+        },
+        {
+          "element": "c-d3-horizontal-bar-chart-graphql",
+          "name": "d3HorizontalBarChartGraphql",
+          "minSvgDescendants": 10
+        },
+        {
+          "element": "c-d3-stacked-bar-chart-graphql",
+          "name": "d3StackedBarChartGraphql",
+          "minSvgDescendants": 10
+        },
+        {
+          "element": "c-d3-stacked-horizontal-bar-graphql",
+          "name": "d3StackedHorizontalBarGraphql",
+          "minSvgDescendants": 10
+        },
+        {
+          "element": "c-d3-normalized-bar-graphql",
+          "name": "d3NormalizedBarGraphql",
+          "minSvgDescendants": 10
+        },
+        {
+          "element": "c-d3-line-chart-graphql",
+          "name": "d3LineChartGraphql",
+          "minSvgDescendants": 10
+        },
+        {
+          "element": "c-d3-area-chart-graphql",
+          "name": "d3AreaChartGraphql",
+          "minSvgDescendants": 10
+        }
+      ]
+    },
+    {
+      "tab": "d3_graphql_showcase_2",
+      "charts": [
+        {
+          "element": "c-d3-step-chart-graphql",
+          "name": "d3StepChartGraphql",
+          "minSvgDescendants": 10
+        },
+        {
+          "element": "c-d3-variable-color-line-graphql",
+          "name": "d3VariableColorLineGraphql",
+          "minSvgDescendants": 10
+        },
+        {
+          "element": "c-d3-sparkline-grid-graphql",
+          "name": "d3SparklineGridGraphql",
+          "minSvgDescendants": 10
+        },
+        {
+          "element": "c-d3-pie-chart-graphql",
+          "name": "d3PieChartGraphql",
+          "minSvgDescendants": 10
+        },
+        {
+          "element": "c-d3-donut-chart-graphql",
+          "name": "d3DonutChartGraphql",
+          "minSvgDescendants": 10
+        },
+        {
+          "element": "c-d3-lollipop-chart-graphql",
+          "name": "d3LollipopChartGraphql",
+          "minSvgDescendants": 10
+        },
+        {
+          "element": "c-d3-funnel-chart-graphql",
+          "name": "d3FunnelChartGraphql",
+          "minSvgDescendants": 10
+        },
+        {
+          "element": "c-d3-waffle-chart-graphql",
+          "name": "d3WaffleChartGraphql",
+          "minSvgDescendants": 10
+        }
+      ]
+    }
+  ]
+}
