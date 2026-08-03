@@ -1,8 +1,8 @@
-// ABOUTME: Integration tests for d3DonutChart verifying real bundle-local pipelines (data, theme, utils, graphql).
+// ABOUTME: Integration tests for d3DonutChartGraphql verifying real bundle-local pipelines (data, theme, utils, graphql).
 // ABOUTME: Only D3, GraphQL, and NavigationMixin are mocked; aggregation, color, and formatting logic run for real.
 
 import { createElement } from "lwc";
-import D3DonutChart from "c/d3DonutChart";
+import D3DonutChartGraphql from "c/d3DonutChartGraphql";
 import { loadD3 } from "../d3Loader";
 
 // ═══════════════════════════════════════════════════════════════
@@ -95,8 +95,8 @@ const SAMPLE_DATA = [
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 async function createChart(props = {}) {
-  const element = createElement("c-d3-donut-chart", {
-    is: D3DonutChart
+  const element = createElement("c-d3-donut-chart-graphql", {
+    is: D3DonutChartGraphql
   });
 
   Object.assign(element, {
@@ -122,7 +122,7 @@ async function createChart(props = {}) {
 // TEST SUITE
 // ═══════════════════════════════════════════════════════════════
 
-describe("c-d3-donut-chart integration", () => {
+describe("c-d3-donut-chart-graphql integration", () => {
   let mockD3;
   let consoleErrorSpy;
   let consoleWarnSpy;
@@ -255,8 +255,8 @@ describe("c-d3-donut-chart integration", () => {
     it("aggregates a GraphQL Count record set through the real pipeline", async () => {
       const { graphql } = require("lightning/graphql");
 
-      const element = createElement("c-d3-donut-chart", {
-        is: D3DonutChart
+      const element = createElement("c-d3-donut-chart-graphql", {
+        is: D3DonutChartGraphql
       });
       Object.assign(element, {
         objectApiName: "Opportunity",
@@ -298,8 +298,8 @@ describe("c-d3-donut-chart integration", () => {
     it("free-text graphqlQuery Sum aggregates the wire rows to the correct values", async () => {
       const { graphql } = require("lightning/graphql");
 
-      const element = createElement("c-d3-donut-chart", {
-        is: D3DonutChart
+      const element = createElement("c-d3-donut-chart-graphql", {
+        is: D3DonutChartGraphql
       });
       Object.assign(element, {
         graphqlQuery:

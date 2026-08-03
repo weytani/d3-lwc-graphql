@@ -1,7 +1,7 @@
-// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3DonutChart bundle.
+// ABOUTME: Tests the GraphQL self-fetch path on the standalone d3DonutChartGraphql bundle.
 // ABOUTME: Covers the structured builders and the free-text graphqlQuery admin override.
 import { createElement } from "lwc";
-import D3DonutChart from "c/d3DonutChart";
+import D3DonutChartGraphql from "c/d3DonutChartGraphql";
 import { graphql, gql } from "lightning/graphql";
 import { loadD3 } from "../d3Loader";
 
@@ -104,7 +104,7 @@ async function flushPromises() {
   return Promise.resolve();
 }
 
-describe("d3DonutChart GraphQL path", () => {
+describe("d3DonutChartGraphql GraphQL path", () => {
   let d3Calls;
 
   beforeEach(() => {
@@ -137,7 +137,9 @@ describe("d3DonutChart GraphQL path", () => {
   });
 
   it("renders the chart container and draws a real slice when GraphQL aggregate data arrives", async () => {
-    const element = createElement("c-d3-donut-chart", { is: D3DonutChart });
+    const element = createElement("c-d3-donut-chart-graphql", {
+      is: D3DonutChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
     element.valueField = "Amount";
@@ -164,7 +166,9 @@ describe("d3DonutChart GraphQL path", () => {
   });
 
   it("keeps the loading spinner up while the wire is provisioned and awaiting its first emission", async () => {
-    const element = createElement("c-d3-donut-chart", { is: D3DonutChart });
+    const element = createElement("c-d3-donut-chart-graphql", {
+      is: D3DonutChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
     element.valueField = "Amount";
@@ -192,7 +196,9 @@ describe("d3DonutChart GraphQL path", () => {
   });
 
   it("shows an error when the GraphQL wire emits errors", async () => {
-    const element = createElement("c-d3-donut-chart", { is: D3DonutChart });
+    const element = createElement("c-d3-donut-chart-graphql", {
+      is: D3DonutChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
     element.valueField = "Amount";
@@ -209,7 +215,9 @@ describe("d3DonutChart GraphQL path", () => {
   });
 
   it("falls back to a raw record query and counts client-side for Count operation", async () => {
-    const element = createElement("c-d3-donut-chart", { is: D3DonutChart });
+    const element = createElement("c-d3-donut-chart-graphql", {
+      is: D3DonutChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
     element.operation = "Count";
@@ -235,7 +243,9 @@ describe("d3DonutChart GraphQL path", () => {
   });
 
   it("bounds the Count-path query with the same first: value as the aggregate path", async () => {
-    const element = createElement("c-d3-donut-chart", { is: D3DonutChart });
+    const element = createElement("c-d3-donut-chart-graphql", {
+      is: D3DonutChartGraphql
+    });
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
     element.operation = "Count";
@@ -248,7 +258,9 @@ describe("d3DonutChart GraphQL path", () => {
   });
 
   it("uses a free-text graphqlQuery verbatim and aggregates the rows client-side", async () => {
-    const element = createElement("c-d3-donut-chart", { is: D3DonutChart });
+    const element = createElement("c-d3-donut-chart-graphql", {
+      is: D3DonutChartGraphql
+    });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -274,7 +286,9 @@ describe("d3DonutChart GraphQL path", () => {
   });
 
   it("surfaces wire errors from a free-text graphqlQuery in the error state", async () => {
-    const element = createElement("c-d3-donut-chart", { is: D3DonutChart });
+    const element = createElement("c-d3-donut-chart-graphql", {
+      is: D3DonutChartGraphql
+    });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -304,7 +318,9 @@ describe("d3DonutChart GraphQL path", () => {
     // surfaces two steps later as a generic "No data after aggregation".
     // With the blank mapping dropped from the projection, validateFields
     // itself reports it missing, immediately and specifically.)
-    const element = createElement("c-d3-donut-chart", { is: D3DonutChart });
+    const element = createElement("c-d3-donut-chart-graphql", {
+      is: D3DonutChartGraphql
+    });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
     element.groupByField = "";
@@ -326,7 +342,9 @@ describe("d3DonutChart GraphQL path", () => {
   it("hints record-query-only when a free-text graphqlQuery yields no records", async () => {
     // An aggregate-shaped payload has no uiapi.query, so the record normalizer
     // finds nothing — the error should point the admin at the record-query contract.
-    const element = createElement("c-d3-donut-chart", { is: D3DonutChart });
+    const element = createElement("c-d3-donut-chart-graphql", {
+      is: D3DonutChartGraphql
+    });
     element.graphqlQuery = FREE_TEXT_QUERY;
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -344,7 +362,9 @@ describe("d3DonutChart GraphQL path", () => {
   });
 
   it("ignores a blank graphqlQuery and falls through to the structured builder", async () => {
-    const element = createElement("c-d3-donut-chart", { is: D3DonutChart });
+    const element = createElement("c-d3-donut-chart-graphql", {
+      is: D3DonutChartGraphql
+    });
     element.graphqlQuery = "   ";
     element.objectApiName = "Opportunity";
     element.groupByField = "StageName";
@@ -363,7 +383,9 @@ describe("d3DonutChart GraphQL path", () => {
   });
 
   it("recordCollection takes priority over a provisioned GraphQL wire", async () => {
-    const element = createElement("c-d3-donut-chart", { is: D3DonutChart });
+    const element = createElement("c-d3-donut-chart-graphql", {
+      is: D3DonutChartGraphql
+    });
     element.recordCollection = [
       { StageName: "Prospecting", Amount: 100 },
       { StageName: "Closed Won", Amount: 500 }

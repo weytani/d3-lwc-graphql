@@ -2,7 +2,7 @@
 // ABOUTME: Verifies full render pipeline, legend behavior, pie/donut modes, GraphQL self-fetch, and error recovery using real bundle-local modules with mocked D3.
 
 import { createElement } from "lwc";
-import D3DonutChart from "c/d3DonutChart";
+import D3DonutChartGraphql from "c/d3DonutChartGraphql";
 import { loadD3 } from "../d3Loader";
 import { graphql } from "lightning/graphql";
 
@@ -95,8 +95,8 @@ const SAMPLE_DATA = [
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 async function createChart(props = {}) {
-  const element = createElement("c-d3-donut-chart", {
-    is: D3DonutChart
+  const element = createElement("c-d3-donut-chart-graphql", {
+    is: D3DonutChartGraphql
   });
 
   Object.assign(element, {
@@ -117,7 +117,7 @@ async function createChart(props = {}) {
 // TEST SUITE
 // ═══════════════════════════════════════════════════════════════
 
-describe("c-d3-donut-chart e2e", () => {
+describe("c-d3-donut-chart-graphql e2e", () => {
   let consoleErrorSpy;
   let consoleWarnSpy;
 
@@ -192,7 +192,8 @@ describe("c-d3-donut-chart e2e", () => {
 
       // No console errors during the full lifecycle
       const realErrors = consoleErrorSpy.mock.calls.filter(
-        (call) => !String(call[0]).includes("D3DonutChart initialization error")
+        (call) =>
+          !String(call[0]).includes("D3DonutChartGraphql initialization error")
       );
       expect(realErrors.length).toBe(0);
     });
@@ -201,8 +202,8 @@ describe("c-d3-donut-chart e2e", () => {
       const mockD3 = createMockD3();
       loadD3.mockResolvedValue(mockD3);
 
-      const element = createElement("c-d3-donut-chart", {
-        is: D3DonutChart
+      const element = createElement("c-d3-donut-chart-graphql", {
+        is: D3DonutChartGraphql
       });
       Object.assign(element, {
         groupByField: "StageName",
@@ -336,7 +337,8 @@ describe("c-d3-donut-chart e2e", () => {
 
       // Both modes rendered without error
       const renderErrors = consoleErrorSpy.mock.calls.filter(
-        (call) => !String(call[0]).includes("D3DonutChart initialization error")
+        (call) =>
+          !String(call[0]).includes("D3DonutChartGraphql initialization error")
       );
       expect(renderErrors.length).toBe(0);
     });

@@ -20,7 +20,9 @@ import {
   normalizeRecordsGeneric
 } from "./graphql";
 
-export default class D3DonutChart extends NavigationMixin(LightningElement) {
+export default class D3DonutChartGraphql extends NavigationMixin(
+  LightningElement
+) {
   // ═══════════════════════════════════════════════════════════════
   // PUBLIC API PROPERTIES
   // ═══════════════════════════════════════════════════════════════
@@ -287,7 +289,7 @@ export default class D3DonutChart extends NavigationMixin(LightningElement) {
       await this.loadData();
     } catch (e) {
       this.error = e.message || "Failed to initialize chart";
-      console.error("D3DonutChart initialization error:", e);
+      console.error("D3DonutChartGraphql initialization error:", e);
     } finally {
       // Keep the spinner up while a GraphQL query is provisioned but has not yet
       // emitted data or an error — the wire handler clears isLoading on arrival.

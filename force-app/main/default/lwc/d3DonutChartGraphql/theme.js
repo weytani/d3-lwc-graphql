@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local color palettes and helpers for the d3DonutChart standalone bundle.
+// ABOUTME: Bundle-local color palettes and helpers for the d3DonutChartGraphql standalone bundle.
 // ABOUTME: Provides the SLDS-aligned palettes and getColors used to color the slices and legend.
 
 /**

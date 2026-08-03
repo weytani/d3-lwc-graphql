@@ -1,4 +1,4 @@
-// ABOUTME: Bundle-local chart utilities for the d3DonutChart standalone bundle.
+// ABOUTME: Bundle-local chart utilities for the d3DonutChartGraphql standalone bundle.
 // ABOUTME: Number/percent formatting, tooltip, resize observer, and SVG a11y helpers.
 
 // ===== NUMBER FORMATTERS =====
