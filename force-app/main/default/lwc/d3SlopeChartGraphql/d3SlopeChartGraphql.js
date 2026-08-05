@@ -66,8 +66,38 @@ export default class D3SlopeChartGraphql extends NavigationMixin(
    */
   @api graphqlQuery = "";
 
-  /** Structured filter for the GraphQL path: { field, operator, value }. */
-  @api graphqlFilter;
+  /**
+   * Structured filter for the GraphQL path: { field, operator, value }.
+   * Accepts the object directly (programmatic use) or a JSON string (the
+   * App Builder property). An unparseable string surfaces the component
+   * error state and provisions no query, rather than silently querying
+   * unfiltered.
+   */
+  @api
+  get graphqlFilter() {
+    return this._graphqlFilter;
+  }
+  set graphqlFilter(value) {
+    this._graphqlFilterInvalid = false;
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      if (!trimmed) {
+        this._graphqlFilter = undefined;
+        return;
+      }
+      try {
+        this._graphqlFilter = JSON.parse(trimmed);
+      } catch {
+        this._graphqlFilter = undefined;
+        this._graphqlFilterInvalid = true;
+        this.error =
+          'Invalid GraphQL Filter: must be JSON like {"field":"Name","operator":"like","value":"[D3DEMO]%"}';
+        this.isLoading = false;
+      }
+    } else {
+      this._graphqlFilter = value;
+    }
+  }
 
   // ═══════════════════════════════════════════════════════════════
   // TRACKED STATE
@@ -90,6 +120,8 @@ export default class D3SlopeChartGraphql extends NavigationMixin(
   chartRendered = false;
   _config = {};
   _configParsed = false;
+  _graphqlFilter;
+  _graphqlFilterInvalid = false;
 
   // ═══════════════════════════════════════════════════════════════
   // GETTERS
@@ -155,6 +187,10 @@ export default class D3SlopeChartGraphql extends NavigationMixin(
       return gql`
         ${this.graphqlQuery}
       `;
+    }
+    // An unparseable GraphQL Filter must not fall back to an unfiltered query.
+    if (this._graphqlFilterInvalid) {
+      return undefined;
     }
     // Structured builder path.
     if (
