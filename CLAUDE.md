@@ -223,6 +223,11 @@ remove the property tag ... in use on one or more Lightning pages`). `scripts/de
   this is genuinely needed (e.g. editing an already-converted `*Graphql` bundle that's since
   been placed on a page) — but per the suffix amendment, converting a chart no longer hits
   this at all, since the suffixed bundle is a brand-new component, not an edit to a placed one.
+  The platform applies the same block to **decreasing** a numeric property bound — e.g.
+  `recordLimit`'s meta `max` `10000` → `2000` — on a bundle already placed on a live page; the
+  remedy is the same detach → deploy → reattach dance. v1.6.0 hit this doing the recordLimit
+  cap and landed it via a transient strip of the two showcase pages' instances (never
+  committed), then the bundles, then the final pages.
 - D3.js v7 loaded from the `d3` static resource (the file is named `d3`, with NO `.js`
   extension — a 285 KB full v7 build). Any plan/command reference to `staticresources/d3.js`
   is wrong; the real file is `staticresources/d3`.

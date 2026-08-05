@@ -5,6 +5,42 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-08-05
+
+Hardening release closing the four pre-wave-5 gates. No new chart conversions; still 21 of 40.
+
+### Added
+
+- **`graphqlFilter` is now admin-reachable.** All 21 converted bundles declare it in the App
+  Builder targetConfig ("GraphQL Filter (JSON)") and parse the JSON-string form — previously it
+  was an undeclared `@api`-only object property, leaving free-text `graphqlQuery` where clauses
+  as the only page-reachable filter. An unparseable string surfaces the component error state
+  and provisions no query rather than silently querying unfiltered. Flow screens intentionally
+  do not declare it (records come from the flow there).
+- **`d3DivergingBarChartGraphql`: App Builder theme property.** The `theme` picklist existed
+  only in the FlowScreen targetConfig; App Builder pages could not theme the chart.
+
+### Changed
+
+- **Showcase pages 1–2 are `[D3DEMO]`-scoped.** All 15 structured instances set the new
+  `graphqlFilter` (`Name like "[D3DEMO]%"`), and page 1's free-text bar instance carries the
+  page-3-convention where clause. The 16 Playwright baselines are regenerated against the
+  seeded data only — previously they mixed stock dev-org rows and drifted with org data churn.
+
+### Fixed
+
+- **§4.3 container-rebind hardening backported to the 16 v1.0.0 bundles (issue #2).** The
+  template's if/elseif chain destroys `.chart-container` on every pass through
+  loading/error/no-data; the existence-only guards left the tooltip writing into a detached
+  node and the ResizeObserver watching a dead element after a data → error → data cycle.
+  `initializeChart` now tracks the container generation and cleans up and re-creates both on
+  identity change — the same fix the five wave-4 bundles shipped with. Every converted bundle
+  now carries the guard.
+- **`recordLimit` meta cap honesty.** The 16 v1.0.0 metas advertised `max="10000"`; the UI API
+  record query caps `first:` at 2,000. All 21 metas now cap at 2000 and state that the limit
+  governs the structured path only — a free-text GraphQL Query is bounded solely by its own
+  `first:` clause.
+
 ## [1.5.0] - 2026-08-03
 
 Wave 4 closes with the difference chart, which joins the diverging bar chart, the dot plot, the
