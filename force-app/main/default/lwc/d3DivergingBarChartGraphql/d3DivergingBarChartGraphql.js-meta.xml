@@ -51,6 +51,14 @@
         min="150"
         max="800"
       />
+            <property
+        name="theme"
+        type="String"
+        label="Color Theme"
+        default="Salesforce Standard"
+        datasource="Salesforce Standard,Warm,Cool,Vibrant"
+        description="Palette supplying the positive/negative bar color pair"
+      />
 
             <!-- Query + Drill-Down -->
             <property
@@ -71,9 +79,17 @@
         name="recordLimit"
         type="Integer"
         label="Record Limit"
-        description="Maximum records to process. Leave empty for default."
+        description="Maximum records to fetch on the structured self-fetch path. A free-text GraphQL Query is bounded only by its own first: clause. Leave empty for default (2000)."
         min="1"
         max="2000"
+      />
+
+            <!-- GraphQL Filter -->
+            <property
+        name="graphqlFilter"
+        type="String"
+        label="GraphQL Filter (JSON)"
+        description='Optional filter for the structured self-fetch, as JSON: {"field":"Name","operator":"like","value":"[D3DEMO]%"}. Operators: eq, ne, gt, gte, lt, lte, like, in. Ignored when records are passed in or a GraphQL Query override is set.'
       />
 
             <!-- GraphQL Query Override -->
