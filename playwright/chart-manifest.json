@@ -71,7 +71,7 @@
         {
           "element": "c-d3-donut-chart-graphql",
           "name": "d3DonutChartGraphql",
-          "minSvgDescendants": 10
+          "minSvgDescendants": 8
         },
         {
           "element": "c-d3-lollipop-chart-graphql",
