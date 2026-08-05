@@ -401,4 +401,70 @@ describe("d3BandChartGraphql GraphQL self-fetch", () => {
       expect(element.shadowRoot.querySelector("lightning-spinner")).toBeNull();
     });
   });
+
+  describe("graphqlFilter JSON-string parsing", () => {
+    const STRUCTURED_PROPS = {
+      objectApiName: "Opportunity",
+      dateField: "CloseDate",
+      lowerField: "Amount",
+      upperField: "ExpectedRevenue"
+    };
+
+    it("parses a JSON-string graphqlFilter into the structured where clause", async () => {
+      const element = makeElement({
+        ...STRUCTURED_PROPS,
+        graphqlFilter: '{"field":"Name","operator":"like","value":"[D3DEMO]%"}'
+      });
+      await flushPromises();
+
+      const queryStrings = gql.mock.results.map((r) => r.value);
+      expect(
+        queryStrings.some((q) =>
+          q.includes('where: { Name: { like: "[D3DEMO]%" } }')
+        )
+      ).toBe(true);
+      expect(element).toBeTruthy();
+    });
+
+    it("passes an object graphqlFilter through unchanged", async () => {
+      const element = makeElement({
+        ...STRUCTURED_PROPS,
+        graphqlFilter: { field: "Name", operator: "like", value: "[D3DEMO]%" }
+      });
+      await flushPromises();
+
+      const queryStrings = gql.mock.results.map((r) => r.value);
+      expect(
+        queryStrings.some((q) =>
+          q.includes('where: { Name: { like: "[D3DEMO]%" } }')
+        )
+      ).toBe(true);
+      expect(element).toBeTruthy();
+    });
+
+    it("surfaces an error and provisions no query for an unparseable JSON string", async () => {
+      const element = makeElement({
+        ...STRUCTURED_PROPS,
+        graphqlFilter: "{not json"
+      });
+      await flushPromises();
+
+      expect(
+        element.shadowRoot.querySelector(".slds-text-color_error")
+      ).not.toBeNull();
+      expect(gql).not.toHaveBeenCalled();
+    });
+
+    it("treats a blank-string graphqlFilter as no filter", async () => {
+      makeElement({
+        ...STRUCTURED_PROPS,
+        graphqlFilter: "  "
+      });
+      await flushPromises();
+
+      const queryStrings = gql.mock.results.map((r) => r.value);
+      expect(queryStrings.length).toBeGreaterThan(0);
+      expect(queryStrings.every((q) => !q.includes("where:"))).toBe(true);
+    });
+  });
 });
