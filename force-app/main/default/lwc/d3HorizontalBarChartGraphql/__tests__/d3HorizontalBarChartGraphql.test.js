@@ -4,6 +4,7 @@
 import { createElement } from "lwc";
 import D3HorizontalBarChartGraphql from "c/d3HorizontalBarChartGraphql";
 import { loadD3 } from "../d3Loader";
+import { graphql } from "lightning/graphql";
 
 // Mock the bundle-local D3 loader
 jest.mock("../d3Loader", () => ({
@@ -76,6 +77,34 @@ const SAMPLE_DATA = [
 ];
 
 const SINGLE_RECORD = [{ StageName: "Prospecting", Amount: 100 }];
+
+// UI API grouped-aggregate envelope, as the lightning/graphql wire delivers it.
+const WIRE_RESPONSE = {
+  uiapi: {
+    aggregate: {
+      Opportunity: {
+        edges: [
+          {
+            node: {
+              aggregate: {
+                StageName: { value: "Prospecting" },
+                Amount: { sum: { value: 1000 } }
+              }
+            }
+          },
+          {
+            node: {
+              aggregate: {
+                StageName: { value: "Closed Won" },
+                Amount: { sum: { value: 5000 } }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+};
 
 const NEGATIVE_DATA = [
   { StageName: "Loss", Amount: -100 },
@@ -746,6 +775,69 @@ describe("c-d3-horizontal-bar-chart-graphql", () => {
 
       // A single unified observer drives both the first render and re-renders.
       expect(global.ResizeObserver).toHaveBeenCalledTimes(1);
+    });
+
+    it("rebinds the tooltip and observer when an error destroys and recreates the container", async () => {
+      // data → error → data walks the template's if/elseif chain through the
+      // error branch, which destroys .chart-container and builds a fresh one on
+      // recovery. Existence-only guards would strand the tooltip in the detached
+      // old node and leave the observer watching a dead element.
+      const roCallbacks = [];
+      global.ResizeObserver = jest.fn().mockImplementation((cb) => {
+        roCallbacks.push(cb);
+        return {
+          observe: jest.fn(),
+          unobserve: jest.fn(),
+          disconnect: jest.fn()
+        };
+      });
+
+      element = createElement("c-d3-horizontal-bar-chart-graphql", {
+        is: D3HorizontalBarChartGraphql
+      });
+      Object.assign(element, {
+        objectApiName: "Opportunity",
+        groupByField: "StageName",
+        valueField: "Amount",
+        operation: "Sum"
+      });
+      document.body.appendChild(element);
+      await flushPromises();
+
+      graphql.emit(WIRE_RESPONSE);
+      await flushPromises();
+      const firstContainer =
+        element.shadowRoot.querySelector(".chart-container");
+      expect(firstContainer).toBeTruthy();
+
+      graphql.emitErrors([{ message: "wire boom" }]);
+      await flushPromises();
+      expect(element.shadowRoot.querySelector(".chart-container")).toBeFalsy();
+
+      graphql.emit(WIRE_RESPONSE);
+      await flushPromises();
+
+      const secondContainer =
+        element.shadowRoot.querySelector(".chart-container");
+      expect(secondContainer).toBeTruthy();
+      expect(secondContainer).not.toBe(firstContainer);
+
+      // The tooltip must live in the container that is actually on screen.
+      expect(secondContainer.querySelector(".slds-popover")).toBeTruthy();
+      // One observer per container generation, rebound to the live container.
+      expect(global.ResizeObserver).toHaveBeenCalledTimes(2);
+
+      // The newly captured callback must drive a render, not watch a dead node.
+      mockD3.scaleBand.mockClear();
+      jest.useFakeTimers();
+      roCallbacks[roCallbacks.length - 1]([
+        { contentRect: { width: 500, height: 300 } }
+      ]);
+      jest.advanceTimersByTime(250);
+      jest.useRealTimers();
+      await flushPromises();
+
+      expect(mockD3.scaleBand).toHaveBeenCalled();
     });
   });
 
