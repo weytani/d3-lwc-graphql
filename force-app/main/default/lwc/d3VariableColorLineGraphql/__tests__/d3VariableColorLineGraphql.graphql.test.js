@@ -358,4 +358,65 @@ describe("d3VariableColorLineGraphql GraphQL path", () => {
     ).toBeNull();
     expect(gql).not.toHaveBeenCalled();
   });
+
+  describe("graphqlFilter JSON-string parsing", () => {
+    const STRUCTURED_PROPS = {
+      objectApiName: "Opportunity",
+      dateField: "CloseDate",
+      valueField: "Amount"
+    };
+
+    it("parses a JSON-string graphqlFilter into the structured where clause", async () => {
+      const element = createElement("c-d3-variable-color-line-graphql", {
+        is: D3VariableColorLineGraphql
+      });
+      Object.assign(element, STRUCTURED_PROPS, {
+        graphqlFilter: '{"field":"Name","operator":"like","value":"[D3DEMO]%"}'
+      });
+      document.body.appendChild(element);
+      await flushPromises();
+      const { query } = graphql.getLastConfig();
+      expect(query).toContain('where: { Name: { like: "[D3DEMO]%" } }');
+    });
+
+    it("passes an object graphqlFilter through unchanged", async () => {
+      const element = createElement("c-d3-variable-color-line-graphql", {
+        is: D3VariableColorLineGraphql
+      });
+      Object.assign(element, STRUCTURED_PROPS, {
+        graphqlFilter: { field: "Name", operator: "like", value: "[D3DEMO]%" }
+      });
+      document.body.appendChild(element);
+      await flushPromises();
+      const { query } = graphql.getLastConfig();
+      expect(query).toContain('where: { Name: { like: "[D3DEMO]%" } }');
+    });
+
+    it("surfaces an error and provisions no query for an unparseable JSON string", async () => {
+      const element = createElement("c-d3-variable-color-line-graphql", {
+        is: D3VariableColorLineGraphql
+      });
+      Object.assign(element, STRUCTURED_PROPS, { graphqlFilter: "{not json" });
+      document.body.appendChild(element);
+      await flushPromises();
+      // Mirror the DOM assertion used by the existing tests in this file that
+      // check the error state — reuse the same error-element selector here.
+      expect(
+        element.shadowRoot.querySelector(".slds-text-color_error")
+      ).not.toBeNull();
+      expect(graphql.getLastConfig().query).toBeUndefined();
+    });
+
+    it("treats a blank-string graphqlFilter as no filter", async () => {
+      const element = createElement("c-d3-variable-color-line-graphql", {
+        is: D3VariableColorLineGraphql
+      });
+      Object.assign(element, STRUCTURED_PROPS, { graphqlFilter: "  " });
+      document.body.appendChild(element);
+      await flushPromises();
+      const { query } = graphql.getLastConfig();
+      expect(query).toBeDefined();
+      expect(query).not.toContain("where:");
+    });
+  });
 });
