@@ -508,4 +508,76 @@ describe("d3DifferenceChartGraphql GraphQL path", () => {
       structuredRows.map((r) => [r.primary, r.secondary])
     );
   });
+
+  describe("graphqlFilter JSON-string parsing", () => {
+    const STRUCTURED_PROPS = {
+      objectApiName: "Opportunity",
+      dateField: "CloseDate",
+      primaryField: "Amount",
+      secondaryField: "ExpectedRevenue"
+    };
+
+    it("parses a JSON-string graphqlFilter into the structured where clause", async () => {
+      const element = createElement("c-d3-difference-chart-graphql", {
+        is: D3DifferenceChartGraphql
+      });
+      Object.assign(element, STRUCTURED_PROPS, {
+        graphqlFilter: '{"field":"Name","operator":"like","value":"[D3DEMO]%"}'
+      });
+      document.body.appendChild(element);
+      await flushPromises();
+
+      const queryStrings = gql.mock.results.map((r) => r.value);
+      expect(
+        queryStrings.some((q) =>
+          q.includes('where: { Name: { like: "[D3DEMO]%" } }')
+        )
+      ).toBe(true);
+    });
+
+    it("passes an object graphqlFilter through unchanged", async () => {
+      const element = createElement("c-d3-difference-chart-graphql", {
+        is: D3DifferenceChartGraphql
+      });
+      Object.assign(element, STRUCTURED_PROPS, {
+        graphqlFilter: { field: "Name", operator: "like", value: "[D3DEMO]%" }
+      });
+      document.body.appendChild(element);
+      await flushPromises();
+
+      const queryStrings = gql.mock.results.map((r) => r.value);
+      expect(
+        queryStrings.some((q) =>
+          q.includes('where: { Name: { like: "[D3DEMO]%" } }')
+        )
+      ).toBe(true);
+    });
+
+    it("surfaces an error and provisions no query for an unparseable JSON string", async () => {
+      const element = createElement("c-d3-difference-chart-graphql", {
+        is: D3DifferenceChartGraphql
+      });
+      Object.assign(element, STRUCTURED_PROPS, { graphqlFilter: "{not json" });
+      document.body.appendChild(element);
+      await flushPromises();
+
+      expect(
+        element.shadowRoot.querySelector(".slds-text-color_error")
+      ).not.toBeNull();
+      expect(gql).not.toHaveBeenCalled();
+    });
+
+    it("treats a blank-string graphqlFilter as no filter", async () => {
+      const element = createElement("c-d3-difference-chart-graphql", {
+        is: D3DifferenceChartGraphql
+      });
+      Object.assign(element, STRUCTURED_PROPS, { graphqlFilter: "  " });
+      document.body.appendChild(element);
+      await flushPromises();
+
+      const queryStrings = gql.mock.results.map((r) => r.value);
+      expect(queryStrings.length).toBeGreaterThan(0);
+      expect(queryStrings.every((q) => !q.includes("where:"))).toBe(true);
+    });
+  });
 });
