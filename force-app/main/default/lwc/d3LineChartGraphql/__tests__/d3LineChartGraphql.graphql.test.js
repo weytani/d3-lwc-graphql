@@ -364,4 +364,66 @@ describe("d3LineChartGraphql GraphQL self-fetch path", () => {
       expect(queryStrings.some((q) => q.includes(FREE_TEXT_QUERY))).toBe(false);
     });
   });
+
+  describe("graphqlFilter JSON-string parsing", () => {
+    const STRUCTURED_PROPS = {
+      objectApiName: "Opportunity",
+      dateField: "CloseDate",
+      valueField: "Amount"
+    };
+
+    it("parses a JSON-string graphqlFilter into the structured where clause", async () => {
+      const element = createElement("c-d3-line-chart-graphql", {
+        is: D3LineChartGraphql
+      });
+      Object.assign(element, STRUCTURED_PROPS, {
+        graphqlFilter: '{"field":"Name","operator":"like","value":"[D3DEMO]%"}'
+      });
+      document.body.appendChild(element);
+      await flushPromises();
+      const { query } = graphql.getLastConfig();
+      expect(query).toContain('where: { Name: { like: "[D3DEMO]%" } }');
+    });
+
+    it("passes an object graphqlFilter through unchanged", async () => {
+      const element = createElement("c-d3-line-chart-graphql", {
+        is: D3LineChartGraphql
+      });
+      Object.assign(element, STRUCTURED_PROPS, {
+        graphqlFilter: { field: "Name", operator: "like", value: "[D3DEMO]%" }
+      });
+      document.body.appendChild(element);
+      await flushPromises();
+      const { query } = graphql.getLastConfig();
+      expect(query).toContain('where: { Name: { like: "[D3DEMO]%" } }');
+    });
+
+    it("surfaces an error and provisions no query for an unparseable JSON string", async () => {
+      const element = createElement("c-d3-line-chart-graphql", {
+        is: D3LineChartGraphql
+      });
+      Object.assign(element, STRUCTURED_PROPS, { graphqlFilter: "{not json" });
+      document.body.appendChild(element);
+      await flushPromises();
+      // Mirror the DOM assertion used by the existing test
+      // "shows an error when the GraphQL wire emits errors" in this file —
+      // reuse its exact error-element selector here.
+      expect(
+        element.shadowRoot.querySelector(".slds-text-color_error")
+      ).not.toBeNull();
+      expect(graphql.getLastConfig().query).toBeUndefined();
+    });
+
+    it("treats a blank-string graphqlFilter as no filter", async () => {
+      const element = createElement("c-d3-line-chart-graphql", {
+        is: D3LineChartGraphql
+      });
+      Object.assign(element, STRUCTURED_PROPS, { graphqlFilter: "  " });
+      document.body.appendChild(element);
+      await flushPromises();
+      const { query } = graphql.getLastConfig();
+      expect(query).toBeDefined();
+      expect(query).not.toContain("where:");
+    });
+  });
 });
