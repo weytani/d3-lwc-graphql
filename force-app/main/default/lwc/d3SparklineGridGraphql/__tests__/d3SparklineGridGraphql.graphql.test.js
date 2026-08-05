@@ -436,4 +436,55 @@ describe("d3SparklineGridGraphql GraphQL path", () => {
       )
     ).toBe(true);
   });
+
+  describe("graphqlFilter JSON-string parsing", () => {
+    const STRUCTURED_PROPS = {
+      objectApiName: "Opportunity",
+      entityField: "Type",
+      dateField: "CloseDate",
+      valueField: "Amount"
+    };
+
+    it("parses a JSON-string graphqlFilter into the structured where clause", async () => {
+      attach({
+        ...STRUCTURED_PROPS,
+        graphqlFilter: '{"field":"Name","operator":"like","value":"[D3DEMO]%"}'
+      });
+      await flushPromises();
+      const { query } = graphql.getLastConfig();
+      expect(query).toContain('where: { Name: { like: "[D3DEMO]%" } }');
+    });
+
+    it("passes an object graphqlFilter through unchanged", async () => {
+      attach({
+        ...STRUCTURED_PROPS,
+        graphqlFilter: { field: "Name", operator: "like", value: "[D3DEMO]%" }
+      });
+      await flushPromises();
+      const { query } = graphql.getLastConfig();
+      expect(query).toContain('where: { Name: { like: "[D3DEMO]%" } }');
+    });
+
+    it("surfaces an error and provisions no query for an unparseable JSON string", async () => {
+      const element = attach({
+        ...STRUCTURED_PROPS,
+        graphqlFilter: "{not json"
+      });
+      await flushPromises();
+      // Mirror the DOM assertion used by the existing tests in this file that
+      // check the error state — reuse the same error-element selector here.
+      expect(
+        element.shadowRoot.querySelector(".slds-text-color_error")
+      ).not.toBeNull();
+      expect(graphql.getLastConfig().query).toBeUndefined();
+    });
+
+    it("treats a blank-string graphqlFilter as no filter", async () => {
+      attach({ ...STRUCTURED_PROPS, graphqlFilter: "  " });
+      await flushPromises();
+      const { query } = graphql.getLastConfig();
+      expect(query).toBeDefined();
+      expect(query).not.toContain("where:");
+    });
+  });
 });
