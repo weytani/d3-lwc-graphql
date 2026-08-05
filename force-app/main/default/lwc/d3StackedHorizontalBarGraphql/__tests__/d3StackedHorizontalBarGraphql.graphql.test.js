@@ -553,4 +553,44 @@ describe("d3StackedHorizontalBarGraphql GraphQL path", () => {
       expect(queryStrings.some((q) => q.includes("groupBy"))).toBe(true);
     });
   });
+
+  describe("graphqlFilter JSON-string parsing", () => {
+    it("parses a JSON-string graphqlFilter into the structured where clause", async () => {
+      appendConfigured({
+        graphqlFilter: '{"field":"Name","operator":"like","value":"[D3DEMO]%"}'
+      });
+      await flushPromises();
+      const { query } = graphql.getLastConfig();
+      expect(query).toContain('where: { Name: { like: "[D3DEMO]%" } }');
+    });
+
+    it("passes an object graphqlFilter through unchanged", async () => {
+      appendConfigured({
+        graphqlFilter: { field: "Name", operator: "like", value: "[D3DEMO]%" }
+      });
+      await flushPromises();
+      const { query } = graphql.getLastConfig();
+      expect(query).toContain('where: { Name: { like: "[D3DEMO]%" } }');
+    });
+
+    it("surfaces an error and provisions no query for an unparseable JSON string", async () => {
+      const element = appendConfigured({ graphqlFilter: "{not json" });
+      await flushPromises();
+      // Mirror the DOM assertion used by the existing test
+      // "shows an error when the GraphQL wire emits errors" in this file —
+      // reuse its exact error-element selector here.
+      expect(
+        element.shadowRoot.querySelector(".slds-text-color_error")
+      ).not.toBeNull();
+      expect(graphql.getLastConfig().query).toBeUndefined();
+    });
+
+    it("treats a blank-string graphqlFilter as no filter", async () => {
+      appendConfigured({ graphqlFilter: "  " });
+      await flushPromises();
+      const { query } = graphql.getLastConfig();
+      expect(query).toBeDefined();
+      expect(query).not.toContain("where:");
+    });
+  });
 });
