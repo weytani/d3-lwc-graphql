@@ -7,7 +7,7 @@
                 <componentInstanceProperties>
                     <name>graphqlQuery</name>
                     <value
-          >query BarByStage { uiapi { query { Opportunity(first: 2000) { edges { node { StageName { value } Amount { value } } } } } } }</value>
+          >query BarByStage { uiapi { query { Opportunity(first: 2000, where: { and: [{ Name: { like: "[D3DEMO]%" } }, { Amount: { ne: null } }, { StageName: { ne: null } }] }) { edges { node { StageName { value } Amount { value } } } } } } }</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>groupByField</name>
@@ -76,6 +76,11 @@
                     <name>advancedConfig</name>
                     <value>{}</value>
                 </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>graphqlFilter</name>
+                    <value
+          >{"field":"Name","operator":"like","value":"[D3DEMO]%"}</value>
+                </componentInstanceProperties>
                 <componentName>d3SortedBarChartGraphql</componentName>
                 <identifier>c_d3SortedBarChartGraphql</identifier>
             </componentInstance>
@@ -110,6 +115,11 @@
                 <componentInstanceProperties>
                     <name>advancedConfig</name>
                     <value>{}</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>graphqlFilter</name>
+                    <value
+          >{"field":"Name","operator":"like","value":"[D3DEMO]%"}</value>
                 </componentInstanceProperties>
                 <componentName>d3HorizontalBarChartGraphql</componentName>
                 <identifier>c_d3HorizontalBarChartGraphql</identifier>
@@ -150,6 +160,11 @@
                     <name>advancedConfig</name>
                     <value>{}</value>
                 </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>graphqlFilter</name>
+                    <value
+          >{"field":"Name","operator":"like","value":"[D3DEMO]%"}</value>
+                </componentInstanceProperties>
                 <componentName>d3StackedBarChartGraphql</componentName>
                 <identifier>c_d3StackedBarChartGraphql</identifier>
             </componentInstance>
@@ -188,6 +203,11 @@
                 <componentInstanceProperties>
                     <name>advancedConfig</name>
                     <value>{}</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>graphqlFilter</name>
+                    <value
+          >{"field":"Name","operator":"like","value":"[D3DEMO]%"}</value>
                 </componentInstanceProperties>
                 <componentName>d3StackedHorizontalBarGraphql</componentName>
                 <identifier>c_d3StackedHorizontalBarGraphql</identifier>
@@ -228,6 +248,11 @@
                     <name>advancedConfig</name>
                     <value>{}</value>
                 </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>graphqlFilter</name>
+                    <value
+          >{"field":"Name","operator":"like","value":"[D3DEMO]%"}</value>
+                </componentInstanceProperties>
                 <componentName>d3NormalizedBarGraphql</componentName>
                 <identifier>c_d3NormalizedBarGraphql</identifier>
             </componentInstance>
@@ -263,6 +288,11 @@
                     <name>advancedConfig</name>
                     <value>{}</value>
                 </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>graphqlFilter</name>
+                    <value
+          >{"field":"Name","operator":"like","value":"[D3DEMO]%"}</value>
+                </componentInstanceProperties>
                 <componentName>d3LineChartGraphql</componentName>
                 <identifier>c_d3LineChartGraphql</identifier>
             </componentInstance>
@@ -297,6 +327,11 @@
                 <componentInstanceProperties>
                     <name>advancedConfig</name>
                     <value>{}</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>graphqlFilter</name>
+                    <value
+          >{"field":"Name","operator":"like","value":"[D3DEMO]%"}</value>
                 </componentInstanceProperties>
                 <componentName>d3AreaChartGraphql</componentName>
                 <identifier>c_d3AreaChartGraphql</identifier>

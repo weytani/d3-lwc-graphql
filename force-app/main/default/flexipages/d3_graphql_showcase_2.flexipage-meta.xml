@@ -28,6 +28,11 @@
                     <name>advancedConfig</name>
                     <value>{}</value>
                 </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>graphqlFilter</name>
+                    <value
+          >{"field":"Name","operator":"like","value":"[D3DEMO]%"}</value>
+                </componentInstanceProperties>
                 <componentName>d3StepChartGraphql</componentName>
                 <identifier>c_d3StepChartGraphql</identifier>
             </componentInstance>
@@ -58,6 +63,11 @@
                 <componentInstanceProperties>
                     <name>advancedConfig</name>
                     <value>{"threshold": 50000}</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>graphqlFilter</name>
+                    <value
+          >{"field":"Name","operator":"like","value":"[D3DEMO]%"}</value>
                 </componentInstanceProperties>
                 <componentName>d3VariableColorLineGraphql</componentName>
                 <identifier>c_d3VariableColorLineGraphql</identifier>
@@ -98,6 +108,11 @@
                     <name>advancedConfig</name>
                     <value>{}</value>
                 </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>graphqlFilter</name>
+                    <value
+          >{"field":"Name","operator":"like","value":"[D3DEMO]%"}</value>
+                </componentInstanceProperties>
                 <componentName>d3SparklineGridGraphql</componentName>
                 <identifier>c_d3SparklineGridGraphql</identifier>
             </componentInstance>
@@ -132,6 +147,11 @@
                 <componentInstanceProperties>
                     <name>advancedConfig</name>
                     <value>{}</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>graphqlFilter</name>
+                    <value
+          >{"field":"Name","operator":"like","value":"[D3DEMO]%"}</value>
                 </componentInstanceProperties>
                 <componentName>d3PieChartGraphql</componentName>
                 <identifier>c_d3PieChartGraphql</identifier>
@@ -172,6 +192,11 @@
                     <name>advancedConfig</name>
                     <value>{}</value>
                 </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>graphqlFilter</name>
+                    <value
+          >{"field":"Name","operator":"like","value":"[D3DEMO]%"}</value>
+                </componentInstanceProperties>
                 <componentName>d3DonutChartGraphql</componentName>
                 <identifier>c_d3DonutChartGraphql</identifier>
             </componentInstance>
@@ -206,6 +231,11 @@
                 <componentInstanceProperties>
                     <name>advancedConfig</name>
                     <value>{}</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>graphqlFilter</name>
+                    <value
+          >{"field":"Name","operator":"like","value":"[D3DEMO]%"}</value>
                 </componentInstanceProperties>
                 <componentName>d3LollipopChartGraphql</componentName>
                 <identifier>c_d3LollipopChartGraphql</identifier>
@@ -242,6 +272,11 @@
                     <name>advancedConfig</name>
                     <value>{}</value>
                 </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>graphqlFilter</name>
+                    <value
+          >{"field":"Name","operator":"like","value":"[D3DEMO]%"}</value>
+                </componentInstanceProperties>
                 <componentName>d3FunnelChartGraphql</componentName>
                 <identifier>c_d3FunnelChartGraphql</identifier>
             </componentInstance>
@@ -276,6 +311,11 @@
                 <componentInstanceProperties>
                     <name>advancedConfig</name>
                     <value>{}</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>graphqlFilter</name>
+                    <value
+          >{"field":"Name","operator":"like","value":"[D3DEMO]%"}</value>
                 </componentInstanceProperties>
                 <componentName>d3WaffleChartGraphql</componentName>
                 <identifier>c_d3WaffleChartGraphql</identifier>
