@@ -455,4 +455,65 @@ describe("d3AreaChartGraphql GraphQL path", () => {
     // Stacked mode routes through d3.stack(); overlapping mode never calls it.
     expect(d3Calls.some((c) => c[0] === "stack")).toBe(true);
   });
+
+  describe("graphqlFilter JSON-string parsing", () => {
+    const STRUCTURED_PROPS = {
+      objectApiName: "Opportunity",
+      dateField: "CloseDate",
+      valueField: "Amount"
+    };
+
+    it("parses a JSON-string graphqlFilter into the structured where clause", async () => {
+      const element = createElement("c-d3-area-chart-graphql", {
+        is: D3AreaChartGraphql
+      });
+      Object.assign(element, STRUCTURED_PROPS, {
+        graphqlFilter: '{"field":"Name","operator":"like","value":"[D3DEMO]%"}'
+      });
+      document.body.appendChild(element);
+      await flushPromises();
+      const { query } = graphql.getLastConfig();
+      expect(query).toContain('where: { Name: { like: "[D3DEMO]%" } }');
+    });
+
+    it("passes an object graphqlFilter through unchanged", async () => {
+      const element = createElement("c-d3-area-chart-graphql", {
+        is: D3AreaChartGraphql
+      });
+      Object.assign(element, STRUCTURED_PROPS, {
+        graphqlFilter: { field: "Name", operator: "like", value: "[D3DEMO]%" }
+      });
+      document.body.appendChild(element);
+      await flushPromises();
+      const { query } = graphql.getLastConfig();
+      expect(query).toContain('where: { Name: { like: "[D3DEMO]%" } }');
+    });
+
+    it("surfaces an error and provisions no query for an unparseable JSON string", async () => {
+      const element = createElement("c-d3-area-chart-graphql", {
+        is: D3AreaChartGraphql
+      });
+      Object.assign(element, STRUCTURED_PROPS, { graphqlFilter: "{not json" });
+      document.body.appendChild(element);
+      await flushPromises();
+      // Mirror the DOM assertion used by the existing tests in this file that
+      // check the error state — reuse the same error-element selector here.
+      expect(
+        element.shadowRoot.querySelector(".slds-text-color_error")
+      ).not.toBeNull();
+      expect(graphql.getLastConfig().query).toBeUndefined();
+    });
+
+    it("treats a blank-string graphqlFilter as no filter", async () => {
+      const element = createElement("c-d3-area-chart-graphql", {
+        is: D3AreaChartGraphql
+      });
+      Object.assign(element, STRUCTURED_PROPS, { graphqlFilter: "  " });
+      document.body.appendChild(element);
+      await flushPromises();
+      const { query } = graphql.getLastConfig();
+      expect(query).toBeDefined();
+      expect(query).not.toContain("where:");
+    });
+  });
 });
