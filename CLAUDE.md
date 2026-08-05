@@ -56,9 +56,10 @@ the chart's own folder), not imported from a shared module. Copy the bundle fold
 
 `@api` surface on a converted chart: `recordCollection` (still wins over any self-fetch),
 field mappings, `objectApiName` for the structured self-fetch, `graphqlQuery` (free-text
-`uiapi.query` override — the replacement for the old raw-SOQL escape hatch), `height`,
-`theme`, `advancedConfig`. No `soqlQuery`, no `fetchMode` — those only exist on the 19
-charts not yet converted.
+`uiapi.query` override — the replacement for the old raw-SOQL escape hatch), `graphqlFilter`
+(structured single-condition filter; object or JSON string, declared in the App Builder
+targetConfig), `height`, `theme`, `advancedConfig`. No `soqlQuery`, no `fetchMode` — those
+only exist on the 19 charts not yet converted.
 
 ## Never-deploy list
 
@@ -140,8 +141,10 @@ Pre-commit hook (husky + lint-staged) auto-runs Prettier, ESLint, and related Je
 
 **Showcase-page scoping convention.** Page 3 instances scope themselves to the `[D3DEMO]`
 seeded rows with a free-text `graphqlQuery` whose `where` carries `Name: { like: "[D3DEMO]%" }`,
-so a baseline can't drift when unrelated Opportunity data lands on the org. Pages 1–2 predate
-the convention and are unscoped — a known item to fix when their instances are next touched.
+so a baseline can't drift when unrelated Opportunity data lands on the org. Pages 1–2 scope
+their structured instances with the declared `graphqlFilter` property
+(`{"field":"Name","operator":"like","value":"[D3DEMO]%"}`) as of v1.6.0; page 1's bar instance
+is free-text and carries the where clause inline.
 
 ## 21/40 status + roadmap
 
@@ -151,9 +154,8 @@ funnel, waffle (v1.0.0) + divergingBar, dotPlot, slope, band, difference (wave 4
 release each: v1.1.0–v1.5.0) — every one renamed to its `*Graphql` suffix, all three-plus jest
 tiers, live-verified on AGENT via the Playwright sweep.
 
-The five wave-4 bundles each carry the recipe §4.3 container-rebind hardening (tooltip +
-resize observer re-acquired after an error→recovery re-render) that the 16 v1.0.0 bundles
-lack; backporting it to those 16 is tracked as issue #2.
+All 21 converted bundles carry the recipe §4.3 container-rebind hardening; the 16 v1.0.0
+bundles received it in v1.6.0 (issue #2, closed).
 
 **Not yet converted (19):** everything else in `force-app/main/default/lwc/` without the
 suffix — still on the shared-module Apex/SOQL architecture pending its wave.

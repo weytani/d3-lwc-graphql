@@ -478,8 +478,8 @@ no error). Two silent failure modes cause it:
   after an error→recovery cycle — silently dead tooltips, dead resize
   responsiveness, and a recovery container that boots unmeasurable never renders
   (the §4.3 empty shell on the recovery path). Found by three independent wave-4
-  reviewers; the 16 v1.0.0 bundles ship the old existence-guard and carry this
-  defect (hardening backlog). Track `this._observedContainer`; when the
+  reviewers (backported to all 16 v1.0.0 bundles in v1.6.0 — every converted
+  bundle now carries the rebind guard). Track `this._observedContainer`; when the
   container changes, `cleanup()` (which disconnects the observer and nulls both
   refs) then re-create both against the new container. Keep the immediate
   `getBoundingClientRect` draw only as a warm-path fast path.
@@ -584,17 +584,31 @@ often. Every converted chart needs the fix in its inlined `utils.js`.
 - Keep `apiVersion` at **65.0** (floor for dynamic `gql` string interpolation).
 - **Set `recordLimit`'s meta `max` to `2000`.** The UI API record query caps
   `first:` at 2,000; the legacy meta's `max="10000"` advertises a ceiling the
-  only remaining fetch path rejects (wave-4 finding — the wave-1/2 bundles still
-  carry `max="10000"`; hardening backlog).
+  only remaining fetch path rejects (fixed across all 21 bundles in v1.6.0).
 - **`recordLimit` governs the structured path only — the meta must say so.**
   The structured builder passes `first: this.recordLimit || 2000` and the
   recordCollection path truncates via `prepareData`, but the free-text
   `graphqlQuery` path performs NO truncation — the pasted document's own
   `first:` clause is the only bound there (wave-4 finding, confirmed on all
   five bundles). The legacy description "Maximum records to process"
-  over-promises; use wording like: "Maximum records to fetch on the structured
-  self-fetch path. A free-text GraphQL Query is bounded only by its own
-  `first:` clause."
+  over-promises; the canonical description (v1.6.0, shipped on all 21
+  bundles) is: "Maximum records to fetch on the structured self-fetch path. A
+  free-text GraphQL Query is bounded only by its own `first:` clause. Leave
+  empty for default (2000)."
+- **Declare `graphqlFilter` in the App Builder targetConfig (NOT
+  FlowScreen — records come from the flow there).** The component must
+  accept both the object form and the App Builder JSON string — see §5.2.
+
+```xml
+<!-- GraphQL Filter -->
+<property
+  name="graphqlFilter"
+  type="String"
+  label="GraphQL Filter (JSON)"
+  description='Optional filter for the structured self-fetch, as JSON: {"field":"Name","operator":"like","value":"[D3DEMO]%"}. Operators: eq, ne, gt, gte, lt, lte, like, in. Ignored when records are passed in or a GraphQL Query override is set.'
+/>
+```
+
 - Update `<description>` only if it names SOQL/Apex (bar's did not).
 
 ### 5.1 Flow screen target (F1 — every converted chart, uniformly)
@@ -649,6 +663,113 @@ the chart parses it). Omit the self-fetch knobs (`graphqlQuery`, `objectApiName`
 and the drill-down/limit knobs unless a chart already treats them as
 flow-relevant. jest does not parse the meta, so the Flow config is not covered by
 the suite — verify it at deploy time in the release step.
+
+### 5.2 `graphqlFilter` accessor
+
+Every converted bundle's structured self-fetch path takes an optional
+single-condition filter, `{ field, operator, value }`, fed to the inlined
+`buildWhere`. In App Builder the property is always a JSON **string**; a
+parent/Flow component that sets it programmatically may pass the object
+directly. Both forms — plus a blank string meaning "no filter" — must go
+through one accessor pair, never a plain `@api` field:
+
+```js
+/**
+ * Structured filter for the GraphQL path: { field, operator, value }.
+ * Accepts the object directly (programmatic use) or a JSON string (the
+ * App Builder property). An unparseable string surfaces the component
+ * error state and provisions no query, rather than silently querying
+ * unfiltered.
+ */
+@api
+get graphqlFilter() {
+  return this._graphqlFilter;
+}
+set graphqlFilter(value) {
+  this._graphqlFilterInvalid = false;
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      this._graphqlFilter = undefined;
+      return;
+    }
+    try {
+      this._graphqlFilter = JSON.parse(trimmed);
+    } catch {
+      this._graphqlFilter = undefined;
+      this._graphqlFilterInvalid = true;
+      this.error =
+        'Invalid GraphQL Filter: must be JSON like {"field":"Name","operator":"like","value":"[D3DEMO]%"}';
+      this.isLoading = false;
+    }
+  } else {
+    this._graphqlFilter = value;
+  }
+}
+```
+
+Backing fields go beside `_config` — in **PRIVATE PROPERTIES**, not TRACKED
+STATE. Every bundle's `_config = {}` already sets this precedent; put the
+filter's backing fields in the same section:
+
+```js
+_graphqlFilter;
+_graphqlFilterInvalid = false;
+```
+
+**`gqlQuery` guard placement.** In the `gqlQuery` getter, insert the guard
+**after the free-text branch, before the structured requirement checks**:
+
+```js
+// An unparseable GraphQL Filter must not fall back to an unfiltered query.
+if (this._graphqlFilterInvalid) {
+  return undefined;
+}
+```
+
+Why this placement: `recordCollection` and the free-text override both
+ignore the filter, and neither combination can carry a string filter —
+`recordCollection` is Flow-only where `graphqlFilter` is not declared,
+free-text explicitly overrides — so the guard protects exactly the
+structured path.
+
+**Meta note.** `graphqlFilter` is declared in the App Builder targetConfig
+only (§5) — never in the `lightning__FlowScreen` targetConfig, since Flow
+passes `recordCollection` in and never touches the self-fetch filter. A
+FlowScreen targetConfig that separately exposes `recordLimit` for its own
+recordCollection-capping path (band, difference carry one) keeps that
+property's generic "Maximum records to process. Leave empty for default."
+wording — the structured-path-only `recordLimit` wording in §5 applies to
+the App Builder targetConfig only, not this one.
+
+**4-test contract** (`.graphql.test.js`, inside
+`describe("graphqlFilter JSON-string parsing", ...)`):
+
+1. A JSON-string `graphqlFilter` parses into the structured `where:` clause.
+2. An object `graphqlFilter` (not a string) passes through unchanged into the
+   same `where:` clause.
+3. An unparseable JSON string surfaces the component error state and
+   provisions no query (`graphql.getLastConfig().query`, or the last
+   `gql.mock.results` entry, is `undefined`).
+4. A blank/whitespace-only string is treated as no filter — the query is
+   still provisioned, and it carries no `where:` clause.
+
+Adapt the structured field-mapping props per chart (bar's
+`objectApiName`/`groupByField`/`valueField`/`operation`; slope's
+`startValueField`/`endValueField`; band's `lowerField`/`upperField`;
+difference's `primaryField`/`secondaryField`; and so on), but keep all four
+cases and the where-clause assertion
+(`where: { Name: { like: "[D3DEMO]%" } }`) uniform — `buildWhere` is
+identical across every bundle's local `graphql.js`.
+
+**Known trap — RED is 2 of 4, not 4 of 4.** Tests 2 and 4 above already pass
+against the old plain `@api graphqlFilter;` field, because `buildWhere`'s
+duck-typing (`if (!filter || !filter.field || !filter.operator) return ""`)
+already no-ops anything without a `.field` — a real object round-trips and a
+blank string has no `.field`. Only tests 1 and 3 (JSON-string parsing, error
+surfacing) exercise genuinely new behavior. Reproduced identically on all 6
+bundles carrying this accessor to date (bar + the wave-4 five) — don't read
+a 2-of-4 RED count as a broken test.
 
 ---
 
