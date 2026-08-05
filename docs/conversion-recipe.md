@@ -767,8 +767,8 @@ against the old plain `@api graphqlFilter;` field, because `buildWhere`'s
 duck-typing (`if (!filter || !filter.field || !filter.operator) return ""`)
 already no-ops anything without a `.field` — a real object round-trips and a
 blank string has no `.field`. Only tests 1 and 3 (JSON-string parsing, error
-surfacing) exercise genuinely new behavior. Reproduced identically on all 6
-bundles carrying this accessor to date (bar + the wave-4 five) — don't read
+surfacing) exercise genuinely new behavior. Reproduced identically on the
+first 6 bundles it was authored against (bar + the wave-4 five) — don't read
 a 2-of-4 RED count as a broken test.
 
 ---

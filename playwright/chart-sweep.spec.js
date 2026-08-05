@@ -38,7 +38,7 @@ for (const pageDef of manifest.pages) {
         // otherwise reds a healthy chart on a transient count of 0.
         await expect
           .poll(async () => host.locator("svg *").count(), {
-            timeout: 30000,
+            timeout: 60000,
             message: `${chart.name} svg descendants (floor ${chart.minSvgDescendants})`
           })
           .toBeGreaterThanOrEqual(chart.minSvgDescendants);

@@ -81,7 +81,7 @@ never `--source-dir force-app/main/default/lwc` wholesale.
 npm test                                        # Run all unit tests (jest, jsdom)
 # NOTE: --testPathPattern does NOT narrow in this jest config — it runs the FULL
 # suite regardless. There is no per-component narrowing flag; just run `npm test`
-# (142 suites / 3,543 tests, fast). lint-staged runs the relevant tests on commit.
+# (142 suites / 3,643 tests, fast). lint-staged runs the relevant tests on commit.
 # To watch just one bundle while iterating: npx jest force-app/main/default/lwc/<bundle>
 npm run test:unit:watch                         # Watch mode
 npm run test:unit:coverage                      # With coverage report
@@ -131,8 +131,9 @@ Pre-commit hook (husky + lint-staged) auto-runs Prettier, ESLint, and related Je
 2. **Playwright live-org sweep** (`npm run test:e2e:live`, local only, never CI — public repo,
    no org credentials in GitHub Actions) — walks all three `d3_graphql_showcase_*` pages on
    AGENT (21 charts, one committed baseline each), asserts real SVG marks rendered (floor
-   count, not exact, polled so a slow first paint after a fresh deploy can't red a healthy
-   chart), zero console errors, and a
+   count, not exact, polled (up to ~60s) so a slow first paint after a fresh deploy doesn't
+   red a healthy chart; a full-line redeploy can still take one pre-warm re-run), zero
+   console errors, and a
    pixel-diff against a committed baseline PNG per chart (`playwright/chart-sweep.spec.js-snapshots/`,
    `[D3DEMO]`-seeded synthetic Opportunity data only — never real records). Auth is a fresh
    `sf org open -o AGENT --url-only --json` frontdoor URL turned into a saved `storageState`
