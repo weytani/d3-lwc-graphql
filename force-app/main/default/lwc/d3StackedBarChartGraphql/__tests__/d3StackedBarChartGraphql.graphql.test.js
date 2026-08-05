@@ -720,6 +720,70 @@ describe("d3StackedBarChartGraphql GraphQL path", () => {
     });
   });
 
+  describe("graphqlFilter JSON-string parsing", () => {
+    const STRUCTURED_PROPS = {
+      objectApiName: "Opportunity",
+      groupByField: "StageName",
+      seriesField: "Type",
+      valueField: "Amount",
+      operation: "Sum"
+    };
+
+    it("parses a JSON-string graphqlFilter into the structured where clause", async () => {
+      const element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
+      });
+      Object.assign(element, STRUCTURED_PROPS, {
+        graphqlFilter: '{"field":"Name","operator":"like","value":"[D3DEMO]%"}'
+      });
+      document.body.appendChild(element);
+      await flushPromises();
+      const { query } = graphql.getLastConfig();
+      expect(query).toContain('where: { Name: { like: "[D3DEMO]%" } }');
+    });
+
+    it("passes an object graphqlFilter through unchanged", async () => {
+      const element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
+      });
+      Object.assign(element, STRUCTURED_PROPS, {
+        graphqlFilter: { field: "Name", operator: "like", value: "[D3DEMO]%" }
+      });
+      document.body.appendChild(element);
+      await flushPromises();
+      const { query } = graphql.getLastConfig();
+      expect(query).toContain('where: { Name: { like: "[D3DEMO]%" } }');
+    });
+
+    it("surfaces an error and provisions no query for an unparseable JSON string", async () => {
+      const element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
+      });
+      Object.assign(element, STRUCTURED_PROPS, { graphqlFilter: "{not json" });
+      document.body.appendChild(element);
+      await flushPromises();
+      // Mirror the DOM assertion used by the existing test
+      // "shows an error when the GraphQL wire emits errors" in this file —
+      // reuse its exact error-element selector here.
+      expect(
+        element.shadowRoot.querySelector(".slds-text-color_error")
+      ).not.toBeNull();
+      expect(graphql.getLastConfig().query).toBeUndefined();
+    });
+
+    it("treats a blank-string graphqlFilter as no filter", async () => {
+      const element = createElement("c-d3-stacked-bar-chart-graphql", {
+        is: D3StackedBarChartGraphql
+      });
+      Object.assign(element, STRUCTURED_PROPS, { graphqlFilter: "  " });
+      document.body.appendChild(element);
+      await flushPromises();
+      const { query } = graphql.getLastConfig();
+      expect(query).toBeDefined();
+      expect(query).not.toContain("where:");
+    });
+  });
+
   describe("free-text ⇄ structured stack-input equivalence", () => {
     it("free-text (un-summed rows) and structured (pre-summed) feed d3.stack identical keys and pivot rows", async () => {
       // Two D3 mocks so each path's stack-generator calls are captured
