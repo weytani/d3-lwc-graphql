@@ -70,8 +70,38 @@ export default class D3DonutChartGraphql extends NavigationMixin(
    */
   @api graphqlQuery = "";
 
-  /** Structured filter for the GraphQL path: { field, operator, value }. */
-  @api graphqlFilter;
+  /**
+   * Structured filter for the GraphQL path: { field, operator, value }.
+   * Accepts the object directly (programmatic use) or a JSON string (the
+   * App Builder property). An unparseable string surfaces the component
+   * error state and provisions no query, rather than silently querying
+   * unfiltered.
+   */
+  @api
+  get graphqlFilter() {
+    return this._graphqlFilter;
+  }
+  set graphqlFilter(value) {
+    this._graphqlFilterInvalid = false;
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      if (!trimmed) {
+        this._graphqlFilter = undefined;
+        return;
+      }
+      try {
+        this._graphqlFilter = JSON.parse(trimmed);
+      } catch {
+        this._graphqlFilter = undefined;
+        this._graphqlFilterInvalid = true;
+        this.error =
+          'Invalid GraphQL Filter: must be JSON like {"field":"Name","operator":"like","value":"[D3DEMO]%"}';
+        this.isLoading = false;
+      }
+    } else {
+      this._graphqlFilter = value;
+    }
+  }
 
   // ═══════════════════════════════════════════════════════════════
   // TRACKED STATE
@@ -90,9 +120,13 @@ export default class D3DonutChartGraphql extends NavigationMixin(
   svg = null;
   tooltip = null;
   resizeHandler = null;
+  /** The .chart-container generation the tooltip and observer are bound to. */
+  _observedContainer = null;
   chartRendered = false;
   _config = {};
   _configParsed = false;
+  _graphqlFilter;
+  _graphqlFilterInvalid = false;
 
   // ═══════════════════════════════════════════════════════════════
   // GETTERS
@@ -171,6 +205,10 @@ export default class D3DonutChartGraphql extends NavigationMixin(
       return gql`
         ${this.graphqlQuery}
       `;
+    }
+    // An unparseable GraphQL Filter must not fall back to an unfiltered query.
+    if (this._graphqlFilterInvalid) {
+      return undefined;
     }
     // Structured builder path.
     if (!this.objectApiName || !this.groupByField || !this.operation) {
@@ -304,7 +342,7 @@ export default class D3DonutChartGraphql extends NavigationMixin(
 
   renderedCallback() {
     if (this.showChart && !this.chartRendered) {
-      // initializeChart installs a lifetime ResizeObserver that draws the chart
+      // initializeChart installs a ResizeObserver that draws the chart
       // on the first measurable width and re-draws on resize — so it is safe to
       // mark initialization done even if the container is not measurable yet.
       this.chartRendered = this.initializeChart();
@@ -367,16 +405,24 @@ export default class D3DonutChartGraphql extends NavigationMixin(
   // ═══════════════════════════════════════════════════════════════
 
   /**
-   * Initializes the tooltip and a single lifetime ResizeObserver, then attempts
-   * an immediate render. The observer drives both the first render (whenever the
-   * container becomes measurable — there is no fixed give-up window) and every
-   * subsequent resize, so a container that is unmeasurable or narrower than the
-   * chart margins at boot still renders the moment it gains usable width.
+   * Initializes the tooltip and a single ResizeObserver per container
+   * generation, then attempts an immediate render. The observer drives both the
+   * first render (whenever the container becomes measurable — there is no fixed
+   * give-up window) and every subsequent resize, so a container that is
+   * unmeasurable or narrower than the chart margins at boot still renders the
+   * moment it gains usable width.
    * @returns {boolean} true once the tooltip + observer are installed
    */
   initializeChart() {
     const container = this.template.querySelector(".chart-container");
     if (!container) return false;
+
+    if (this._observedContainer && this._observedContainer !== container) {
+      // The template destroyed the old container (loading/error/no-data pass):
+      // rebind, or the tooltip writes into a detached node and the observer
+      // watches a dead element.
+      this.cleanup();
+    }
 
     // Create the tooltip once.
     if (!this.tooltip) {
@@ -395,6 +441,8 @@ export default class D3DonutChartGraphql extends NavigationMixin(
       );
       this.resizeHandler.observe();
     }
+
+    this._observedContainer = container;
 
     // Render immediately when the container is already measured (the common,
     // warm-cache path); otherwise the observer renders once it has a width.
